@@ -1,127 +1,153 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Garage Sale — Catálogo</title>
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@theme {
-  --color-dark-bg: #0D0D0E;
-  --color-dark-card: #1A1A1C;
-  --color-dark-border: #2A2A2E;
-  --color-dark-hover: #252528;
-  --color-light-bg: #F5F5F7;
-  --color-light-card: #FFFFFF;
-  --color-light-border: #E5E5EA;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #A1A1A6;
-  --color-accent: #0A84FF;
-}
+/* ============================================================
+   🔧 SUPABASE CONFIGURATION - PASTE YOUR CREDENTIALS BELOW
+   ============================================================ */
+</style>
+<script>
+// ╔════════════════════════════════════════════════════════════════════╗
+// ║  🔐 SUPABASE CONFIGURATION - PASTE YOUR CREDENTIALS HERE          ║
+// ╠════════════════════════════════════════════════════════════════════╣
+// ║  1. Go to your Supabase project dashboard                         ║
+// ║  2. Click on "Settings" → "API"                                   ║
+// ║  3. Copy your Project URL and paste it below                      ║
+// ║  4. Copy your "anon public" key and paste it below                ║
+// ╚════════════════════════════════════════════════════════════════════╝
 
+const SUPABASE_URL = '';  // Example: 'https://xxxxx.supabase.co'
+const SUPABASE_KEY = '';  // Example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+// ════════════════════════════════════════════════════════════════════════
+</script>
+<style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; transition: background-color 0.3s, color 0.3s; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #3a3a3e; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #3a3a3e; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4a4e; }
 
-/* Dark mode defaults */
 body.dark-mode { background-color: #0D0D0E; color: #FFFFFF; }
 body.light-mode { background-color: #F5F5F7; color: #1D1D1F; }
 
-/* Cards */
 .card-dark { background: #1A1A1C; border: 1px solid #2A2A2E; }
 .card-light { background: #FFFFFF; border: 1px solid #E5E5EA; }
 
-/* Input styles */
-.input-dark { background: #1A1A1C; border: 1px solid #2A2A2E; color: #fff; border-radius: 12px; padding: 10px 16px; }
-.input-dark:focus { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.15); }
-.input-dark::placeholder { color: #555; }
-.input-light { background: #fff; border: 1px solid #E5E5EA; color: #1D1D1F; border-radius: 12px; padding: 10px 16px; }
-.input-light:focus { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.15); }
-.input-light::placeholder { color: #999; }
-select.input-dark, select.input-light { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.input-dark { background: #1A1A1C; border: 1px solid #2A2A2E; color: #fff; border-radius: 12px; }
+.input-dark:focus { border-color: #0A84FF; outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
+.input-dark::placeholder { color: #6B6B6F; }
+.input-light { background: #fff; border: 1px solid #E5E5EA; color: #1D1D1F; border-radius: 12px; }
+.input-light:focus { border-color: #0A84FF; outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
+.input-light::placeholder { color: #8E8E93; }
 
-/* Toggle switch */
-.toggle-track { width: 50px; height: 28px; border-radius: 14px; background: #3a3a3e; position: relative; cursor: pointer; transition: background 0.3s; }
+.toggle-track { width: 52px; height: 30px; border-radius: 15px; background: #3a3a3e; position: relative; cursor: pointer; transition: background 0.3s; }
 .toggle-track.active { background: #30D158; }
-.toggle-knob { width: 22px; height: 22px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.toggle-knob { width: 24px; height: 24px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .toggle-track.active .toggle-knob { transform: translateX(22px); }
 
-/* Sold stamp */
-.sold-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 2.5rem; font-weight: 900; color: #FF3B30; border: 4px solid #FF3B30; padding: 4px 24px; border-radius: 12px; text-transform: uppercase; opacity: 0.9; pointer-events: none; z-index: 10; letter-spacing: 4px; }
+.sold-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 2rem; font-weight: 900; color: #FF3B30; border: 4px solid #FF3B30; padding: 6px 20px; border-radius: 10px; text-transform: uppercase; letter-spacing: 3px; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); }
+.apartado-stamp { color: #FF9500; border-color: #FF9500; }
 
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.slide-up { animation: slideUp 0.5s ease-out; }
-@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.4s ease-out forwards; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.slide-up { animation: slideUp 0.4s ease-out forwards; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: spin 1s linear infinite; }
 
-/* Modal overlay */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 50; display: none; align-items: center; justify-content: center; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; }
 .modal-overlay.active { display: flex; }
 
-/* Product image hover */
-.product-card:hover .product-img { transform: scale(1.05); }
+.product-card:hover .product-img { transform: scale(1.03); }
 .product-img { transition: transform 0.4s ease; }
 
-/* Badge glassmorphism bar */
-.badge-bar { background: rgba(0,0,0,0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.badge-bar { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 
-/* Accordion */
-.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease; }
-.faq-answer.open { max-height: 500px; }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+.faq-answer.open { max-height: 500px; padding-bottom: 16px; }
 
-/* Table row hover */
 .table-row-dark:hover { background: #252528; }
 .table-row-light:hover { background: #F0F0F5; }
 
-/* Select */
-select option { background: #1A1A1C; color: #fff; }
+.btn-primary { transition: all 0.2s ease; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,132,255,0.3); }
+.btn-primary:active { transform: translateY(0); }
 
-/* Transition helper */
-.transition-all-300 { transition: all 0.3s ease; }
+.status-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.status-disponible { background: rgba(48,209,88,0.15); color: #30D158; }
+.status-apartado { background: rgba(255,149,0,0.15); color: #FF9500; }
+.status-vendido { background: rgba(255,59,48,0.15); color: #FF3B30; }
 
-/* Tab active indicator */
-.tab-active { border-bottom: 2px solid var(--color-accent); }
+select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px !important; }
 </style>
 </head>
 <body class="dark-mode">
 
-<!-- ========== APP CONTAINER ========== -->
-<div id="app">
+<!-- ========== LOADING OVERLAY ========== -->
+<div id="loadingOverlay" class="fixed inset-0 z-[200] flex items-center justify-center" style="background:#0D0D0E;">
+  <div class="text-center">
+    <i class="fas fa-circle-notch spinner text-4xl mb-4" style="color:#0A84FF;"></i>
+    <p class="text-lg font-medium opacity-60">Cargando catálogo...</p>
+  </div>
+</div>
 
-  <!-- ===== TOP ANNOUNCEMENT BANNER ===== -->
-  <div id="announcementBanner" class="w-full py-2.5 px-4 text-center text-sm font-semibold tracking-wide" style="display:none;">
+<!-- ========== SUPABASE ERROR SCREEN ========== -->
+<div id="supabaseError" class="fixed inset-0 z-[200] flex items-center justify-center p-6 hidden" style="background:#0D0D0E;">
+  <div class="max-w-lg w-full text-center">
+    <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style="background:rgba(255,59,48,0.15);">
+      <i class="fas fa-database text-3xl" style="color:#FF3B30;"></i>
+    </div>
+    <h1 class="text-2xl font-bold mb-3">Configuración Requerida</h1>
+    <p class="text-base opacity-60 mb-6 leading-relaxed">
+      No se encontraron las credenciales de Supabase. Por favor, abre el archivo <code class="px-2 py-1 rounded text-sm" style="background:#1A1A1C;">index.html</code> y configura las variables:
+    </p>
+    <div class="text-left rounded-xl p-4 mb-6" style="background:#1A1A1C; border:1px solid #2A2A2E;">
+      <code class="text-sm block mb-2" style="color:#FF9500;">const SUPABASE_URL = 'tu-url-aquí';</code>
+      <code class="text-sm block" style="color:#30D158;">const SUPABASE_KEY = 'tu-key-aquí';</code>
+    </div>
+    <p class="text-sm opacity-40">
+      <i class="fas fa-info-circle mr-1"></i> Encuentra estos valores en tu dashboard de Supabase → Settings → API
+    </p>
+  </div>
+</div>
+
+<!-- ========== APP CONTAINER ========== -->
+<div id="app" class="hidden">
+
+  <!-- ANNOUNCEMENT BANNER -->
+  <div id="announcementBanner" class="w-full py-2.5 px-4 text-center text-sm font-semibold tracking-wide hidden">
     <span id="bannerText">¡Todo se va este fin de semana!</span>
   </div>
 
-  <!-- ===== DARK/LIGHT MODE TOGGLE (FIXED) ===== -->
-  <button id="themeToggleBtn" onclick="toggleTheme()" class="fixed top-4 right-4 z-[999] w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-lg transition-all-300 hover:scale-110 cursor-pointer" title="Cambiar tema">
+  <!-- THEME TOGGLE BUTTON -->
+  <button id="themeToggleBtn" onclick="toggleTheme()" class="fixed top-4 right-4 z-[99] w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-lg transition-all cursor-pointer hover:scale-105" title="Cambiar tema">
     <i class="fas fa-moon" id="themeIcon"></i>
   </button>
 
   <!-- ================= CLIENT VIEW ================= -->
   <div id="clientView">
-
-    <!-- Header -->
-    <header class="pt-16 pb-8 px-4 text-center">
-      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2" id="storeName">🏷️ Garage Sale</h1>
-      <p class="text-lg opacity-60 font-light" id="storeSubtitle">Cosas con historia buscando nuevo hogar</p>
+    <header class="pt-20 pb-8 px-4 text-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">🏷️ Garage Sale</h1>
+      <p class="text-lg opacity-50 font-light">Cosas con historia buscando nuevo hogar</p>
     </header>
 
-    <!-- Search Bar (Secret Admin Access) -->
+    <!-- Search Bar -->
     <div class="max-w-2xl mx-auto px-4 mb-6">
       <div class="relative">
-        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-lg pointer-events-none"></i>
+        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 opacity-40 text-base pointer-events-none"></i>
         <input id="clientSearch" type="text" placeholder="Buscar artículos..." 
-          class="w-full pl-12 pr-5 py-3.5 rounded-2xl text-base transition-all-300 focus:scale-[1.01]"
+          class="w-full pl-14 pr-6 py-4 rounded-2xl text-base transition-all"
           oninput="handleClientSearch(this.value)" autocomplete="off">
       </div>
     </div>
@@ -129,8 +155,7 @@ select option { background: #1A1A1C; color: #fff; }
     <!-- Filters -->
     <div class="max-w-6xl mx-auto px-4 mb-8">
       <div class="flex flex-wrap items-center gap-3 justify-center">
-        <!-- Category filter -->
-        <select id="filterCategory" onchange="applyClientFilters()" class="px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all-300">
+        <select id="filterCategory" onchange="renderClientView()" class="px-4 py-2.5 rounded-xl text-sm font-medium">
           <option value="all">Todas las categorías</option>
           <option value="Electrónica">Electrónica</option>
           <option value="Muebles">Muebles</option>
@@ -141,25 +166,22 @@ select option { background: #1A1A1C; color: #fff; }
           <option value="Juguetes">Juguetes</option>
           <option value="Otro">Otro</option>
         </select>
-        <!-- Price filter -->
-        <select id="filterPrice" onchange="applyClientFilters()" class="px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all-300">
+        <select id="filterPrice" onchange="renderClientView()" class="px-4 py-2.5 rounded-xl text-sm font-medium">
           <option value="all">Cualquier precio</option>
           <option value="0-100">$0 - $100</option>
           <option value="100-500">$100 - $500</option>
           <option value="500-1000">$500 - $1,000</option>
           <option value="1000-5000">$1,000 - $5,000</option>
-          <option value="5000+">$5,000+</option>
+          <option value="5000+">Más de $5,000</option>
         </select>
-        <!-- Sort -->
-        <select id="filterSort" onchange="applyClientFilters()" class="px-4 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all-300">
+        <select id="filterSort" onchange="renderClientView()" class="px-4 py-2.5 rounded-xl text-sm font-medium">
           <option value="newest">Más recientes</option>
           <option value="price-asc">Precio: Menor a Mayor</option>
           <option value="price-desc">Precio: Mayor a Menor</option>
           <option value="name-asc">Nombre: A-Z</option>
         </select>
-        <!-- Hide sold toggle -->
-        <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-medium opacity-80">
-          <div id="hideSoldToggle" class="toggle-track" onclick="this.classList.toggle('active'); applyClientFilters();">
+        <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-medium opacity-70 hover:opacity-100 transition-opacity">
+          <div id="hideSoldToggle" class="toggle-track" onclick="this.classList.toggle('active'); renderClientView();">
             <div class="toggle-knob"></div>
           </div>
           Ocultar vendidos
@@ -169,75 +191,67 @@ select option { background: #1A1A1C; color: #fff; }
 
     <!-- Products Grid -->
     <div class="max-w-7xl mx-auto px-4 mb-12">
-      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Cards rendered by JS -->
-      </div>
+      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
       <div id="noProducts" class="text-center py-20 hidden">
-        <i class="fas fa-box-open text-5xl opacity-20 mb-4"></i>
-        <p class="text-xl font-semibold opacity-40">No se encontraron artículos</p>
+        <i class="fas fa-box-open text-6xl opacity-15 mb-4"></i>
+        <p class="text-xl font-semibold opacity-30">No se encontraron artículos</p>
       </div>
     </div>
 
-    <!-- Sold Items Section -->
+    <!-- Sold Section -->
     <div id="soldSection" class="max-w-7xl mx-auto px-4 mb-12 hidden">
-      <div class="border-t border-dashed pt-10 mb-6" style="border-color: #2A2A2E;">
+      <div class="border-t border-dashed pt-10 mb-6" id="soldDivider">
         <h2 class="text-2xl font-bold mb-1 flex items-center gap-3">
           <i class="fas fa-gem opacity-40"></i> Joyas Vendidas
         </h2>
         <p class="text-sm opacity-40 mb-6">Estos artículos ya encontraron un nuevo hogar ✨</p>
       </div>
-      <div id="soldGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      </div>
+      <div id="soldGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
     <!-- FAQ Section -->
-    <div id="faqSection" class="max-w-3xl mx-auto px-4 pb-16">
+    <div id="faqSection" class="max-w-3xl mx-auto px-4 pb-16 hidden">
       <h2 class="text-2xl font-bold mb-6 text-center">
         <i class="fas fa-circle-question opacity-40 mr-2"></i> Preguntas Frecuentes
       </h2>
-      <div id="faqContainer" class="space-y-3">
-        <!-- FAQ items rendered by JS -->
-      </div>
+      <div id="faqContainer" class="space-y-3"></div>
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-8 px-4 opacity-30 text-sm">
-      <p>Garage Sale &copy; 2025 — Hecho con ❤️</p>
+    <footer class="text-center py-8 px-4 opacity-25 text-sm">
+      <p>Garage Sale © 2025 — Hecho con ❤️</p>
     </footer>
-
   </div>
 
   <!-- ================= ADMIN VIEW ================= -->
   <div id="adminView" class="hidden">
-
-    <!-- Admin Header -->
     <header class="pt-6 pb-4 px-4 md:px-8 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold flex items-center gap-2">
-          <i class="fas fa-gauge-high opacity-60"></i> Panel de Administrador
+        <h1 class="text-2xl font-bold flex items-center gap-3">
+          <i class="fas fa-gauge-high opacity-50"></i> Panel de Administrador
         </h1>
         <p class="text-sm opacity-40 mt-1">Gestiona tu venta de garage</p>
       </div>
       <div class="flex items-center gap-3">
-        <button onclick="exportStorefront()" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all-300 hover:scale-105 cursor-pointer" id="exportBtn">
-          <i class="fas fa-download"></i> Exportar Catálogo
+        <button onclick="refreshData()" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all hover:scale-105 cursor-pointer" id="refreshBtn">
+          <i class="fas fa-arrows-rotate"></i> Actualizar
         </button>
-        <button onclick="switchToClient()" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all-300 hover:scale-105 cursor-pointer" id="backToClientBtn">
+        <button onclick="switchToClient()" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all hover:scale-105 cursor-pointer" id="backToClientBtn">
           <i class="fas fa-eye"></i> Ver Catálogo
         </button>
       </div>
     </header>
 
     <!-- Admin Tabs -->
-    <div class="px-4 md:px-8 mb-6 border-b" style="border-color: #2A2A2E;" id="adminTabsBar">
+    <div class="px-4 md:px-8 mb-6 border-b" id="adminTabsBar">
       <div class="flex gap-1 -mb-px">
-        <button onclick="switchAdminTab('dashboard')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all-300 cursor-pointer" data-tab="dashboard">
+        <button onclick="switchAdminTab('dashboard')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all cursor-pointer" data-tab="dashboard">
           <i class="fas fa-chart-pie mr-1.5"></i> Dashboard
         </button>
-        <button onclick="switchAdminTab('products')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all-300 cursor-pointer" data-tab="products">
+        <button onclick="switchAdminTab('products')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all cursor-pointer" data-tab="products">
           <i class="fas fa-boxes-stacked mr-1.5"></i> Productos
         </button>
-        <button onclick="switchAdminTab('settings')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all-300 cursor-pointer" data-tab="settings">
+        <button onclick="switchAdminTab('settings')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all cursor-pointer" data-tab="settings">
           <i class="fas fa-gear mr-1.5"></i> Configuración
         </button>
       </div>
@@ -245,60 +259,53 @@ select option { background: #1A1A1C; color: #fff; }
 
     <!-- DASHBOARD TAB -->
     <div id="tab-dashboard" class="admin-tab-content px-4 md:px-8 pb-12">
-      <!-- Metrics -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="rounded-2xl p-6 transition-all-300" id="metricRevenue">
+        <div class="rounded-2xl p-6" id="metricRevenue">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-medium opacity-50">Dinero Recaudado</span>
-            <i class="fas fa-coins text-xl opacity-30"></i>
+            <i class="fas fa-coins text-xl opacity-30" style="color:#FFD60A;"></i>
           </div>
           <p class="text-3xl font-extrabold" id="totalRevenue">$0</p>
         </div>
-        <div class="rounded-2xl p-6 transition-all-300" id="metricAvailable">
+        <div class="rounded-2xl p-6" id="metricAvailable">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-medium opacity-50">Disponibles</span>
-            <i class="fas fa-check-circle text-xl opacity-30" style="color:#30D158;"></i>
+            <i class="fas fa-check-circle text-xl" style="color:#30D158; opacity:0.5;"></i>
           </div>
           <p class="text-3xl font-extrabold" id="totalAvailable">0</p>
         </div>
-        <div class="rounded-2xl p-6 transition-all-300" id="metricSold">
+        <div class="rounded-2xl p-6" id="metricSold">
           <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-medium opacity-50">Vendidos</span>
-            <i class="fas fa-bag-shopping text-xl opacity-30" style="color:#FF3B30;"></i>
+            <i class="fas fa-bag-shopping text-xl" style="color:#FF3B30; opacity:0.5;"></i>
           </div>
           <p class="text-3xl font-extrabold" id="totalSold">0</p>
         </div>
       </div>
-
-      <!-- Quick chart placeholder -->
-      <div class="rounded-2xl p-6 mb-6" id="chartCard">
-        <h3 class="text-lg font-bold mb-4">Resumen de Inventario</h3>
-        <div id="inventoryChart" class="flex items-end gap-2 h-40">
-          <!-- Rendered by JS -->
-        </div>
+      <div class="rounded-2xl p-6" id="chartCard">
+        <h3 class="text-lg font-bold mb-4">Productos por Categoría</h3>
+        <div id="categoryChart" class="flex items-end gap-2 h-40"></div>
       </div>
     </div>
 
     <!-- PRODUCTS TAB -->
     <div id="tab-products" class="admin-tab-content px-4 md:px-8 pb-12 hidden">
-      <!-- Add product button + search -->
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <button onclick="openProductModal()" class="px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 text-white transition-all-300 hover:scale-105 cursor-pointer" id="addProductBtn">
+        <button onclick="openProductModal()" class="px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 text-white btn-primary cursor-pointer" id="addProductBtn">
           <i class="fas fa-plus"></i> Agregar Producto
         </button>
         <div class="relative">
-          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 opacity-40"></i>
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 opacity-40"></i>
           <input id="adminSearch" type="text" placeholder="Buscar en inventario..." 
-            class="pl-10 pr-4 py-2.5 rounded-xl text-sm w-64" oninput="renderAdminTable()" autocomplete="off">
+            class="pl-11 pr-5 py-2.5 rounded-xl text-sm w-64" oninput="renderAdminTable()" autocomplete="off">
         </div>
       </div>
 
-      <!-- Products Table -->
       <div class="rounded-2xl overflow-hidden" id="adminTableCard">
         <div class="overflow-x-auto">
-          <table class="w-full text-sm" id="adminTable">
-            <thead>
-              <tr class="text-left opacity-50" id="adminTableHead">
+          <table class="w-full text-sm">
+            <thead id="adminTableHead">
+              <tr class="text-left opacity-50">
                 <th class="px-4 py-3 font-semibold">Imagen</th>
                 <th class="px-4 py-3 font-semibold">Producto</th>
                 <th class="px-4 py-3 font-semibold">Categoría</th>
@@ -308,9 +315,7 @@ select option { background: #1A1A1C; color: #fff; }
                 <th class="px-4 py-3 font-semibold text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody id="adminTableBody">
-              <!-- Rows rendered by JS -->
-            </tbody>
+            <tbody id="adminTableBody"></tbody>
           </table>
         </div>
         <div id="noAdminProducts" class="text-center py-12 hidden">
@@ -323,22 +328,21 @@ select option { background: #1A1A1C; color: #fff; }
     <!-- SETTINGS TAB -->
     <div id="tab-settings" class="admin-tab-content px-4 md:px-8 pb-12 hidden">
       <div class="max-w-3xl mx-auto space-y-6">
-
-        <!-- Accent Color -->
+        <!-- Colors -->
         <div class="rounded-2xl p-6" id="settingsCard1">
           <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-palette opacity-50"></i> Colores</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium opacity-60 mb-2">Color de acento / botones</label>
+              <label class="block text-sm font-medium opacity-60 mb-2">Color de acento</label>
               <div class="flex items-center gap-3">
-                <input type="color" id="accentColorPicker" value="#0A84FF" onchange="updateAccentColor(this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-0 p-0">
+                <input type="color" id="accentColorPicker" value="#0A84FF" onchange="updateConfig('accent_color', this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-0">
                 <span id="accentColorLabel" class="text-sm font-mono opacity-50">#0A84FF</span>
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium opacity-60 mb-2">Color del banner superior</label>
+              <label class="block text-sm font-medium opacity-60 mb-2">Color del banner</label>
               <div class="flex items-center gap-3">
-                <input type="color" id="bannerColorPicker" value="#FF9500" onchange="updateBannerColor(this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-0 p-0">
+                <input type="color" id="bannerColorPicker" value="#FF9500" onchange="updateConfig('banner_color', this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-0">
                 <span id="bannerColorLabel" class="text-sm font-mono opacity-50">#FF9500</span>
               </div>
             </div>
@@ -350,11 +354,11 @@ select option { background: #1A1A1C; color: #fff; }
           <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-bullhorn opacity-50"></i> Banner de Anuncio</h3>
           <div class="flex items-center gap-4 mb-4">
             <label class="text-sm font-medium opacity-60">Activar banner:</label>
-            <div id="bannerToggle" class="toggle-track" onclick="toggleBannerSetting()">
+            <div id="bannerToggle" class="toggle-track" onclick="toggleBannerConfig()">
               <div class="toggle-knob"></div>
             </div>
           </div>
-          <input id="bannerTextInput" type="text" value="¡Todo se va este fin de semana!" placeholder="Texto del banner..." class="w-full px-4 py-3 rounded-xl text-sm" oninput="updateBannerText(this.value)">
+          <input id="bannerTextInput" type="text" placeholder="Texto del banner..." class="w-full px-4 py-3 rounded-xl text-sm" onchange="updateConfig('banner_text', this.value)">
         </div>
 
         <!-- Password -->
@@ -362,7 +366,7 @@ select option { background: #1A1A1C; color: #fff; }
           <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-lock opacity-50"></i> Contraseña de Acceso</h3>
           <div class="flex gap-3">
             <input id="passwordInput" type="password" placeholder="Nueva contraseña..." class="flex-1 px-4 py-3 rounded-xl text-sm">
-            <button onclick="changePassword()" class="px-5 py-3 rounded-xl text-sm font-bold text-white transition-all-300 hover:scale-105 cursor-pointer" id="savePassBtn">Guardar</button>
+            <button onclick="changePassword()" class="px-5 py-3 rounded-xl text-sm font-bold text-white cursor-pointer btn-primary" id="savePassBtn">Guardar</button>
           </div>
         </div>
 
@@ -371,17 +375,15 @@ select option { background: #1A1A1C; color: #fff; }
           <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fab fa-whatsapp opacity-50" style="color:#25D366;"></i> WhatsApp de Contacto</h3>
           <div class="flex gap-3">
             <input id="whatsappInput" type="text" placeholder="Número con código de país..." class="flex-1 px-4 py-3 rounded-xl text-sm">
-            <button onclick="saveWhatsApp()" class="px-5 py-3 rounded-xl text-sm font-bold text-white transition-all-300 hover:scale-105 cursor-pointer" id="saveWABtn">Guardar</button>
+            <button onclick="saveWhatsApp()" class="px-5 py-3 rounded-xl text-sm font-bold text-white cursor-pointer btn-primary" id="saveWABtn">Guardar</button>
           </div>
         </div>
 
-        <!-- FAQ Editor -->
+        <!-- FAQs -->
         <div class="rounded-2xl p-6" id="settingsCard5">
           <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-circle-question opacity-50"></i> Preguntas Frecuentes</h3>
-          <div id="faqEditor" class="space-y-3 mb-4">
-            <!-- FAQ edit items rendered by JS -->
-          </div>
-          <button onclick="addFAQ()" class="w-full py-3 rounded-xl text-sm font-bold border-2 border-dashed opacity-50 hover:opacity-100 transition-all-300 cursor-pointer" id="addFAQBtn">
+          <div id="faqEditor" class="space-y-3 mb-4"></div>
+          <button onclick="addFAQ()" class="w-full py-3 rounded-xl text-sm font-bold border-2 border-dashed opacity-50 hover:opacity-100 transition-all cursor-pointer" id="addFAQBtn">
             <i class="fas fa-plus mr-1"></i> Agregar Pregunta
           </button>
         </div>
@@ -395,21 +397,20 @@ select option { background: #1A1A1C; color: #fff; }
   <div class="w-full max-w-lg mx-4 rounded-3xl p-6 max-h-[90vh] overflow-y-auto slide-up" id="productModalCard">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold" id="modalTitle">Agregar Producto</h2>
-      <button onclick="closeProductModal()" class="w-10 h-10 rounded-xl flex items-center justify-center opacity-40 hover:opacity-100 transition-all-300 cursor-pointer">
+      <button onclick="closeProductModal()" class="w-10 h-10 rounded-xl flex items-center justify-center opacity-40 hover:opacity-100 transition-all cursor-pointer">
         <i class="fas fa-xmark text-xl"></i>
       </button>
     </div>
     <form id="productForm" onsubmit="saveProduct(event)" class="space-y-4">
       <input type="hidden" id="editProductId" value="">
-
-      <!-- Image Upload -->
+      
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Imagen del producto</label>
-        <div id="imageUploadArea" class="border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer hover:border-blue-400 transition-all-300" onclick="document.getElementById('imageInput').click()">
+        <div id="imageUploadArea" class="border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer hover:border-blue-400 transition-all" onclick="document.getElementById('imageInput').click()">
           <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
           <div id="imagePreviewContainer" class="hidden">
-            <img id="imagePreview" class="w-full max-h-48 object-contain rounded-xl mb-2" alt="preview">
-            <p class="text-xs opacity-40">Click para cambiar imagen</p>
+            <img id="imagePreview" class="w-full max-h-48 object-contain rounded-xl mb-2" alt="">
+            <p class="text-xs opacity-40">Click para cambiar</p>
           </div>
           <div id="imageUploadPlaceholder">
             <i class="fas fa-cloud-arrow-up text-3xl opacity-20 mb-2"></i>
@@ -418,22 +419,19 @@ select option { background: #1A1A1C; color: #fff; }
         </div>
       </div>
 
-      <!-- Name -->
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Nombre del artículo *</label>
         <input type="text" id="productName" required placeholder="Ej: MacBook Pro 2019" class="w-full px-4 py-3 rounded-xl text-sm">
       </div>
 
-      <!-- Description -->
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Descripción</label>
         <textarea id="productDesc" rows="3" placeholder="Describe el artículo..." class="w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea>
       </div>
 
-      <!-- Category -->
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Categoría</label>
-        <select id="productCategory" class="w-full px-4 py-3 rounded-xl text-sm cursor-pointer">
+        <select id="productCategory" class="w-full px-4 py-3 rounded-xl text-sm">
           <option value="Electrónica">Electrónica</option>
           <option value="Muebles">Muebles</option>
           <option value="Ropa">Ropa</option>
@@ -445,241 +443,443 @@ select option { background: #1A1A1C; color: #fff; }
         </select>
       </div>
 
-      <!-- Prices -->
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium opacity-60 mb-2">Precio Garage (MXN) *</label>
           <input type="number" id="productPrice" required min="0" step="1" placeholder="500" class="w-full px-4 py-3 rounded-xl text-sm">
         </div>
         <div>
-          <label class="block text-sm font-medium opacity-60 mb-2">Precio Original (MXN)</label>
+          <label class="block text-sm font-medium opacity-60 mb-2">Precio Original</label>
           <input type="number" id="productOriginalPrice" min="0" step="1" placeholder="1500" class="w-full px-4 py-3 rounded-xl text-sm">
         </div>
       </div>
 
-      <!-- Condition -->
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Estado de uso</label>
-        <select id="productCondition" class="w-full px-4 py-3 rounded-xl text-sm cursor-pointer">
+        <select id="productCondition" class="w-full px-4 py-3 rounded-xl text-sm">
           <option value="Como nuevo">Como nuevo</option>
           <option value="Poco uso">Poco uso</option>
           <option value="Detalle estético">Detalle estético</option>
         </select>
       </div>
 
-      <!-- Price type -->
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Tipo de precio</label>
         <div class="flex gap-3">
           <label class="flex-1 cursor-pointer">
             <input type="radio" name="priceType" value="Fijo" checked class="hidden peer">
-            <div class="peer-checked:ring-2 ring-blue-500 px-4 py-3 rounded-xl text-sm text-center font-medium border transition-all-300">
+            <div class="peer-checked:ring-2 ring-blue-500 px-4 py-3 rounded-xl text-sm text-center font-medium border transition-all">
               <i class="fas fa-lock mr-1"></i> Precio Fijo
             </div>
           </label>
           <label class="flex-1 cursor-pointer">
             <input type="radio" name="priceType" value="Negociable" class="hidden peer">
-            <div class="peer-checked:ring-2 ring-blue-500 px-4 py-3 rounded-xl text-sm text-center font-medium border transition-all-300">
+            <div class="peer-checked:ring-2 ring-blue-500 px-4 py-3 rounded-xl text-sm text-center font-medium border transition-all">
               <i class="fas fa-comments-dollar mr-1"></i> Negociable
             </div>
           </label>
         </div>
       </div>
 
-      <!-- Private Notes -->
       <div>
         <label class="block text-sm font-medium opacity-60 mb-2">Notas privadas <span class="text-xs">(solo admin)</span></label>
         <textarea id="productNotes" rows="2" placeholder="Ej: Guardado en la bodega..." class="w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea>
       </div>
 
-      <!-- Submit -->
-      <button type="submit" class="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all-300 hover:scale-[1.02] cursor-pointer" id="saveProductBtn">
+      <button type="submit" class="w-full py-3.5 rounded-xl text-sm font-bold text-white btn-primary cursor-pointer" id="saveProductBtn">
         <i class="fas fa-floppy-disk mr-2"></i> Guardar Producto
       </button>
     </form>
   </div>
 </div>
 
-<!-- ===== PRODUCT DETAIL MODAL ===== -->
+<!-- ===== DETAIL MODAL ===== -->
 <div id="detailModal" class="modal-overlay" onclick="if(event.target===this)closeDetailModal()">
   <div class="w-full max-w-2xl mx-4 rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto slide-up" id="detailModalCard">
-    <div id="detailContent">
-      <!-- Rendered by JS -->
-    </div>
+    <div id="detailContent"></div>
   </div>
 </div>
 
 <!-- ===== TOAST ===== -->
-<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl transition-all duration-500 translate-y-20 opacity-0 pointer-events-none">
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] px-6 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl transition-all duration-500 translate-y-20 opacity-0 pointer-events-none">
   <span id="toastMsg"></span>
 </div>
 
 <script>
-// ========================== STATE ==========================
-const DEFAULT_STATE = {
-  products: [
-    {
-      id: 1001, name: 'MacBook Pro 2019', description: 'MacBook Pro 13" con Touch Bar, 256GB SSD, 8GB RAM. Funciona perfectamente, batería al 89%.', category: 'Electrónica',
-      price: 12000, originalPrice: 28000, condition: 'Poco uso', priceType: 'Negociable', notes: '', status: 'Disponible',
-      image: 'https://images.pexels.com/photos/2659939/pexels-photo-2659939.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940', createdAt: '2025-01-15T10:00:00Z'
-    },
-    {
-      id: 1002, name: 'Cámara Kodak Vintage', description: 'Cámara analógica clásica en excelente estado. Perfecta para coleccionistas o fotógrafos de film.', category: 'Electrónica',
-      price: 800, originalPrice: 2500, condition: 'Detalle estético', priceType: 'Negociable', notes: 'Tiene un pequeño rayón en la parte inferior', status: 'Disponible',
-      image: 'https://images.pexels.com/photos/1203819/pexels-photo-1203819.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940', createdAt: '2025-01-14T10:00:00Z'
-    },
-    {
-      id: 1003, name: 'PlayStation 5 + 2 Controles', description: 'PS5 edición con disco. Incluye 2 controles DualSense y cables originales.', category: 'Electrónica',
-      price: 7500, originalPrice: 14000, condition: 'Como nuevo', priceType: 'Fijo', notes: '', status: 'Disponible',
-      image: 'https://images.pexels.com/photos/9704415/pexels-photo-9704415.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940', createdAt: '2025-01-13T10:00:00Z'
-    },
-    {
-      id: 1004, name: 'Kit Gaming Completo', description: 'Teclado mecánico, mouse gaming, gamepad y audífonos. Todo en perfecto estado.', category: 'Electrónica',
-      price: 1500, originalPrice: 4000, condition: 'Poco uso', priceType: 'Negociable', notes: '', status: 'Apartado',
-      image: 'https://images.pexels.com/photos/4225229/pexels-photo-4225229.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940', createdAt: '2025-01-12T10:00:00Z'
-    },
-    {
-      id: 1005, name: 'Sillas Vintage (Set de 4)', description: 'Juego de 4 sillas apilables estilo retro. Ideales para terraza o comedor casual.', category: 'Muebles',
-      price: 600, originalPrice: 1800, condition: 'Detalle estético', priceType: 'Negociable', notes: '', status: 'Vendido',
-      image: 'https://images.pexels.com/photos/34889783/pexels-photo-34889783.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940', createdAt: '2025-01-11T10:00:00Z'
-    },
-    {
-      id: 1006, name: 'Colección de Sombreros', description: 'Sombreros variados en excelente estado. Se venden por pieza o lote completo.', category: 'Ropa',
-      price: 350, originalPrice: 0, condition: 'Como nuevo', priceType: 'Negociable', notes: '', status: 'Disponible',
-      image: 'https://images.pexels.com/photos/34133838/pexels-photo-34133838.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940', createdAt: '2025-01-10T10:00:00Z'
-    }
-  ],
-  config: {
-    password: 'admin123',
-    whatsapp: '525543777055',
-    accentColor: '#0A84FF',
-    bannerColor: '#FF9500',
-    bannerEnabled: false,
-    bannerText: '¡Todo se va este fin de semana!',
-    faqs: [
-      { id: 1, q: '¿Cómo puedo comprar un artículo?', a: 'Haz click en "Comprar por WhatsApp" y te pondremos en contacto directo para coordinar la entrega.' },
-      { id: 2, q: '¿Hacen envíos?', a: 'Preferimos entrega en persona para que puedas ver el artículo, pero podemos negociar envío según el caso.' },
-      { id: 3, q: '¿Los precios son negociables?', a: 'Algunos artículos tienen precio negociable, lo verás marcado en la tarjeta del producto.' },
-      { id: 4, q: '¿Aceptan pagos con tarjeta?', a: 'Aceptamos efectivo y transferencia bancaria. Contáctanos para más detalles.' }
-    ]
-  },
-  theme: 'dark'
-};
-
-let state = loadState();
-let currentView = 'client';
+// ========================== SUPABASE INIT ==========================
+let supabase = null;
+let products = [];
+let config = {};
+let faqs = [];
+let currentTheme = 'dark';
 let editingProductId = null;
+let tempImageBase64 = null;
 
-function loadState() {
+async function initSupabase() {
+  // Check if credentials exist
+  if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL === '' || SUPABASE_KEY === '') {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('supabaseError').classList.remove('hidden');
+    return false;
+  }
+
   try {
-    const saved = localStorage.getItem('garageSaleState');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Merge defaults for any missing config keys
-      parsed.config = { ...DEFAULT_STATE.config, ...parsed.config };
-      return parsed;
-    }
-  } catch(e) { console.error('Error loading state', e); }
-  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Test connection by fetching config
+    const { data, error } = await supabase.from('config').select('*');
+    if (error) throw error;
+    
+    return true;
+  } catch (err) {
+    console.error('Supabase connection error:', err);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('supabaseError').classList.remove('hidden');
+    document.querySelector('#supabaseError p').innerHTML = `
+      Error de conexión: <code class="px-2 py-1 rounded text-sm" style="background:#1A1A1C;">${err.message}</code><br><br>
+      Verifica que las tablas existan y las credenciales sean correctas.
+    `;
+    return false;
+  }
 }
 
-function saveState() {
-  localStorage.setItem('garageSaleState', JSON.stringify(state));
+// ========================== DATA FETCHING ==========================
+async function fetchConfig() {
+  const { data, error } = await supabase.from('config').select('*');
+  if (error) { console.error('Error fetching config:', error); return; }
+  
+  config = {};
+  data.forEach(row => { config[row.key] = row.value; });
+  
+  // Set defaults if missing
+  if (!config.password) config.password = 'admin123';
+  if (!config.whatsapp) config.whatsapp = '525543777055';
+  if (!config.accent_color) config.accent_color = '#0A84FF';
+  if (!config.banner_color) config.banner_color = '#FF9500';
+  if (!config.banner_enabled) config.banner_enabled = 'false';
+  if (!config.banner_text) config.banner_text = '¡Todo se va este fin de semana!';
 }
 
-// ========================== INIT ==========================
-function init() {
-  applyTheme(state.theme);
-  applyAccentColor(state.config.accentColor);
-  applyBannerConfig();
-  loadSettingsUI();
-  renderClientView();
-  renderAdminTable();
-  updateMetrics();
+async function fetchProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (error) { console.error('Error fetching products:', error); return; }
+  products = data || [];
+}
+
+async function fetchFAQs() {
+  const { data, error } = await supabase
+    .from('faqs')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  
+  if (error) { console.error('Error fetching FAQs:', error); return; }
+  faqs = data || [];
+}
+
+async function refreshData() {
+  showToast('Actualizando datos...');
+  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
+  renderAll();
+  showToast('Datos actualizados ✓');
+}
+
+// ========================== CONFIG UPDATES ==========================
+async function updateConfig(key, value) {
+  const { data: existing } = await supabase.from('config').select('id').eq('key', key).single();
+  
+  if (existing) {
+    await supabase.from('config').update({ value }).eq('key', key);
+  } else {
+    await supabase.from('config').insert({ key, value });
+  }
+  
+  config[key] = value;
+  applyConfig();
+  showToast('Configuración guardada ✓');
+}
+
+async function toggleBannerConfig() {
+  const toggle = document.getElementById('bannerToggle');
+  toggle.classList.toggle('active');
+  const enabled = toggle.classList.contains('active') ? 'true' : 'false';
+  await updateConfig('banner_enabled', enabled);
+}
+
+async function changePassword() {
+  const input = document.getElementById('passwordInput');
+  const newPass = input.value.trim();
+  if (!newPass || newPass.length < 4) {
+    showToast('Mínimo 4 caracteres', 'error');
+    return;
+  }
+  await updateConfig('password', newPass);
+  input.value = '';
+  showToast('Contraseña actualizada ✓');
+}
+
+async function saveWhatsApp() {
+  const input = document.getElementById('whatsappInput');
+  const num = input.value.trim().replace(/[^0-9]/g, '');
+  if (!num || num.length < 10) {
+    showToast('Número inválido', 'error');
+    return;
+  }
+  await updateConfig('whatsapp', num);
+  showToast('WhatsApp actualizado ✓');
+}
+
+// ========================== FAQ CRUD ==========================
+async function addFAQ() {
+  const { data, error } = await supabase.from('faqs').insert({
+    question: 'Nueva pregunta',
+    answer: 'Respuesta aquí...',
+    sort_order: faqs.length
+  }).select().single();
+  
+  if (error) { showToast('Error al crear FAQ', 'error'); return; }
+  faqs.push(data);
+  renderFAQEditor();
   renderFAQs();
-  switchAdminTab('dashboard');
-  applyAllStyles();
+  showToast('Pregunta añadida ✓');
+}
+
+async function updateFAQ(id, field, value) {
+  await supabase.from('faqs').update({ [field]: value }).eq('id', id);
+  const faq = faqs.find(f => f.id === id);
+  if (faq) faq[field] = value;
+  renderFAQs();
+}
+
+async function deleteFAQ(id) {
+  await supabase.from('faqs').delete().eq('id', id);
+  faqs = faqs.filter(f => f.id !== id);
+  renderFAQEditor();
+  renderFAQs();
+  showToast('Pregunta eliminada ✓');
+}
+
+// ========================== PRODUCT CRUD ==========================
+function openProductModal(id = null) {
+  editingProductId = id;
+  tempImageBase64 = null;
+  const modal = document.getElementById('productModal');
+  modal.classList.add('active');
+  document.getElementById('modalTitle').textContent = id ? 'Editar Producto' : 'Agregar Producto';
+  
+  if (id) {
+    const p = products.find(x => x.id === id);
+    if (p) {
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('productName').value = p.name || '';
+      document.getElementById('productDesc').value = p.description || '';
+      document.getElementById('productCategory').value = p.category || 'Otro';
+      document.getElementById('productPrice').value = p.price || '';
+      document.getElementById('productOriginalPrice').value = p.original_price || '';
+      document.getElementById('productCondition').value = p.condition || 'Como nuevo';
+      document.querySelector(`input[name="priceType"][value="${p.price_type || 'Fijo'}"]`).checked = true;
+      document.getElementById('productNotes').value = p.notes || '';
+      
+      if (p.image) {
+        document.getElementById('imagePreview').src = p.image;
+        document.getElementById('imagePreviewContainer').classList.remove('hidden');
+        document.getElementById('imageUploadPlaceholder').classList.add('hidden');
+        tempImageBase64 = p.image;
+      } else {
+        resetImageUI();
+      }
+    }
+  } else {
+    document.getElementById('productForm').reset();
+    document.getElementById('editProductId').value = '';
+    resetImageUI();
+  }
+  applyInputStyles();
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('active');
+  editingProductId = null;
+  tempImageBase64 = null;
+}
+
+function resetImageUI() {
+  document.getElementById('imagePreviewContainer').classList.add('hidden');
+  document.getElementById('imageUploadPlaceholder').classList.remove('hidden');
+  document.getElementById('imagePreview').src = '';
+  document.getElementById('imageInput').value = '';
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('Imagen muy grande (máx 2MB)', 'error');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    tempImageBase64 = e.target.result;
+    document.getElementById('imagePreview').src = tempImageBase64;
+    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+    document.getElementById('imageUploadPlaceholder').classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveProduct(e) {
+  e.preventDefault();
+  
+  const name = document.getElementById('productName').value.trim();
+  const description = document.getElementById('productDesc').value.trim();
+  const category = document.getElementById('productCategory').value;
+  const price = parseFloat(document.getElementById('productPrice').value) || 0;
+  const original_price = parseFloat(document.getElementById('productOriginalPrice').value) || 0;
+  const condition = document.getElementById('productCondition').value;
+  const price_type = document.querySelector('input[name="priceType"]:checked').value;
+  const notes = document.getElementById('productNotes').value.trim();
+  
+  if (!name) { showToast('Nombre requerido', 'error'); return; }
+  if (price <= 0) { showToast('Precio inválido', 'error'); return; }
+  
+  const productData = {
+    name, description, category, price, original_price,
+    condition, price_type, notes,
+    image: tempImageBase64 || null
+  };
+  
+  try {
+    if (editingProductId) {
+      const { error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', editingProductId);
+      if (error) throw error;
+      showToast('Producto actualizado ✓');
+    } else {
+      productData.status = 'Disponible';
+      const { error } = await supabase.from('products').insert(productData);
+      if (error) throw error;
+      showToast('Producto agregado ✓');
+    }
+    
+    closeProductModal();
+    await fetchProducts();
+    renderAll();
+  } catch (err) {
+    console.error(err);
+    showToast('Error al guardar', 'error');
+  }
+}
+
+async function changeProductStatus(id, newStatus) {
+  const { error } = await supabase
+    .from('products')
+    .update({ status: newStatus })
+    .eq('id', id);
+  
+  if (error) { showToast('Error al actualizar', 'error'); return; }
+  
+  const p = products.find(x => x.id === id);
+  if (p) p.status = newStatus;
+  
+  renderAll();
+  showToast(`Estado: ${newStatus} ✓`);
+}
+
+async function deleteProduct(id) {
+  if (!confirm('¿Eliminar este producto permanentemente?')) return;
+  
+  const { error } = await supabase.from('products').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar', 'error'); return; }
+  
+  products = products.filter(p => p.id !== id);
+  renderAll();
+  showToast('Producto eliminado ✓');
 }
 
 // ========================== THEME ==========================
 function toggleTheme() {
-  state.theme = state.theme === 'dark' ? 'light' : 'dark';
-  applyTheme(state.theme);
-  saveState();
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme();
 }
 
-function applyTheme(theme) {
+function applyTheme() {
   const body = document.body;
   const icon = document.getElementById('themeIcon');
   const btn = document.getElementById('themeToggleBtn');
+  const d = currentTheme === 'dark';
   
-  if (theme === 'dark') {
-    body.className = 'dark-mode';
-    icon.className = 'fas fa-moon';
-    btn.style.background = '#1A1A1C';
-    btn.style.color = '#FFD60A';
-    btn.style.border = '1px solid #2A2A2E';
-  } else {
-    body.className = 'light-mode';
-    icon.className = 'fas fa-sun';
-    btn.style.background = '#FFFFFF';
-    btn.style.color = '#FF9F0A';
-    btn.style.border = '1px solid #E5E5EA';
-  }
+  body.className = d ? 'dark-mode' : 'light-mode';
+  icon.className = d ? 'fas fa-moon' : 'fas fa-sun';
+  btn.style.background = d ? '#1A1A1C' : '#FFFFFF';
+  btn.style.color = d ? '#FFD60A' : '#FF9F0A';
+  btn.style.border = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
+  
   applyAllStyles();
 }
 
-function isDark() { return state.theme === 'dark'; }
+function isDark() { return currentTheme === 'dark'; }
 
 function applyAllStyles() {
   const d = isDark();
-  // Inputs
-  document.querySelectorAll('input[type="text"], input[type="number"], input[type="password"], textarea, select').forEach(el => {
-    el.className = el.className.replace(/input-dark|input-light/g, '').trim();
-    if (!el.className.includes('hidden') && el.type !== 'file' && el.type !== 'color' && el.type !== 'radio') {
-      el.classList.add(d ? 'input-dark' : 'input-light');
-    }
-  });
+  
   // Cards
   document.querySelectorAll('#metricRevenue, #metricAvailable, #metricSold, #chartCard, #adminTableCard, #productModalCard, #detailModalCard, [id^=settingsCard]').forEach(el => {
     el.classList.remove('card-dark', 'card-light');
     el.classList.add(d ? 'card-dark' : 'card-light');
   });
-  // Image upload area
-  const uploadArea = document.getElementById('imageUploadArea');
-  if (uploadArea) {
-    uploadArea.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-  }
-  // Admin tabs bar
+  
+  // Tab bar
   const tabsBar = document.getElementById('adminTabsBar');
   if (tabsBar) tabsBar.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-  // Admin table head
-  const thead = document.getElementById('adminTableHead');
-  if (thead) thead.style.borderBottom = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
+  
+  // Sold divider
+  const soldDivider = document.getElementById('soldDivider');
+  if (soldDivider) soldDivider.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
+  
   // Buttons
-  const accentColor = state.config.accentColor;
+  const accent = config.accent_color || '#0A84FF';
   document.querySelectorAll('#addProductBtn, #saveProductBtn, #savePassBtn, #saveWABtn').forEach(el => {
-    el.style.background = accentColor;
+    el.style.background = accent;
   });
-  const exportBtn = document.getElementById('exportBtn');
-  if (exportBtn) {
-    exportBtn.style.background = d ? '#1A1A1C' : '#fff';
-    exportBtn.style.color = d ? '#fff' : '#1D1D1F';
-    exportBtn.style.border = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
-  }
-  const backBtn = document.getElementById('backToClientBtn');
-  if (backBtn) {
-    backBtn.style.background = d ? '#1A1A1C' : '#fff';
-    backBtn.style.color = d ? '#fff' : '#1D1D1F';
-    backBtn.style.border = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
-  }
+  
+  ['refreshBtn', 'backToClientBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.background = d ? '#1A1A1C' : '#fff';
+      el.style.color = d ? '#fff' : '#1D1D1F';
+      el.style.border = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
+    }
+  });
+  
   const addFAQBtn = document.getElementById('addFAQBtn');
   if (addFAQBtn) {
     addFAQBtn.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
     addFAQBtn.style.color = d ? '#fff' : '#1D1D1F';
     addFAQBtn.style.background = 'transparent';
   }
-  // Radio buttons for price type
+  
+  // Image upload area
+  const uploadArea = document.getElementById('imageUploadArea');
+  if (uploadArea) uploadArea.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
+  
+  applyInputStyles();
+}
+
+function applyInputStyles() {
+  const d = isDark();
+  document.querySelectorAll('input:not([type="file"]):not([type="color"]):not([type="radio"]):not([type="hidden"]), textarea, select').forEach(el => {
+    el.classList.remove('input-dark', 'input-light');
+    el.classList.add(d ? 'input-dark' : 'input-light');
+  });
+  
+  // Radio button containers
   document.querySelectorAll('input[name="priceType"]').forEach(r => {
     const div = r.nextElementSibling;
     if (div) {
@@ -690,110 +890,362 @@ function applyAllStyles() {
   });
 }
 
-// ========================== ACCENT COLOR ==========================
-function applyAccentColor(color) {
-  document.documentElement.style.setProperty('--color-accent', color);
-  document.querySelectorAll('#addProductBtn, #saveProductBtn, #savePassBtn, #saveWABtn').forEach(el => {
-    el.style.background = color;
-  });
-  // Active admin tab
-  document.querySelectorAll('.admin-tab').forEach(t => {
-    if (t.classList.contains('tab-active')) t.style.borderColor = color;
-  });
-}
-
-function updateAccentColor(color) {
-  state.config.accentColor = color;
-  document.getElementById('accentColorLabel').textContent = color;
-  applyAccentColor(color);
-  saveState();
-  renderClientView();
-  showToast('Color de acento actualizado');
-}
-
-// ========================== BANNER ==========================
-function applyBannerConfig() {
+// ========================== CONFIG APPLICATION ==========================
+function applyConfig() {
+  // Accent color
+  const accent = config.accent_color || '#0A84FF';
+  document.getElementById('accentColorPicker').value = accent;
+  document.getElementById('accentColorLabel').textContent = accent;
+  
+  // Banner color
+  const bannerColor = config.banner_color || '#FF9500';
+  document.getElementById('bannerColorPicker').value = bannerColor;
+  document.getElementById('bannerColorLabel').textContent = bannerColor;
+  
+  // Banner toggle & text
+  const bannerEnabled = config.banner_enabled === 'true';
+  const bannerToggle = document.getElementById('bannerToggle');
+  if (bannerEnabled) bannerToggle.classList.add('active');
+  else bannerToggle.classList.remove('active');
+  
+  document.getElementById('bannerTextInput').value = config.banner_text || '';
+  
+  // WhatsApp
+  document.getElementById('whatsappInput').value = config.whatsapp || '';
+  
+  // Apply banner visibility
   const banner = document.getElementById('announcementBanner');
   const bannerText = document.getElementById('bannerText');
-  if (state.config.bannerEnabled) {
-    banner.style.display = 'block';
-    banner.style.background = state.config.bannerColor;
-    banner.style.color = getContrastColor(state.config.bannerColor);
-    bannerText.textContent = state.config.bannerText;
+  if (bannerEnabled) {
+    banner.classList.remove('hidden');
+    banner.style.background = bannerColor;
+    banner.style.color = getContrastColor(bannerColor);
+    bannerText.textContent = config.banner_text || '¡Todo se va este fin de semana!';
   } else {
-    banner.style.display = 'none';
+    banner.classList.add('hidden');
   }
+  
+  applyAllStyles();
 }
 
-function updateBannerColor(color) {
-  state.config.bannerColor = color;
-  document.getElementById('bannerColorLabel').textContent = color;
-  applyBannerConfig();
-  saveState();
-  showToast('Color del banner actualizado');
-}
-
-function updateBannerText(text) {
-  state.config.bannerText = text;
-  applyBannerConfig();
-  saveState();
-}
-
-function toggleBannerSetting() {
-  const toggle = document.getElementById('bannerToggle');
-  toggle.classList.toggle('active');
-  state.config.bannerEnabled = toggle.classList.contains('active');
-  applyBannerConfig();
-  saveState();
-  showToast(state.config.bannerEnabled ? 'Banner activado' : 'Banner desactivado');
-}
-
-// ========================== PASSWORD ==========================
-function changePassword() {
-  const input = document.getElementById('passwordInput');
-  const newPass = input.value.trim();
-  if (!newPass || newPass.length < 4) {
-    showToast('La contraseña debe tener al menos 4 caracteres', 'error');
-    return;
-  }
-  state.config.password = newPass;
-  input.value = '';
-  saveState();
-  showToast('Contraseña actualizada correctamente');
-}
-
-// ========================== WHATSAPP ==========================
-function saveWhatsApp() {
-  const input = document.getElementById('whatsappInput');
-  const num = input.value.trim().replace(/[^0-9]/g, '');
-  if (!num || num.length < 10) {
-    showToast('Ingresa un número válido', 'error');
-    return;
-  }
-  state.config.whatsapp = num;
-  saveState();
-  showToast('Número de WhatsApp actualizado');
+// ========================== RENDERING ==========================
+function renderAll() {
   renderClientView();
+  renderAdminTable();
+  updateMetrics();
+  renderChart();
+  renderFAQEditor();
+  renderFAQs();
 }
 
-// ========================== FAQ CRUD ==========================
+function updateMetrics() {
+  const available = products.filter(p => p.status === 'Disponible' || p.status === 'Apartado').length;
+  const sold = products.filter(p => p.status === 'Vendido');
+  const revenue = sold.reduce((sum, p) => sum + (p.price || 0), 0);
+  
+  document.getElementById('totalRevenue').textContent = '$' + revenue.toLocaleString('es-MX');
+  document.getElementById('totalAvailable').textContent = available;
+  document.getElementById('totalSold').textContent = sold.length;
+}
+
+function renderChart() {
+  const chart = document.getElementById('categoryChart');
+  const categories = ['Electrónica', 'Muebles', 'Ropa', 'Hogar', 'Deportes', 'Libros', 'Juguetes', 'Otro'];
+  const counts = categories.map(c => products.filter(p => p.category === c).length);
+  const max = Math.max(...counts, 1);
+  const accent = config.accent_color || '#0A84FF';
+  
+  chart.innerHTML = categories.map((cat, i) => {
+    const h = Math.max((counts[i] / max) * 100, 5);
+    return `
+      <div class="flex-1 flex flex-col items-center gap-1">
+        <span class="text-xs font-bold">${counts[i]}</span>
+        <div class="w-full rounded-t-lg transition-all" style="height:${h}%;background:${accent};opacity:${0.3 + (counts[i]/max)*0.7}"></div>
+        <span class="text-[10px] opacity-40 text-center leading-tight truncate w-full">${cat.slice(0,5)}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAdminTable() {
+  const tbody = document.getElementById('adminTableBody');
+  const search = (document.getElementById('adminSearch')?.value || '').toLowerCase();
+  const d = isDark();
+  
+  let filtered = products;
+  if (search) {
+    filtered = filtered.filter(p => 
+      (p.name && p.name.toLowerCase().includes(search)) ||
+      (p.category && p.category.toLowerCase().includes(search)) ||
+      (p.description && p.description.toLowerCase().includes(search))
+    );
+  }
+  
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    document.getElementById('noAdminProducts').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('noAdminProducts').classList.add('hidden');
+  
+  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='100' height='100'/%3E%3Ctext fill='%23${d?'555':'999'}' font-size='24' x='50%25' y='55%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
+  
+  tbody.innerHTML = filtered.map(p => {
+    const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+    const statusClass = p.status === 'Disponible' ? 'status-disponible' : p.status === 'Apartado' ? 'status-apartado' : 'status-vendido';
+    
+    return `
+      <tr class="${d ? 'table-row-dark' : 'table-row-light'} transition-all" style="border-bottom:1px solid ${d ? '#2A2A2E' : '#E5E5EA'}">
+        <td class="px-4 py-3">
+          <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0" style="background:${d?'#2A2A2E':'#E5E5EA'}">
+            <img src="${p.image || placeholderImg}" class="w-full h-full object-cover" alt="">
+          </div>
+        </td>
+        <td class="px-4 py-3">
+          <p class="font-semibold text-sm">${escapeHTML(p.name)}</p>
+          ${p.notes ? `<p class="text-xs opacity-40 mt-0.5 truncate max-w-[200px]"><i class="fas fa-eye-slash mr-1"></i>${escapeHTML(p.notes)}</p>` : ''}
+        </td>
+        <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span></td>
+        <td class="px-4 py-3">
+          <span class="font-bold text-sm">$${(p.price || 0).toLocaleString('es-MX')}</span>
+          ${discount > 0 ? `<span class="text-xs text-red-400 ml-1">-${discount}%</span>` : ''}
+        </td>
+        <td class="px-4 py-3"><span class="text-xs">${p.condition || 'N/A'}</span></td>
+        <td class="px-4 py-3">
+          <select onchange="changeProductStatus(${p.id}, this.value)" class="text-xs px-2 py-1.5 rounded-lg ${d ? 'input-dark' : 'input-light'}" style="min-width:120px;">
+            <option value="Disponible" ${p.status==='Disponible'?'selected':''}>✅ Disponible</option>
+            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>⏳ Apartado</option>
+            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>🔴 Vendido</option>
+          </select>
+        </td>
+        <td class="px-4 py-3 text-center">
+          <div class="flex items-center justify-center gap-1">
+            <button onclick="openProductModal(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-blue-500/15 text-blue-400 transition-all cursor-pointer" title="Editar">
+              <i class="fas fa-pen-to-square text-sm"></i>
+            </button>
+            <button onclick="deleteProduct(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/15 text-red-400 transition-all cursor-pointer" title="Eliminar">
+              <i class="fas fa-trash-can text-sm"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderClientView() {
+  const search = (document.getElementById('clientSearch')?.value || '').toLowerCase();
+  const category = document.getElementById('filterCategory')?.value || 'all';
+  const priceRange = document.getElementById('filterPrice')?.value || 'all';
+  const sort = document.getElementById('filterSort')?.value || 'newest';
+  const hideSold = document.getElementById('hideSoldToggle')?.classList.contains('active');
+  
+  let filtered = [...products];
+  
+  // Search
+  if (search) {
+    filtered = filtered.filter(p =>
+      (p.name && p.name.toLowerCase().includes(search)) ||
+      (p.description && p.description.toLowerCase().includes(search)) ||
+      (p.category && p.category.toLowerCase().includes(search))
+    );
+  }
+  
+  // Category
+  if (category !== 'all') {
+    filtered = filtered.filter(p => p.category === category);
+  }
+  
+  // Price range
+  if (priceRange !== 'all') {
+    const [min, max] = priceRange.includes('+') 
+      ? [parseInt(priceRange), Infinity] 
+      : priceRange.split('-').map(Number);
+    filtered = filtered.filter(p => p.price >= min && p.price <= max);
+  }
+  
+  // Sort
+  switch(sort) {
+    case 'price-asc': filtered.sort((a,b) => (a.price||0) - (b.price||0)); break;
+    case 'price-desc': filtered.sort((a,b) => (b.price||0) - (a.price||0)); break;
+    case 'name-asc': filtered.sort((a,b) => (a.name||'').localeCompare(b.name||'')); break;
+    default: filtered.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
+  }
+  
+  const availableProducts = filtered.filter(p => p.status !== 'Vendido');
+  const soldProducts = hideSold ? [] : filtered.filter(p => p.status === 'Vendido');
+  
+  const grid = document.getElementById('productsGrid');
+  const noProducts = document.getElementById('noProducts');
+  
+  if (!availableProducts.length && !soldProducts.length) {
+    grid.innerHTML = '';
+    noProducts.classList.remove('hidden');
+  } else {
+    noProducts.classList.add('hidden');
+    grid.innerHTML = availableProducts.map(p => renderProductCard(p)).join('');
+  }
+  
+  // Sold section
+  const soldSection = document.getElementById('soldSection');
+  const soldGrid = document.getElementById('soldGrid');
+  if (soldProducts.length) {
+    soldSection.classList.remove('hidden');
+    soldGrid.innerHTML = soldProducts.map(p => renderProductCard(p)).join('');
+  } else {
+    soldSection.classList.add('hidden');
+  }
+}
+
+function renderProductCard(p) {
+  const d = isDark();
+  const isSold = p.status === 'Vendido';
+  const isApartado = p.status === 'Apartado';
+  const isNegociable = p.price_type === 'Negociable';
+  const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+  const accent = config.accent_color || '#0A84FF';
+  const whatsapp = config.whatsapp || '525543777055';
+  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='400' height='400'/%3E%3Ctext fill='%23${d?'555':'999'}' font-size='48' x='50%25' y='52%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
+  
+  const waMessage = encodeURIComponent(`¡Hola! Me interesa comprar: ${p.name} ($${(p.price||0).toLocaleString('es-MX')} MXN)`);
+  const waOfferMessage = encodeURIComponent(`¡Hola! Quisiera hacer una oferta por: ${p.name} (precio actual: $${(p.price||0).toLocaleString('es-MX')} MXN)`);
+  const waLink = `https://wa.me/${whatsapp}?text=${waMessage}`;
+  const waOfferLink = `https://wa.me/${whatsapp}?text=${waOfferMessage}`;
+  
+  return `
+    <div class="product-card rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'} transition-all hover:shadow-xl hover:-translate-y-1 ${isSold ? 'opacity-40' : ''} fade-in cursor-pointer" onclick="openDetail(${p.id})">
+      <div class="relative aspect-square overflow-hidden">
+        <img src="${p.image || placeholderImg}" alt="${escapeAttr(p.name)}" class="product-img w-full h-full object-cover">
+        
+        ${isSold ? `<div class="sold-stamp">VENDIDO</div>` : ''}
+        ${isApartado ? `<div class="sold-stamp apartado-stamp">APARTADO</div>` : ''}
+        
+        <div class="badge-bar absolute top-0 left-0 right-0 px-3 py-2.5 flex items-center gap-1.5 flex-wrap">
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white/20 text-white">${p.condition || 'N/A'}</span>
+          ${isNegociable ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-green-500/30 text-green-300">Negociable</span>` : ''}
+          ${discount > 0 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-red-500/30 text-red-300">-${discount}%</span>` : ''}
+        </div>
+      </div>
+      
+      <div class="p-4">
+        <p class="text-xs opacity-40 mb-1 font-medium">${p.category || 'Otro'}</p>
+        <h3 class="font-bold text-base mb-2 leading-snug line-clamp-2">${escapeHTML(p.name)}</h3>
+        <div class="flex items-baseline gap-2 mb-3">
+          <span class="text-xl font-extrabold" style="color:${accent}">$${(p.price||0).toLocaleString('es-MX')}</span>
+          <span class="text-xs opacity-30 font-medium">MXN</span>
+          ${p.original_price > 0 ? `<span class="text-sm line-through opacity-30">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
+        </div>
+        
+        ${!isSold && !isApartado ? `
+          <div class="space-y-2" onclick="event.stopPropagation()">
+            <a href="${waLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02]" style="background:#25D366;">
+              <i class="fab fa-whatsapp"></i> Comprar por WhatsApp
+            </a>
+            ${isNegociable ? `
+              <a href="${waOfferLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
+                <i class="fas fa-comments-dollar"></i> Hacer una Oferta
+              </a>
+            ` : ''}
+          </div>
+        ` : isApartado ? `
+          <div class="py-2.5 rounded-xl text-sm font-bold text-center" style="background:rgba(255,149,0,0.1);color:#FF9500;">
+            <i class="fas fa-clock mr-1"></i> Apartado
+          </div>
+        ` : `
+          <div class="py-2.5 rounded-xl text-sm font-bold text-center opacity-40" style="background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'};">
+            <i class="fas fa-ban mr-1"></i> No disponible
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function openDetail(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  
+  const d = isDark();
+  const modal = document.getElementById('detailModal');
+  const content = document.getElementById('detailContent');
+  const isSold = p.status === 'Vendido';
+  const isApartado = p.status === 'Apartado';
+  const isNegociable = p.price_type === 'Negociable';
+  const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+  const accent = config.accent_color || '#0A84FF';
+  const whatsapp = config.whatsapp || '525543777055';
+  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='600' height='400'/%3E%3Ctext fill='%23${d?'555':'999'}' font-size='48' x='50%25' y='52%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
+  
+  const waMessage = encodeURIComponent(`¡Hola! Me interesa comprar: ${p.name} ($${(p.price||0).toLocaleString('es-MX')} MXN)`);
+  const waOfferMessage = encodeURIComponent(`¡Hola! Quisiera hacer una oferta por: ${p.name}`);
+  
+  content.innerHTML = `
+    <div class="relative">
+      <img src="${p.image || placeholderImg}" alt="${escapeAttr(p.name)}" class="w-full aspect-video object-cover">
+      ${isSold ? `<div class="sold-stamp" style="font-size:2.5rem;">VENDIDO</div>` : ''}
+      ${isApartado ? `<div class="sold-stamp apartado-stamp" style="font-size:2.5rem;">APARTADO</div>` : ''}
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/70 transition-all cursor-pointer">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+    <div class="p-6">
+      <div class="flex items-center gap-2 mb-2 flex-wrap">
+        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span>
+        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.condition || 'N/A'}</span>
+        ${isNegociable ? `<span class="text-xs px-2 py-1 rounded-lg font-medium bg-green-500/15 text-green-400">Negociable</span>` : ''}
+      </div>
+      <h2 class="text-2xl font-extrabold mb-3">${escapeHTML(p.name)}</h2>
+      ${p.description ? `<p class="text-sm opacity-60 leading-relaxed mb-4">${escapeHTML(p.description)}</p>` : ''}
+      <div class="flex items-baseline gap-3 mb-6 flex-wrap">
+        <span class="text-3xl font-extrabold" style="color:${accent}">$${(p.price||0).toLocaleString('es-MX')}</span>
+        <span class="text-sm opacity-30">MXN</span>
+        ${p.original_price > 0 ? `<span class="text-lg line-through opacity-30">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
+        ${discount > 0 ? `<span class="text-sm font-bold text-red-400 px-2 py-1 rounded-lg bg-red-500/10">-${discount}% OFF</span>` : ''}
+      </div>
+      ${!isSold && !isApartado ? `
+        <div class="space-y-3">
+          <a href="https://wa.me/${whatsapp}?text=${waMessage}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-bold text-white transition-all hover:scale-[1.02]" style="background:#25D366;">
+            <i class="fab fa-whatsapp text-lg"></i> Comprar por WhatsApp
+          </a>
+          ${isNegociable ? `
+            <a href="https://wa.me/${whatsapp}?text=${waOfferMessage}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-semibold transition-all hover:scale-[1.02]" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
+              <i class="fas fa-comments-dollar"></i> Hacer una Oferta
+            </a>
+          ` : ''}
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  modal.classList.add('active');
+  document.getElementById('detailModalCard').classList.remove('card-dark', 'card-light');
+  document.getElementById('detailModalCard').classList.add(d ? 'card-dark' : 'card-light');
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+// ========================== FAQ RENDERING ==========================
 function renderFAQEditor() {
   const container = document.getElementById('faqEditor');
   const d = isDark();
-  if (!state.config.faqs.length) {
+  
+  if (!faqs.length) {
     container.innerHTML = '<p class="text-center py-4 opacity-30 text-sm">No hay preguntas frecuentes</p>';
     return;
   }
-  container.innerHTML = state.config.faqs.map(faq => `
+  
+  container.innerHTML = faqs.map(faq => `
     <div class="rounded-xl p-4 ${d ? 'card-dark' : 'card-light'}">
       <div class="flex items-start gap-3">
         <div class="flex-1 space-y-2">
-          <input type="text" value="${escapeAttr(faq.q)}" onchange="updateFAQ(${faq.id}, 'q', this.value)" 
+          <input type="text" value="${escapeAttr(faq.question)}" onchange="updateFAQ(${faq.id}, 'question', this.value)" 
             class="w-full px-3 py-2 rounded-lg text-sm font-semibold ${d ? 'input-dark' : 'input-light'}" placeholder="Pregunta...">
-          <textarea onchange="updateFAQ(${faq.id}, 'a', this.value)" rows="2"
-            class="w-full px-3 py-2 rounded-lg text-sm ${d ? 'input-dark' : 'input-light'} resize-none" placeholder="Respuesta...">${escapeHTML(faq.a)}</textarea>
+          <textarea onchange="updateFAQ(${faq.id}, 'answer', this.value)" rows="2"
+            class="w-full px-3 py-2 rounded-lg text-sm ${d ? 'input-dark' : 'input-light'} resize-none" placeholder="Respuesta...">${escapeHTML(faq.answer)}</textarea>
         </div>
-        <button onclick="deleteFAQ(${faq.id})" class="w-9 h-9 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 transition-all-300 cursor-pointer flex-shrink-0 mt-1">
+        <button onclick="deleteFAQ(${faq.id})" class="w-9 h-9 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 transition-all cursor-pointer flex-shrink-0 mt-1">
           <i class="fas fa-trash-can"></i>
         </button>
       </div>
@@ -801,42 +1253,25 @@ function renderFAQEditor() {
   `).join('');
 }
 
-function addFAQ() {
-  const id = Date.now();
-  state.config.faqs.push({ id, q: 'Nueva pregunta', a: 'Respuesta aquí...' });
-  saveState();
-  renderFAQEditor();
-  renderFAQs();
-  showToast('Pregunta añadida');
-}
-
-function updateFAQ(id, field, value) {
-  const faq = state.config.faqs.find(f => f.id === id);
-  if (faq) { faq[field] = value; saveState(); renderFAQs(); }
-}
-
-function deleteFAQ(id) {
-  state.config.faqs = state.config.faqs.filter(f => f.id !== id);
-  saveState();
-  renderFAQEditor();
-  renderFAQs();
-  showToast('Pregunta eliminada');
-}
-
 function renderFAQs() {
   const container = document.getElementById('faqContainer');
+  const section = document.getElementById('faqSection');
   const d = isDark();
-  const faqSection = document.getElementById('faqSection');
-  if (!state.config.faqs.length) { faqSection.classList.add('hidden'); return; }
-  faqSection.classList.remove('hidden');
-  container.innerHTML = state.config.faqs.map(faq => `
+  
+  if (!faqs.length) {
+    section.classList.add('hidden');
+    return;
+  }
+  section.classList.remove('hidden');
+  
+  container.innerHTML = faqs.map(faq => `
     <div class="rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'}">
-      <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer hover:opacity-80 transition-all-300">
-        <span class="text-sm font-semibold pr-4">${escapeHTML(faq.q)}</span>
+      <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer hover:opacity-80 transition-all">
+        <span class="text-sm font-semibold pr-4">${escapeHTML(faq.question)}</span>
         <i class="fas fa-chevron-down text-xs opacity-40 transition-transform duration-300 flex-shrink-0"></i>
       </button>
       <div class="faq-answer px-5">
-        <p class="text-sm opacity-60 pb-4 leading-relaxed">${escapeHTML(faq.a)}</p>
+        <p class="text-sm opacity-60 leading-relaxed">${escapeHTML(faq.answer)}</p>
       </div>
     </div>
   `).join('');
@@ -849,56 +1284,34 @@ function toggleFAQ(btn) {
   icon.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
-// ========================== SETTINGS UI ==========================
-function loadSettingsUI() {
-  document.getElementById('accentColorPicker').value = state.config.accentColor;
-  document.getElementById('accentColorLabel').textContent = state.config.accentColor;
-  document.getElementById('bannerColorPicker').value = state.config.bannerColor;
-  document.getElementById('bannerColorLabel').textContent = state.config.bannerColor;
-  document.getElementById('bannerTextInput').value = state.config.bannerText;
-  document.getElementById('whatsappInput').value = state.config.whatsapp;
-  const bannerToggle = document.getElementById('bannerToggle');
-  if (state.config.bannerEnabled) bannerToggle.classList.add('active');
-  else bannerToggle.classList.remove('active');
-  renderFAQEditor();
-}
-
-// ========================== SEARCH & SECRET ACCESS ==========================
+// ========================== VIEW SWITCHING ==========================
 function handleClientSearch(value) {
-  if (value === state.config.password) {
+  if (value === config.password) {
     document.getElementById('clientSearch').value = '';
     switchToAdmin();
     return;
   }
-  applyClientFilters();
+  renderClientView();
 }
 
-// ========================== VIEW SWITCHING ==========================
 function switchToAdmin() {
-  currentView = 'admin';
   document.getElementById('clientView').classList.add('hidden');
   document.getElementById('adminView').classList.remove('hidden');
-  // Reset admin filters
   document.getElementById('adminSearch').value = '';
-  renderAdminTable();
-  updateMetrics();
-  loadSettingsUI();
   switchAdminTab('dashboard');
   applyAllStyles();
   showToast('Bienvenido, Administrador 🔑');
 }
 
 function switchToClient() {
-  currentView = 'client';
   document.getElementById('adminView').classList.add('hidden');
   document.getElementById('clientView').classList.remove('hidden');
-  // Reset all client filters
+  // Reset filters
   document.getElementById('clientSearch').value = '';
   document.getElementById('filterCategory').value = 'all';
   document.getElementById('filterPrice').value = 'all';
   document.getElementById('filterSort').value = 'newest';
-  const hideSold = document.getElementById('hideSoldToggle');
-  hideSold.classList.remove('active');
+  document.getElementById('hideSoldToggle').classList.remove('active');
   renderClientView();
   applyAllStyles();
 }
@@ -906,571 +1319,22 @@ function switchToClient() {
 function switchAdminTab(tab) {
   document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.admin-tab').forEach(t => {
-    t.classList.remove('tab-active');
     t.style.opacity = '0.6';
     t.style.borderBottom = '2px solid transparent';
   });
+  
   document.getElementById('tab-' + tab).classList.remove('hidden');
   const activeTab = document.querySelector(`.admin-tab[data-tab="${tab}"]`);
   if (activeTab) {
-    activeTab.classList.add('tab-active');
     activeTab.style.opacity = '1';
-    activeTab.style.borderBottom = `2px solid ${state.config.accentColor}`;
+    activeTab.style.borderBottom = `2px solid ${config.accent_color || '#0A84FF'}`;
   }
-  if (tab === 'settings') { loadSettingsUI(); }
-  if (tab === 'dashboard') { updateMetrics(); }
+  
+  if (tab === 'settings') { applyConfig(); renderFAQEditor(); }
+  if (tab === 'dashboard') { updateMetrics(); renderChart(); }
   if (tab === 'products') { renderAdminTable(); }
+  
   applyAllStyles();
-}
-
-// ========================== PRODUCT CRUD ==========================
-function openProductModal(id) {
-  editingProductId = id || null;
-  const modal = document.getElementById('productModal');
-  modal.classList.add('active');
-  document.getElementById('modalTitle').textContent = id ? 'Editar Producto' : 'Agregar Producto';
-  
-  if (id) {
-    const p = state.products.find(x => x.id === id);
-    if (p) {
-      document.getElementById('editProductId').value = p.id;
-      document.getElementById('productName').value = p.name;
-      document.getElementById('productDesc').value = p.description || '';
-      document.getElementById('productCategory').value = p.category || 'Otro';
-      document.getElementById('productPrice').value = p.price;
-      document.getElementById('productOriginalPrice').value = p.originalPrice || '';
-      document.getElementById('productCondition').value = p.condition || 'Como nuevo';
-      document.querySelector(`input[name="priceType"][value="${p.priceType || 'Fijo'}"]`).checked = true;
-      document.getElementById('productNotes').value = p.notes || '';
-      if (p.image) {
-        document.getElementById('imagePreview').src = p.image;
-        document.getElementById('imagePreviewContainer').classList.remove('hidden');
-        document.getElementById('imageUploadPlaceholder').classList.add('hidden');
-      } else {
-        resetImageUI();
-      }
-    }
-  } else {
-    document.getElementById('productForm').reset();
-    document.getElementById('editProductId').value = '';
-    resetImageUI();
-    document.querySelector('input[name="priceType"][value="Fijo"]').checked = true;
-  }
-  applyAllStyles();
-}
-
-function resetImageUI() {
-  document.getElementById('imagePreviewContainer').classList.add('hidden');
-  document.getElementById('imageUploadPlaceholder').classList.remove('hidden');
-  document.getElementById('imagePreview').src = '';
-  document.getElementById('imageInput').value = '';
-}
-
-function closeProductModal() {
-  document.getElementById('productModal').classList.remove('active');
-  editingProductId = null;
-}
-
-let tempImage = null;
-
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('La imagen no debe superar 5MB', 'error');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    tempImage = e.target.result;
-    document.getElementById('imagePreview').src = tempImage;
-    document.getElementById('imagePreviewContainer').classList.remove('hidden');
-    document.getElementById('imageUploadPlaceholder').classList.add('hidden');
-  };
-  reader.readAsDataURL(file);
-}
-
-function saveProduct(e) {
-  e.preventDefault();
-  const name = document.getElementById('productName').value.trim();
-  const description = document.getElementById('productDesc').value.trim();
-  const category = document.getElementById('productCategory').value;
-  const price = parseFloat(document.getElementById('productPrice').value) || 0;
-  const originalPrice = parseFloat(document.getElementById('productOriginalPrice').value) || 0;
-  const condition = document.getElementById('productCondition').value;
-  const priceType = document.querySelector('input[name="priceType"]:checked').value;
-  const notes = document.getElementById('productNotes').value.trim();
-
-  if (!name) { showToast('El nombre es obligatorio', 'error'); return; }
-  if (price <= 0) { showToast('El precio debe ser mayor a 0', 'error'); return; }
-
-  const id = editingProductId || Date.now();
-  const existingProduct = state.products.find(p => p.id === editingProductId);
-  
-  const product = {
-    id,
-    name,
-    description,
-    category,
-    price,
-    originalPrice,
-    condition,
-    priceType,
-    notes,
-    image: tempImage || (existingProduct ? existingProduct.image : '') || '',
-    status: existingProduct ? existingProduct.status : 'Disponible',
-    createdAt: existingProduct ? existingProduct.createdAt : new Date().toISOString()
-  };
-
-  if (editingProductId) {
-    const idx = state.products.findIndex(p => p.id === editingProductId);
-    if (idx !== -1) state.products[idx] = product;
-  } else {
-    state.products.unshift(product);
-  }
-
-  tempImage = null;
-  saveState();
-  closeProductModal();
-  renderAdminTable();
-  renderClientView();
-  updateMetrics();
-  showToast(editingProductId ? 'Producto actualizado ✏️' : 'Producto agregado ✨');
-}
-
-function deleteProduct(id) {
-  if (!confirm('¿Eliminar este producto permanentemente?')) return;
-  state.products = state.products.filter(p => p.id !== id);
-  saveState();
-  renderAdminTable();
-  renderClientView();
-  updateMetrics();
-  showToast('Producto eliminado 🗑️');
-}
-
-function changeStatus(id, newStatus) {
-  const p = state.products.find(x => x.id === id);
-  if (p) {
-    p.status = newStatus;
-    saveState();
-    renderAdminTable();
-    renderClientView();
-    updateMetrics();
-    showToast(`Estado cambiado a: ${newStatus}`);
-  }
-}
-
-// ========================== METRICS ==========================
-function updateMetrics() {
-  const available = state.products.filter(p => p.status === 'Disponible' || p.status === 'Apartado');
-  const sold = state.products.filter(p => p.status === 'Vendido');
-  const revenue = sold.reduce((sum, p) => sum + p.price, 0);
-  
-  document.getElementById('totalRevenue').textContent = '$' + revenue.toLocaleString('es-MX');
-  document.getElementById('totalAvailable').textContent = available.length;
-  document.getElementById('totalSold').textContent = sold.length;
-
-  // Chart
-  renderChart();
-}
-
-function renderChart() {
-  const chart = document.getElementById('inventoryChart');
-  const categories = ['Electrónica', 'Muebles', 'Ropa', 'Hogar', 'Deportes', 'Libros', 'Juguetes', 'Otro'];
-  const counts = categories.map(c => state.products.filter(p => p.category === c).length);
-  const max = Math.max(...counts, 1);
-  const d = isDark();
-
-  chart.innerHTML = categories.map((cat, i) => {
-    const h = Math.max((counts[i] / max) * 100, 4);
-    return `
-      <div class="flex-1 flex flex-col items-center gap-1">
-        <span class="text-xs font-bold">${counts[i]}</span>
-        <div class="w-full rounded-t-lg transition-all-300" style="height:${h}%;background:${state.config.accentColor};opacity:${0.4 + (counts[i]/max)*0.6}"></div>
-        <span class="text-[10px] opacity-40 text-center leading-tight">${cat.slice(0,4)}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-// ========================== ADMIN TABLE ==========================
-function renderAdminTable() {
-  const tbody = document.getElementById('adminTableBody');
-  const search = (document.getElementById('adminSearch').value || '').toLowerCase();
-  const d = isDark();
-  
-  let filtered = state.products;
-  if (search) {
-    filtered = filtered.filter(p => 
-      p.name.toLowerCase().includes(search) || 
-      (p.category && p.category.toLowerCase().includes(search)) ||
-      (p.description && p.description.toLowerCase().includes(search))
-    );
-  }
-
-  if (!filtered.length) {
-    tbody.innerHTML = '';
-    document.getElementById('noAdminProducts').classList.remove('hidden');
-    return;
-  }
-  document.getElementById('noAdminProducts').classList.add('hidden');
-
-  tbody.innerHTML = filtered.map(p => {
-    const statusColors = {
-      'Disponible': 'bg-green-500/15 text-green-400',
-      'Apartado': 'bg-yellow-500/15 text-yellow-400',
-      'Vendido': 'bg-red-500/15 text-red-400'
-    };
-    const statusClass = statusColors[p.status] || statusColors['Disponible'];
-    const discount = p.originalPrice > 0 ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
-    
-    return `
-      <tr class="${d ? 'table-row-dark' : 'table-row-light'} transition-all-300" style="border-bottom:1px solid ${d ? '#2A2A2E' : '#E5E5EA'}">
-        <td class="px-4 py-3">
-          <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-800/30 flex-shrink-0">
-            ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" alt="${escapeAttr(p.name)}">` : `<div class="w-full h-full flex items-center justify-center opacity-20"><i class="fas fa-image"></i></div>`}
-          </div>
-        </td>
-        <td class="px-4 py-3">
-          <p class="font-semibold text-sm">${escapeHTML(p.name)}</p>
-          ${p.notes ? `<p class="text-xs opacity-40 mt-0.5"><i class="fas fa-eye-slash mr-1"></i>${escapeHTML(p.notes.slice(0,50))}${p.notes.length > 50 ? '...' : ''}</p>` : ''}
-        </td>
-        <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded-lg ${d ? 'bg-white/5' : 'bg-black/5'} font-medium">${p.category || 'Otro'}</span></td>
-        <td class="px-4 py-3">
-          <span class="font-bold text-sm">$${p.price.toLocaleString('es-MX')}</span>
-          ${discount > 0 ? `<span class="text-xs text-red-400 ml-1">-${discount}%</span>` : ''}
-        </td>
-        <td class="px-4 py-3"><span class="text-xs">${p.condition || 'N/A'}</span></td>
-        <td class="px-4 py-3">
-          <select onchange="changeStatus(${p.id}, this.value)" class="text-xs px-2 py-1.5 rounded-lg cursor-pointer ${d ? 'input-dark' : 'input-light'}" style="min-width:110px;">
-            <option value="Disponible" ${p.status==='Disponible'?'selected':''}>✅ Disponible</option>
-            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>⏳ Apartado</option>
-            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>🔴 Vendido</option>
-          </select>
-        </td>
-        <td class="px-4 py-3 text-center">
-          <div class="flex items-center justify-center gap-1">
-            <button onclick="openProductModal(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-blue-500/15 text-blue-400 transition-all-300 cursor-pointer" title="Editar">
-              <i class="fas fa-pen-to-square text-sm"></i>
-            </button>
-            <button onclick="deleteProduct(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/15 text-red-400 transition-all-300 cursor-pointer" title="Eliminar">
-              <i class="fas fa-trash-can text-sm"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ========================== CLIENT VIEW ==========================
-function applyClientFilters() {
-  renderClientView();
-}
-
-function renderClientView() {
-  const search = (document.getElementById('clientSearch').value || '').toLowerCase();
-  const category = document.getElementById('filterCategory').value;
-  const priceRange = document.getElementById('filterPrice').value;
-  const sort = document.getElementById('filterSort').value;
-  const hideSold = document.getElementById('hideSoldToggle').classList.contains('active');
-
-  let products = [...state.products];
-
-  // Filter by search
-  if (search) {
-    products = products.filter(p =>
-      p.name.toLowerCase().includes(search) ||
-      (p.description && p.description.toLowerCase().includes(search)) ||
-      (p.category && p.category.toLowerCase().includes(search))
-    );
-  }
-
-  // Filter by category
-  if (category !== 'all') {
-    products = products.filter(p => p.category === category);
-  }
-
-  // Filter by price range
-  if (priceRange !== 'all') {
-    const [min, max] = priceRange.includes('+') 
-      ? [parseInt(priceRange), Infinity] 
-      : priceRange.split('-').map(Number);
-    products = products.filter(p => p.price >= min && p.price <= max);
-  }
-
-  // Sort
-  switch(sort) {
-    case 'price-asc': products.sort((a,b) => a.price - b.price); break;
-    case 'price-desc': products.sort((a,b) => b.price - a.price); break;
-    case 'name-asc': products.sort((a,b) => a.name.localeCompare(b.name)); break;
-    default: products.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }
-
-  // Separate available and sold
-  const availableProducts = products.filter(p => p.status !== 'Vendido');
-  const soldProducts = hideSold ? [] : products.filter(p => p.status === 'Vendido');
-
-  // Render available grid
-  const grid = document.getElementById('productsGrid');
-  const noProducts = document.getElementById('noProducts');
-
-  if (!availableProducts.length && !soldProducts.length) {
-    grid.innerHTML = '';
-    noProducts.classList.remove('hidden');
-  } else {
-    noProducts.classList.add('hidden');
-    grid.innerHTML = availableProducts.map(p => renderProductCard(p)).join('');
-  }
-
-  // Render sold section
-  const soldSection = document.getElementById('soldSection');
-  const soldGrid = document.getElementById('soldGrid');
-  if (soldProducts.length && !hideSold) {
-    soldSection.classList.remove('hidden');
-    soldGrid.innerHTML = soldProducts.map(p => renderProductCard(p)).join('');
-    // Update border color for sold section
-    const borderDiv = soldSection.querySelector('.border-t');
-    if (borderDiv) borderDiv.style.borderColor = isDark() ? '#2A2A2E' : '#E5E5EA';
-  } else {
-    soldSection.classList.add('hidden');
-  }
-}
-
-function renderProductCard(p) {
-  const d = isDark();
-  const isSold = p.status === 'Vendido';
-  const isApartado = p.status === 'Apartado';
-  const isNegociable = p.priceType === 'Negociable';
-  const discount = p.originalPrice > 0 ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
-  const accent = state.config.accentColor;
-  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='400' height='400'/%3E%3Ctext fill='%23${d?'555':'999'}' font-family='Inter' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E📦%3C/text%3E%3C/svg%3E`;
-
-  const waMessage = encodeURIComponent(`¡Hola! Me interesa comprar: ${p.name} ($${p.price.toLocaleString('es-MX')} MXN)`);
-  const waOfferMessage = encodeURIComponent(`¡Hola! Me gustaría hacer una oferta por: ${p.name} (precio actual: $${p.price.toLocaleString('es-MX')} MXN)`);
-  const waLink = `https://wa.me/${state.config.whatsapp}?text=${waMessage}`;
-  const waOfferLink = `https://wa.me/${state.config.whatsapp}?text=${waOfferMessage}`;
-
-  return `
-    <div class="product-card rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'} transition-all-300 hover:shadow-xl hover:-translate-y-1 ${isSold ? 'opacity-40' : ''} fade-in cursor-pointer" onclick="openDetail(${p.id})">
-      <!-- Image -->
-      <div class="relative aspect-square overflow-hidden">
-        <img src="${p.image || placeholderImg}" alt="${escapeAttr(p.name)}" class="product-img w-full h-full object-cover">
-        
-        ${isSold ? `<div class="sold-stamp">VENDIDO</div>` : ''}
-        ${isApartado ? `<div class="sold-stamp" style="color:#FF9F0A;border-color:#FF9F0A;font-size:1.8rem;">APARTADO</div>` : ''}
-        
-        <!-- Badge bar -->
-        <div class="badge-bar absolute top-0 left-0 right-0 px-3 py-2 flex items-center gap-1.5 flex-wrap">
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white/20 text-white">${p.condition || 'N/A'}</span>
-          ${isNegociable ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-green-500/30 text-green-300">Negociable</span>` : ''}
-          ${discount > 0 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-red-500/30 text-red-300">-${discount}%</span>` : ''}
-        </div>
-      </div>
-      
-      <!-- Info -->
-      <div class="p-4">
-        <p class="text-xs opacity-40 mb-1 font-medium">${p.category || 'Otro'}</p>
-        <h3 class="font-bold text-base mb-2 leading-snug">${escapeHTML(p.name)}</h3>
-        <div class="flex items-baseline gap-2 mb-3">
-          <span class="text-xl font-extrabold" style="color:${accent}">$${p.price.toLocaleString('es-MX')}</span>
-          <span class="text-xs opacity-30 font-medium">MXN</span>
-          ${p.originalPrice > 0 ? `<span class="text-sm line-through opacity-30">$${p.originalPrice.toLocaleString('es-MX')}</span>` : ''}
-        </div>
-        
-        ${!isSold ? `
-          <div class="space-y-2" onclick="event.stopPropagation()">
-            <a href="${waLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all-300 hover:scale-[1.02]" style="background:#25D366;">
-              <i class="fab fa-whatsapp"></i> Comprar por WhatsApp
-            </a>
-            ${isNegociable ? `
-              <a href="${waOfferLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all-300 hover:scale-[1.02]" style="background:${d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'};color:${d ? '#fff' : '#1D1D1F'};">
-                <i class="fas fa-comments-dollar"></i> Hacer una Oferta
-              </a>
-            ` : ''}
-          </div>
-        ` : `
-          <div class="py-2.5 rounded-xl text-sm font-bold text-center opacity-40" style="background:${d ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};">
-            <i class="fas fa-ban mr-1"></i> No disponible
-          </div>
-        `}
-      </div>
-    </div>
-  `;
-}
-
-// ========================== DETAIL MODAL ==========================
-function openDetail(id) {
-  const p = state.products.find(x => x.id === id);
-  if (!p) return;
-  const d = isDark();
-  const modal = document.getElementById('detailModal');
-  const content = document.getElementById('detailContent');
-  const isSold = p.status === 'Vendido';
-  const isNegociable = p.priceType === 'Negociable';
-  const discount = p.originalPrice > 0 ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
-  const accent = state.config.accentColor;
-  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='600' height='400'/%3E%3Ctext fill='%23${d?'555':'999'}' font-family='Inter' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E📦%3C/text%3E%3C/svg%3E`;
-
-  const waMessage = encodeURIComponent(`¡Hola! Me interesa comprar: ${p.name} ($${p.price.toLocaleString('es-MX')} MXN)`);
-  const waOfferMessage = encodeURIComponent(`¡Hola! Me gustaría hacer una oferta por: ${p.name} (precio actual: $${p.price.toLocaleString('es-MX')} MXN)`);
-  const waLink = `https://wa.me/${state.config.whatsapp}?text=${waMessage}`;
-  const waOfferLink = `https://wa.me/${state.config.whatsapp}?text=${waOfferMessage}`;
-
-  content.innerHTML = `
-    <div class="relative">
-      <img src="${p.image || placeholderImg}" alt="${escapeAttr(p.name)}" class="w-full aspect-video object-cover">
-      ${isSold ? `<div class="sold-stamp" style="font-size:3rem;">VENDIDO</div>` : ''}
-      <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/70 transition-all-300 cursor-pointer">
-        <i class="fas fa-xmark"></i>
-      </button>
-    </div>
-    <div class="p-6">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span>
-        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.condition || 'N/A'}</span>
-        ${isNegociable ? `<span class="text-xs px-2 py-1 rounded-lg font-medium bg-green-500/15 text-green-400">Negociable</span>` : ''}
-      </div>
-      <h2 class="text-2xl font-extrabold mb-3">${escapeHTML(p.name)}</h2>
-      ${p.description ? `<p class="text-sm opacity-60 leading-relaxed mb-4">${escapeHTML(p.description)}</p>` : ''}
-      <div class="flex items-baseline gap-3 mb-6">
-        <span class="text-3xl font-extrabold" style="color:${accent}">$${p.price.toLocaleString('es-MX')}</span>
-        <span class="text-sm opacity-30">MXN</span>
-        ${p.originalPrice > 0 ? `<span class="text-lg line-through opacity-30">$${p.originalPrice.toLocaleString('es-MX')}</span>` : ''}
-        ${discount > 0 ? `<span class="text-sm font-bold text-red-400 px-2 py-1 rounded-lg bg-red-500/10">-${discount}% OFF</span>` : ''}
-      </div>
-      ${!isSold ? `
-        <div class="space-y-3">
-          <a href="${waLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-bold text-white transition-all-300 hover:scale-[1.02]" style="background:#25D366;">
-            <i class="fab fa-whatsapp text-lg"></i> Comprar por WhatsApp
-          </a>
-          ${isNegociable ? `
-            <a href="${waOfferLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-semibold transition-all-300 hover:scale-[1.02]" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
-              <i class="fas fa-comments-dollar"></i> Hacer una Oferta
-            </a>
-          ` : ''}
-        </div>
-      ` : ''}
-    </div>
-  `;
-
-  modal.classList.add('active');
-  document.getElementById('detailModalCard').classList.add(d ? 'card-dark' : 'card-light');
-}
-
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('active');
-}
-
-// ========================== EXPORT ==========================
-function exportStorefront() {
-  const availableProducts = state.products.filter(p => p.status !== 'Vendido');
-  const soldProducts = state.products.filter(p => p.status === 'Vendido');
-  const config = state.config;
-  const d = isDark();
-
-  const faqsHTML = config.faqs.map(f => `
-    <div class="rounded-2xl overflow-hidden" style="background:${d?'#1A1A1C':'#fff'};border:1px solid ${d?'#2A2A2E':'#E5E5EA'};">
-      <button onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('i').style.transform=this.nextElementSibling.classList.contains('open')?'rotate(180deg)':'rotate(0)'" class="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer" style="border:none;background:transparent;color:inherit;font-family:inherit;font-size:14px;font-weight:600;">
-        <span style="padding-right:16px;">${escapeHTML(f.q)}</span>
-        <i class="fas fa-chevron-down" style="font-size:12px;opacity:0.4;transition:transform 0.3s;"></i>
-      </button>
-      <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.4s ease;padding:0 20px;">
-        <p style="font-size:14px;opacity:0.6;padding-bottom:16px;line-height:1.6;margin:0;">${escapeHTML(f.a)}</p>
-      </div>
-    </div>
-  `).join('');
-
-  const productsHTML = (products) => products.map(p => {
-    const isSold = p.status === 'Vendido';
-    const isNeg = p.priceType === 'Negociable';
-    const disc = p.originalPrice > 0 ? Math.round((1 - p.price/p.originalPrice)*100) : 0;
-    const waMsg = encodeURIComponent(`¡Hola! Me interesa: ${p.name} ($${p.price.toLocaleString('es-MX')} MXN)`);
-    const waOffer = encodeURIComponent(`¡Hola! Oferta por: ${p.name} ($${p.price.toLocaleString('es-MX')} MXN)`);
-    const pImg = p.image || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%232A2A2E' width='400' height='400'/%3E%3Ctext fill='%23555' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E📦%3C/text%3E%3C/svg%3E`;
-    return `
-      <div style="border-radius:16px;overflow:hidden;background:${d?'#1A1A1C':'#fff'};border:1px solid ${d?'#2A2A2E':'#E5E5EA'};${isSold?'opacity:0.4;':''}transition:all 0.3s;">
-        <div style="position:relative;aspect-ratio:1;overflow:hidden;">
-          <img src="${pImg}" alt="${escapeAttr(p.name)}" style="width:100%;height:100%;object-fit:cover;">
-          ${isSold ? '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-20deg);font-size:2.5rem;font-weight:900;color:#FF3B30;border:4px solid #FF3B30;padding:4px 24px;border-radius:12px;letter-spacing:4px;">VENDIDO</div>' : ''}
-          <div style="position:absolute;top:0;left:0;right:0;padding:8px 12px;background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);display:flex;gap:6px;flex-wrap:wrap;">
-            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,0.2);color:#fff;">${p.condition||'N/A'}</span>
-            ${isNeg?'<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(48,209,88,0.3);color:#86efac;">Negociable</span>':''}
-            ${disc>0?`<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,59,48,0.3);color:#fca5a5;">-${disc}%</span>`:''}
-          </div>
-        </div>
-        <div style="padding:16px;">
-          <p style="font-size:12px;opacity:0.4;margin:0 0 4px;font-weight:500;">${p.category||'Otro'}</p>
-          <h3 style="font-weight:700;font-size:16px;margin:0 0 8px;line-height:1.3;">${escapeHTML(p.name)}</h3>
-          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;">
-            <span style="font-size:20px;font-weight:800;color:${config.accentColor};">$${p.price.toLocaleString('es-MX')}</span>
-            <span style="font-size:12px;opacity:0.3;">MXN</span>
-            ${p.originalPrice>0?`<span style="font-size:14px;text-decoration:line-through;opacity:0.3;">$${p.originalPrice.toLocaleString('es-MX')}</span>`:''}
-          </div>
-          ${!isSold ? `
-            <a href="https://wa.me/${config.whatsapp}?text=${waMsg}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;border-radius:12px;font-size:14px;font-weight:700;color:#fff;background:#25D366;text-decoration:none;border:none;cursor:pointer;margin-bottom:${isNeg?'8px':'0'};">
-              <i class="fab fa-whatsapp"></i> Comprar por WhatsApp
-            </a>
-            ${isNeg ? `
-              <a href="https://wa.me/${config.whatsapp}?text=${waOffer}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;border-radius:12px;font-size:14px;font-weight:600;color:${d?'#fff':'#1D1D1F'};background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};text-decoration:none;border:none;cursor:pointer;">
-                <i class="fas fa-comments-dollar"></i> Hacer una Oferta
-              </a>
-            ` : ''}
-          ` : '<div style="padding:10px;border-radius:12px;font-size:14px;font-weight:700;text-align:center;opacity:0.4;background:rgba(255,255,255,0.05);"><i class="fas fa-ban"></i> No disponible</div>'}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Garage Sale</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{font-family:'Inter',sans-serif;box-sizing:border-box;margin:0;padding:0;}
-body{background:${d?'#0D0D0E':'#F5F5F7'};color:${d?'#fff':'#1D1D1F'};}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;}
-.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
-.faq-answer.open{max-height:500px;}
-</style>
-</head>
-<body>
-${config.bannerEnabled ? `<div style="background:${config.bannerColor};color:${getContrastColor(config.bannerColor)};text-align:center;padding:10px;font-size:14px;font-weight:600;">${escapeHTML(config.bannerText)}</div>` : ''}
-<header style="text-align:center;padding:48px 16px 32px;">
-<h1 style="font-size:2.5rem;font-weight:800;">🏷️ Garage Sale</h1>
-<p style="font-size:18px;opacity:0.6;font-weight:300;">Cosas con historia buscando nuevo hogar</p>
-</header>
-<main style="max-width:1200px;margin:0 auto;padding:0 16px 48px;">
-<div class="grid">${productsHTML(availableProducts)}</div>
-${soldProducts.length ? `
-<div style="border-top:1px dashed ${d?'#2A2A2E':'#E5E5EA'};margin-top:48px;padding-top:40px;">
-<h2 style="font-size:1.5rem;font-weight:700;margin-bottom:24px;"><i class="fas fa-gem" style="opacity:0.4;margin-right:8px;"></i>Joyas Vendidas</h2>
-<div class="grid">${productsHTML(soldProducts)}</div>
-</div>
-` : ''}
-${config.faqs.length ? `
-<div style="max-width:768px;margin:48px auto 0;">
-<h2 style="font-size:1.5rem;font-weight:700;margin-bottom:24px;text-align:center;"><i class="fas fa-circle-question" style="opacity:0.4;margin-right:8px;"></i>Preguntas Frecuentes</h2>
-<div style="display:flex;flex-direction:column;gap:12px;">${faqsHTML}</div>
-</div>
-` : ''}
-</main>
-<footer style="text-align:center;padding:32px;opacity:0.3;font-size:14px;">Garage Sale &copy; 2025</footer>
-</body>
-</html>`;
-
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'storefront.html';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Catálogo exportado como storefront.html 📦');
 }
 
 // ========================== UTILITIES ==========================
@@ -1483,10 +1347,11 @@ function escapeHTML(str) {
 
 function escapeAttr(str) {
   if (!str) return '';
-  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function getContrastColor(hex) {
+  if (!hex) return '#FFFFFF';
   const r = parseInt(hex.slice(1,3), 16);
   const g = parseInt(hex.slice(3,5), 16);
   const b = parseInt(hex.slice(5,7), 16);
@@ -1507,9 +1372,7 @@ function showToast(msg, type = 'success') {
   }, 2500);
 }
 
-function generateId() { return Date.now() + Math.random().toString(36).substring(2, 9); }
-
-// ========================== KEYBOARD SHORTCUTS ==========================
+// ========================== KEYBOARD ==========================
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeProductModal();
@@ -1517,8 +1380,136 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ========================== BOOT ==========================
+// ========================== INIT ==========================
+async function init() {
+  const connected = await initSupabase();
+  if (!connected) return;
+  
+  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
+  
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  
+  applyTheme();
+  applyConfig();
+  renderAll();
+}
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   📦 INSTRUCCIONES SQL PARA SUPABASE                                         ║
+║                                                                              ║
+║   Copia y pega el siguiente código en el SQL Editor de tu proyecto          ║
+║   Supabase (Dashboard → SQL Editor → New Query) y ejecuta:                   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+-- ============================================================================
+-- TABLA: products
+-- Almacena todos los productos de la venta de garage
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS products (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  category TEXT DEFAULT 'Otro',
+  price NUMERIC DEFAULT 0,
+  original_price NUMERIC DEFAULT 0,
+  condition TEXT DEFAULT 'Como nuevo',
+  price_type TEXT DEFAULT 'Fijo',
+  notes TEXT,
+  image TEXT,
+  status TEXT DEFAULT 'Disponible',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Habilitar Row Level Security (opcional pero recomendado)
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+
+-- Política para permitir lectura pública
+CREATE POLICY "Allow public read access on products"
+  ON products FOR SELECT
+  USING (true);
+
+-- Política para permitir todas las operaciones (para desarrollo)
+CREATE POLICY "Allow all operations on products"
+  ON products FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+-- ============================================================================
+-- TABLA: config
+-- Almacena la configuración global de la aplicación
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS config (
+  id BIGSERIAL PRIMARY KEY,
+  key TEXT UNIQUE NOT NULL,
+  value TEXT
+);
+
+-- Habilitar RLS
+ALTER TABLE config ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de acceso
+CREATE POLICY "Allow public read access on config"
+  ON config FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow all operations on config"
+  ON config FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+-- Insertar configuración por defecto
+INSERT INTO config (key, value) VALUES
+  ('password', 'admin123'),
+  ('whatsapp', '525543777055'),
+  ('accent_color', '#0A84FF'),
+  ('banner_color', '#FF9500'),
+  ('banner_enabled', 'false'),
+  ('banner_text', '¡Todo se va este fin de semana!')
+ON CONFLICT (key) DO NOTHING;
+
+-- ============================================================================
+-- TABLA: faqs
+-- Almacena las preguntas frecuentes
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS faqs (
+  id BIGSERIAL PRIMARY KEY,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  sort_order INTEGER DEFAULT 0
+);
+
+-- Habilitar RLS
+ALTER TABLE faqs ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de acceso
+CREATE POLICY "Allow public read access on faqs"
+  ON faqs FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow all operations on faqs"
+  ON faqs FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+-- Insertar FAQs de ejemplo
+INSERT INTO faqs (question, answer, sort_order) VALUES
+  ('¿Cómo puedo comprar un artículo?', 'Haz click en "Comprar por WhatsApp" y te pondremos en contacto directo para coordinar la entrega.', 0),
+  ('¿Hacen envíos?', 'Preferimos entrega en persona para que puedas ver el artículo, pero podemos negociar envío según el caso.', 1),
+  ('¿Los precios son negociables?', 'Algunos artículos tienen precio negociable, lo verás marcado en la tarjeta del producto.', 2),
+  ('¿Aceptan pagos con tarjeta?', 'Aceptamos efectivo y transferencia bancaria. Contáctanos para más detalles.', 3);
+
+-- ============================================================================
+-- ¡LISTO! Tu base de datos está configurada correctamente.
+-- Ahora copia tu URL y API Key de Supabase y pégalos en el archivo index.html
+-- ============================================================================
+
+-->
 </body>
 </html>
