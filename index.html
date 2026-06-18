@@ -495,7 +495,7 @@ let tempImageBase64 = null;
 async function initSupabase() {
   try {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const { error } = await supabase.from('config').select('key').limit(1);
+    const { error } = await supabaseClient.from('config').select('key').limit(1);
     if (error) throw error;
     return true;
   } catch (err) {
@@ -509,7 +509,7 @@ async function initSupabase() {
 
 // ========================== DATA FETCHING ==========================
 async function fetchConfig() {
-  const { data } = await supabase.from('config').select('*');
+  const { data } = await supabaseClient.from('config').select('*');
   config = {};
   (data || []).forEach(row => { config[row.key] = row.value; });
   
@@ -523,12 +523,12 @@ async function fetchConfig() {
 }
 
 async function fetchProducts() {
-  const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+  const { data } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
   products = data || [];
 }
 
 async function fetchFAQs() {
-  const { data } = await supabase.from('faqs').select('*').order('sort_order', { ascending: true });
+  const { data } = await supabaseClient.from('faqs').select('*').order('sort_order', { ascending: true });
   faqs = data || [];
 }
 
@@ -541,11 +541,11 @@ async function refreshData() {
 
 // ========================== CONFIG ==========================
 async function updateConfig(key, value) {
-  const { data: existing } = await supabase.from('config').select('id').eq('key', key).single();
+  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
   if (existing) {
-    await supabase.from('config').update({ value }).eq('key', key);
+    await supabaseClient.from('config').update({ value }).eq('key', key);
   } else {
-    await supabase.from('config').insert({ key, value });
+    await supabaseClient.from('config').insert({ key, value });
   }
   config[key] = value;
   applyConfig();
@@ -575,7 +575,7 @@ async function saveWhatsApp() {
 
 // ========================== FAQs ==========================
 async function addFAQ() {
-  const { data, error } = await supabase.from('faqs').insert({
+  const { data, error } = await supabaseClient.from('faqs').insert({
     question: 'Nueva pregunta',
     answer: 'Respuesta...',
     sort_order: faqs.length
@@ -588,14 +588,14 @@ async function addFAQ() {
 }
 
 async function updateFAQ(id, field, value) {
-  await supabase.from('faqs').update({ [field]: value }).eq('id', id);
+  await supabaseClient.from('faqs').update({ [field]: value }).eq('id', id);
   const faq = faqs.find(f => f.id === id);
   if (faq) faq[field] = value;
   renderFAQs();
 }
 
 async function deleteFAQ(id) {
-  await supabase.from('faqs').delete().eq('id', id);
+  await supabaseClient.from('faqs').delete().eq('id', id);
   faqs = faqs.filter(f => f.id !== id);
   renderFAQEditor();
   renderFAQs();
@@ -681,11 +681,11 @@ async function saveProduct(e) {
   
   try {
     if (editingProductId) {
-      await supabase.from('products').update(productData).eq('id', editingProductId);
+      await supabaseClient.from('products').update(productData).eq('id', editingProductId);
       showToast('Actualizado ✓');
     } else {
       productData.status = 'Disponible';
-      await supabase.from('products').insert(productData);
+      await supabaseClient.from('products').insert(productData);
       showToast('Agregado ✓');
     }
     closeProductModal();
@@ -697,7 +697,7 @@ async function saveProduct(e) {
 }
 
 async function changeProductStatus(id, newStatus) {
-  await supabase.from('products').update({ status: newStatus }).eq('id', id);
+  await supabaseClient.from('products').update({ status: newStatus }).eq('id', id);
   const p = products.find(x => x.id === id);
   if (p) p.status = newStatus;
   renderAll();
@@ -706,7 +706,7 @@ async function changeProductStatus(id, newStatus) {
 
 async function deleteProduct(id) {
   if (!confirm('¿Eliminar este producto?')) return;
-  await supabase.from('products').delete().eq('id', id);
+  await supabaseClient.from('products').delete().eq('id', id);
   products = products.filter(p => p.id !== id);
   renderAll();
   showToast('Eliminado ✓');
