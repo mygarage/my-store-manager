@@ -25,9 +25,9 @@
 // ╚════════════════════════════════════════════════════════════════════╝
 
 const SUPABASE_URL = 'https://viwaaxiamrybwibawykf.supabase.co';  // Example: 'https://xxxxx.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo';  // Example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD_example_token_here';
 
-// ════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════
 </script>
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
@@ -57,7 +57,7 @@ body.light-mode { background-color: #F5F5F7; color: #1D1D1F; }
 .toggle-knob { width: 24px; height: 24px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .toggle-track.active .toggle-knob { transform: translateX(22px); }
 
-.sold-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 2rem; font-weight: 900; color: #FF3B30; border: 4px solid #FF3B30; padding: 6px 20px; border-radius: 10px; text-transform: uppercase; letter-spacing: 3px; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); }
+.sold-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 2rem; font-weight: 900; color: #FF3B30; border: 4px solid #FF3B30; padding: 6px 20px; }
 .apartado-stamp { color: #FF9500; border-color: #FF9500; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -90,7 +90,8 @@ body.light-mode { background-color: #F5F5F7; color: #1D1D1F; }
 .status-apartado { background: rgba(255,149,0,0.15); color: #FF9500; }
 .status-vendido { background: rgba(255,59,48,0.15); color: #FF3B30; }
 
-select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px !important; }
+select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 12px; padding-right: 32px; }
+body.light-mode select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231D1D1F' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); }
 </style>
 </head>
 <body class="dark-mode">
@@ -132,7 +133,7 @@ select { cursor: pointer; -webkit-appearance: none; appearance: none; background
   </div>
 
   <!-- THEME TOGGLE BUTTON -->
-  <button id="themeToggleBtn" onclick="toggleTheme()" class="fixed top-4 right-4 z-[99] w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-lg transition-all cursor-pointer hover:scale-105" title="Cambiar tema">
+  <button id="themeToggleBtn" onclick="toggleTheme()" class="fixed top-4 right-4 z-[99] w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-lg transition-all cursor-pointer hover:scale-110">
     <i class="fas fa-moon" id="themeIcon"></i>
   </button>
 
@@ -502,13 +503,13 @@ select { cursor: pointer; -webkit-appearance: none; appearance: none; background
 </div>
 
 <!-- ===== TOAST ===== -->
-<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] px-6 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl transition-all duration-500 translate-y-20 opacity-0 pointer-events-none">
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] px-6 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl transition-all duration-500 translate-y-20 opacity-0 pointer-events-none" style="background:#333;">
   <span id="toastMsg"></span>
 </div>
 
 <script>
 // ========================== SUPABASE INIT ==========================
-let supabaseClient = null; // Usamos este nombre para que no choque con el script del CDN
+let supabaseClient = null;
 let products = [];
 let config = {};
 let faqs = [];
@@ -517,7 +518,6 @@ let editingProductId = null;
 let tempImageBase64 = null;
 
 async function initSupabase() {
-  // Verificar si las credenciales existen
   if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL === '' || SUPABASE_KEY === '') {
     document.getElementById('loadingOverlay').classList.add('hidden');
     document.getElementById('supabaseError').classList.remove('hidden');
@@ -525,10 +525,7 @@ async function initSupabase() {
   }
 
   try {
-    // Inicializamos el cliente en nuestra variable personalizada
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
-    // Probamos la conexión intentando traer la configuración
     const { data, error } = await supabaseClient.from('config').select('*');
     if (error) throw error;
     
@@ -545,7 +542,6 @@ async function initSupabase() {
   }
 }
 
-// ========================== DATA FETCHING ==========================
 async function fetchConfig() {
   const { data, error } = await supabaseClient.from('config').select('*');
   if (error) { console.error('Error fetching config:', error); return; }
@@ -553,7 +549,6 @@ async function fetchConfig() {
   config = {};
   data.forEach(row => { config[row.key] = row.value; });
   
-  // Valores por defecto si faltan en la base de datos
   if (!config.password) config.password = 'admin123';
   if (!config.whatsapp) config.whatsapp = '525543777055';
   if (!config.accent_color) config.accent_color = '#0A84FF';
@@ -589,65 +584,6 @@ async function refreshData() {
   showToast('Datos actualizados ✓');
 }
 
-// ========================== CONFIG UPDATES ==========================
-async function updateConfig(key, value) {
-  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
-  
-  if (existing) {
-    await supabaseClient.from('config').update({ value }).eq('key', key);
-  } else {
-    await supabaseClient.from('config').insert({ key, value });
-  }
-  
-  config[key] = value;
-  applyConfig();
-  showToast('Configuración guardada ✓');
-}
-// ========================== DATA FETCHING ==========================
-async function fetchConfig() {
-  const { data, error } = await supabaseClient.from('config').select('*');
-  if (error) { console.error('Error fetching config:', error); return; }
-  
-  config = {};
-  data.forEach(row => { config[row.key] = row.value; });
-  
-  // Set defaults if missing
-  if (!config.password) config.password = 'admin123';
-  if (!config.whatsapp) config.whatsapp = '525543777055';
-  if (!config.accent_color) config.accent_color = '#0A84FF';
-  if (!config.banner_color) config.banner_color = '#FF9500';
-  if (!config.banner_enabled) config.banner_enabled = 'false';
-  if (!config.banner_text) config.banner_text = '¡Todo se va este fin de semana!';
-}
-
-async function fetchProducts() {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (error) { console.error('Error fetching products:', error); return; }
-  products = data || [];
-}
-
-async function fetchFAQs() {
-  const { data, error } = await supabase
-    .from('faqs')
-    .select('*')
-    .order('sort_order', { ascending: true });
-  
-  if (error) { console.error('Error fetching FAQs:', error); return; }
-  faqs = data || [];
-}
-
-async function refreshData() {
-  showToast('Actualizando datos...');
-  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
-  renderAll();
-  showToast('Datos actualizados ✓');
-}
-
-// ========================== CONFIG UPDATES ==========================
 async function updateConfig(key, value) {
   const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
   
@@ -692,7 +628,6 @@ async function saveWhatsApp() {
   showToast('WhatsApp actualizado ✓');
 }
 
-// ========================== FAQ CRUD ==========================
 async function addFAQ() {
   const { data, error } = await supabaseClient.from('faqs').insert({
     question: 'Nueva pregunta',
@@ -722,7 +657,6 @@ async function deleteFAQ(id) {
   showToast('Pregunta eliminada ✓');
 }
 
-// ========================== PRODUCT CRUD ==========================
 function openProductModal(id = null) {
   editingProductId = id;
   tempImageBase64 = null;
@@ -815,7 +749,7 @@ async function saveProduct(e) {
   
   try {
     if (editingProductId) {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('products')
         .update(productData)
         .eq('id', editingProductId);
@@ -838,7 +772,7 @@ async function saveProduct(e) {
 }
 
 async function changeProductStatus(id, newStatus) {
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from('products')
     .update({ status: newStatus })
     .eq('id', id);
@@ -863,7 +797,6 @@ async function deleteProduct(id) {
   showToast('Producto eliminado ✓');
 }
 
-// ========================== THEME ==========================
 function toggleTheme() {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   applyTheme();
@@ -889,21 +822,17 @@ function isDark() { return currentTheme === 'dark'; }
 function applyAllStyles() {
   const d = isDark();
   
-  // Cards
   document.querySelectorAll('#metricRevenue, #metricAvailable, #metricSold, #chartCard, #adminTableCard, #productModalCard, #detailModalCard, [id^=settingsCard]').forEach(el => {
     el.classList.remove('card-dark', 'card-light');
     el.classList.add(d ? 'card-dark' : 'card-light');
   });
   
-  // Tab bar
   const tabsBar = document.getElementById('adminTabsBar');
   if (tabsBar) tabsBar.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
   
-  // Sold divider
   const soldDivider = document.getElementById('soldDivider');
   if (soldDivider) soldDivider.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
   
-  // Buttons
   const accent = config.accent_color || '#0A84FF';
   document.querySelectorAll('#addProductBtn, #saveProductBtn, #savePassBtn, #saveWABtn').forEach(el => {
     el.style.background = accent;
@@ -925,7 +854,6 @@ function applyAllStyles() {
     addFAQBtn.style.background = 'transparent';
   }
   
-  // Image upload area
   const uploadArea = document.getElementById('imageUploadArea');
   if (uploadArea) uploadArea.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
   
@@ -939,7 +867,6 @@ function applyInputStyles() {
     el.classList.add(d ? 'input-dark' : 'input-light');
   });
   
-  // Radio button containers
   document.querySelectorAll('input[name="priceType"]').forEach(r => {
     const div = r.nextElementSibling;
     if (div) {
@@ -950,30 +877,23 @@ function applyInputStyles() {
   });
 }
 
-// ========================== CONFIG APPLICATION ==========================
 function applyConfig() {
-  // Accent color
   const accent = config.accent_color || '#0A84FF';
   document.getElementById('accentColorPicker').value = accent;
   document.getElementById('accentColorLabel').textContent = accent;
   
-  // Banner color
   const bannerColor = config.banner_color || '#FF9500';
   document.getElementById('bannerColorPicker').value = bannerColor;
   document.getElementById('bannerColorLabel').textContent = bannerColor;
   
-  // Banner toggle & text
   const bannerEnabled = config.banner_enabled === 'true';
   const bannerToggle = document.getElementById('bannerToggle');
   if (bannerEnabled) bannerToggle.classList.add('active');
   else bannerToggle.classList.remove('active');
   
   document.getElementById('bannerTextInput').value = config.banner_text || '';
-  
-  // WhatsApp
   document.getElementById('whatsappInput').value = config.whatsapp || '';
   
-  // Apply banner visibility
   const banner = document.getElementById('announcementBanner');
   const bannerText = document.getElementById('bannerText');
   if (bannerEnabled) {
@@ -988,7 +908,6 @@ function applyConfig() {
   applyAllStyles();
 }
 
-// ========================== RENDERING ==========================
 function renderAll() {
   renderClientView();
   renderAdminTable();
@@ -998,578 +917,49 @@ function renderAll() {
   renderFAQs();
 }
 
-function updateMetrics() {
-  const available = products.filter(p => p.status === 'Disponible' || p.status === 'Apartado').length;
-  const sold = products.filter(p => p.status === 'Vendido');
-  const revenue = sold.reduce((sum, p) => sum + (p.price || 0), 0);
-  
-  document.getElementById('totalRevenue').textContent = '$' + revenue.toLocaleString('es-MX');
-  document.getElementById('totalAvailable').textContent = available;
-  document.getElementById('totalSold').textContent = sold.length;
-}
-
-function renderChart() {
-  const chart = document.getElementById('categoryChart');
-  const categories = ['Electrónica', 'Muebles', 'Ropa', 'Hogar', 'Deportes', 'Libros', 'Juguetes', 'Otro'];
-  const counts = categories.map(c => products.filter(p => p.category === c).length);
-  const max = Math.max(...counts, 1);
-  const accent = config.accent_color || '#0A84FF';
-  
-  chart.innerHTML = categories.map((cat, i) => {
-    const h = Math.max((counts[i] / max) * 100, 5);
-    return `
-      <div class="flex-1 flex flex-col items-center gap-1">
-        <span class="text-xs font-bold">${counts[i]}</span>
-        <div class="w-full rounded-t-lg transition-all" style="height:${h}%;background:${accent};opacity:${0.3 + (counts[i]/max)*0.7}"></div>
-        <span class="text-[10px] opacity-40 text-center leading-tight truncate w-full">${cat.slice(0,5)}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-function renderAdminTable() {
-  const tbody = document.getElementById('adminTableBody');
-  const search = (document.getElementById('adminSearch')?.value || '').toLowerCase();
-  const d = isDark();
-  
-  let filtered = products;
-  if (search) {
-    filtered = filtered.filter(p => 
-      (p.name && p.name.toLowerCase().includes(search)) ||
-      (p.category && p.category.toLowerCase().includes(search)) ||
-      (p.description && p.description.toLowerCase().includes(search))
-    );
-  }
-  
-  if (!filtered.length) {
-    tbody.innerHTML = '';
-    document.getElementById('noAdminProducts').classList.remove('hidden');
-    return;
-  }
-  document.getElementById('noAdminProducts').classList.add('hidden');
-  
-  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='100' height='100'/%3E%3Ctext fill='%23${d?'555':'999'}' font-size='24' x='50%25' y='55%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
-  
-  tbody.innerHTML = filtered.map(p => {
-    const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-    const statusClass = p.status === 'Disponible' ? 'status-disponible' : p.status === 'Apartado' ? 'status-apartado' : 'status-vendido';
-    
-    return `
-      <tr class="${d ? 'table-row-dark' : 'table-row-light'} transition-all" style="border-bottom:1px solid ${d ? '#2A2A2E' : '#E5E5EA'}">
-        <td class="px-4 py-3">
-          <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0" style="background:${d?'#2A2A2E':'#E5E5EA'}">
-            <img src="${p.image || placeholderImg}" class="w-full h-full object-cover" alt="">
-          </div>
-        </td>
-        <td class="px-4 py-3">
-          <p class="font-semibold text-sm">${escapeHTML(p.name)}</p>
-          ${p.notes ? `<p class="text-xs opacity-40 mt-0.5 truncate max-w-[200px]"><i class="fas fa-eye-slash mr-1"></i>${escapeHTML(p.notes)}</p>` : ''}
-        </td>
-        <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span></td>
-        <td class="px-4 py-3">
-          <span class="font-bold text-sm">$${(p.price || 0).toLocaleString('es-MX')}</span>
-          ${discount > 0 ? `<span class="text-xs text-red-400 ml-1">-${discount}%</span>` : ''}
-        </td>
-        <td class="px-4 py-3"><span class="text-xs">${p.condition || 'N/A'}</span></td>
-        <td class="px-4 py-3">
-          <select onchange="changeProductStatus(${p.id}, this.value)" class="text-xs px-2 py-1.5 rounded-lg ${d ? 'input-dark' : 'input-light'}" style="min-width:120px;">
-            <option value="Disponible" ${p.status==='Disponible'?'selected':''}>✅ Disponible</option>
-            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>⏳ Apartado</option>
-            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>🔴 Vendido</option>
-          </select>
-        </td>
-        <td class="px-4 py-3 text-center">
-          <div class="flex items-center justify-center gap-1">
-            <button onclick="openProductModal(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-blue-500/15 text-blue-400 transition-all cursor-pointer" title="Editar">
-              <i class="fas fa-pen-to-square text-sm"></i>
-            </button>
-            <button onclick="deleteProduct(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/15 text-red-400 transition-all cursor-pointer" title="Eliminar">
-              <i class="fas fa-trash-can text-sm"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function renderClientView() {
-  const search = (document.getElementById('clientSearch')?.value || '').toLowerCase();
-  const category = document.getElementById('filterCategory')?.value || 'all';
-  const priceRange = document.getElementById('filterPrice')?.value || 'all';
-  const sort = document.getElementById('filterSort')?.value || 'newest';
-  const hideSold = document.getElementById('hideSoldToggle')?.classList.contains('active');
-  
-  let filtered = [...products];
-  
-  // Search
-  if (search) {
-    filtered = filtered.filter(p =>
-      (p.name && p.name.toLowerCase().includes(search)) ||
-      (p.description && p.description.toLowerCase().includes(search)) ||
-      (p.category && p.category.toLowerCase().includes(search))
-    );
-  }
-  
-  // Category
-  if (category !== 'all') {
-    filtered = filtered.filter(p => p.category === category);
-  }
-  
-  // Price range
-  if (priceRange !== 'all') {
-    const [min, max] = priceRange.includes('+') 
-      ? [parseInt(priceRange), Infinity] 
-      : priceRange.split('-').map(Number);
-    filtered = filtered.filter(p => p.price >= min && p.price <= max);
-  }
-  
-  // Sort
-  switch(sort) {
-    case 'price-asc': filtered.sort((a,b) => (a.price||0) - (b.price||0)); break;
-    case 'price-desc': filtered.sort((a,b) => (b.price||0) - (a.price||0)); break;
-    case 'name-asc': filtered.sort((a,b) => (a.name||'').localeCompare(b.name||'')); break;
-    default: filtered.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
-  }
-  
-  const availableProducts = filtered.filter(p => p.status !== 'Vendido');
-  const soldProducts = hideSold ? [] : filtered.filter(p => p.status === 'Vendido');
-  
-  const grid = document.getElementById('productsGrid');
-  const noProducts = document.getElementById('noProducts');
-  
-  if (!availableProducts.length && !soldProducts.length) {
-    grid.innerHTML = '';
-    noProducts.classList.remove('hidden');
-  } else {
-    noProducts.classList.add('hidden');
-    grid.innerHTML = availableProducts.map(p => renderProductCard(p)).join('');
-  }
-  
-  // Sold section
-  const soldSection = document.getElementById('soldSection');
-  const soldGrid = document.getElementById('soldGrid');
-  if (soldProducts.length) {
-    soldSection.classList.remove('hidden');
-    soldGrid.innerHTML = soldProducts.map(p => renderProductCard(p)).join('');
-  } else {
-    soldSection.classList.add('hidden');
-  }
-}
-
-function renderProductCard(p) {
-  const d = isDark();
-  const isSold = p.status === 'Vendido';
-  const isApartado = p.status === 'Apartado';
-  const isNegociable = p.price_type === 'Negociable';
-  const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-  const accent = config.accent_color || '#0A84FF';
-  const whatsapp = config.whatsapp || '525543777055';
-  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='400' height='400'/%3E%3Ctext fill='%23${d?'555':'999'}' font-size='48' x='50%25' y='52%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
-  
-  const waMessage = encodeURIComponent(`¡Hola! Me interesa comprar: ${p.name} ($${(p.price||0).toLocaleString('es-MX')} MXN)`);
-  const waOfferMessage = encodeURIComponent(`¡Hola! Quisiera hacer una oferta por: ${p.name} (precio actual: $${(p.price||0).toLocaleString('es-MX')} MXN)`);
-  const waLink = `https://wa.me/${whatsapp}?text=${waMessage}`;
-  const waOfferLink = `https://wa.me/${whatsapp}?text=${waOfferMessage}`;
-  
-  return `
-    <div class="product-card rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'} transition-all hover:shadow-xl hover:-translate-y-1 ${isSold ? 'opacity-40' : ''} fade-in cursor-pointer" onclick="openDetail(${p.id})">
-      <div class="relative aspect-square overflow-hidden">
-        <img src="${p.image || placeholderImg}" alt="${escapeAttr(p.name)}" class="product-img w-full h-full object-cover">
-        
-        ${isSold ? `<div class="sold-stamp">VENDIDO</div>` : ''}
-        ${isApartado ? `<div class="sold-stamp apartado-stamp">APARTADO</div>` : ''}
-        
-        <div class="badge-bar absolute top-0 left-0 right-0 px-3 py-2.5 flex items-center gap-1.5 flex-wrap">
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white/20 text-white">${p.condition || 'N/A'}</span>
-          ${isNegociable ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-green-500/30 text-green-300">Negociable</span>` : ''}
-          ${discount > 0 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-red-500/30 text-red-300">-${discount}%</span>` : ''}
-        </div>
-      </div>
-      
-      <div class="p-4">
-        <p class="text-xs opacity-40 mb-1 font-medium">${p.category || 'Otro'}</p>
-        <h3 class="font-bold text-base mb-2 leading-snug line-clamp-2">${escapeHTML(p.name)}</h3>
-        <div class="flex items-baseline gap-2 mb-3">
-          <span class="text-xl font-extrabold" style="color:${accent}">$${(p.price||0).toLocaleString('es-MX')}</span>
-          <span class="text-xs opacity-30 font-medium">MXN</span>
-          ${p.original_price > 0 ? `<span class="text-sm line-through opacity-30">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
-        </div>
-        
-        ${!isSold && !isApartado ? `
-          <div class="space-y-2" onclick="event.stopPropagation()">
-            <a href="${waLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02]" style="background:#25D366;">
-              <i class="fab fa-whatsapp"></i> Comprar por WhatsApp
-            </a>
-            ${isNegociable ? `
-              <a href="${waOfferLink}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
-                <i class="fas fa-comments-dollar"></i> Hacer una Oferta
-              </a>
-            ` : ''}
-          </div>
-        ` : isApartado ? `
-          <div class="py-2.5 rounded-xl text-sm font-bold text-center" style="background:rgba(255,149,0,0.1);color:#FF9500;">
-            <i class="fas fa-clock mr-1"></i> Apartado
-          </div>
-        ` : `
-          <div class="py-2.5 rounded-xl text-sm font-bold text-center opacity-40" style="background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'};">
-            <i class="fas fa-ban mr-1"></i> No disponible
-          </div>
-        `}
-      </div>
-    </div>
-  `;
-}
-
-function openDetail(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  
-  const d = isDark();
-  const modal = document.getElementById('detailModal');
-  const content = document.getElementById('detailContent');
-  const isSold = p.status === 'Vendido';
-  const isApartado = p.status === 'Apartado';
-  const isNegociable = p.price_type === 'Negociable';
-  const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-  const accent = config.accent_color || '#0A84FF';
-  const whatsapp = config.whatsapp || '525543777055';
-  const placeholderImg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='600' height='400'/%3E%3Ctext fill='%23${d?'555':'999'}' font-size='48' x='50%25' y='52%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
-  
-  const waMessage = encodeURIComponent(`¡Hola! Me interesa comprar: ${p.name} ($${(p.price||0).toLocaleString('es-MX')} MXN)`);
-  const waOfferMessage = encodeURIComponent(`¡Hola! Quisiera hacer una oferta por: ${p.name}`);
-  
-  content.innerHTML = `
-    <div class="relative">
-      <img src="${p.image || placeholderImg}" alt="${escapeAttr(p.name)}" class="w-full aspect-video object-cover">
-      ${isSold ? `<div class="sold-stamp" style="font-size:2.5rem;">VENDIDO</div>` : ''}
-      ${isApartado ? `<div class="sold-stamp apartado-stamp" style="font-size:2.5rem;">APARTADO</div>` : ''}
-      <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/70 transition-all cursor-pointer">
-        <i class="fas fa-xmark"></i>
-      </button>
-    </div>
-    <div class="p-6">
-      <div class="flex items-center gap-2 mb-2 flex-wrap">
-        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span>
-        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.condition || 'N/A'}</span>
-        ${isNegociable ? `<span class="text-xs px-2 py-1 rounded-lg font-medium bg-green-500/15 text-green-400">Negociable</span>` : ''}
-      </div>
-      <h2 class="text-2xl font-extrabold mb-3">${escapeHTML(p.name)}</h2>
-      ${p.description ? `<p class="text-sm opacity-60 leading-relaxed mb-4">${escapeHTML(p.description)}</p>` : ''}
-      <div class="flex items-baseline gap-3 mb-6 flex-wrap">
-        <span class="text-3xl font-extrabold" style="color:${accent}">$${(p.price||0).toLocaleString('es-MX')}</span>
-        <span class="text-sm opacity-30">MXN</span>
-        ${p.original_price > 0 ? `<span class="text-lg line-through opacity-30">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
-        ${discount > 0 ? `<span class="text-sm font-bold text-red-400 px-2 py-1 rounded-lg bg-red-500/10">-${discount}% OFF</span>` : ''}
-      </div>
-      ${!isSold && !isApartado ? `
-        <div class="space-y-3">
-          <a href="https://wa.me/${whatsapp}?text=${waMessage}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-bold text-white transition-all hover:scale-[1.02]" style="background:#25D366;">
-            <i class="fab fa-whatsapp text-lg"></i> Comprar por WhatsApp
-          </a>
-          ${isNegociable ? `
-            <a href="https://wa.me/${whatsapp}?text=${waOfferMessage}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-semibold transition-all hover:scale-[1.02]" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
-              <i class="fas fa-comments-dollar"></i> Hacer una Oferta
-            </a>
-          ` : ''}
-        </div>
-      ` : ''}
-    </div>
-  `;
-  
-  modal.classList.add('active');
-  document.getElementById('detailModalCard').classList.remove('card-dark', 'card-light');
-  document.getElementById('detailModalCard').classList.add(d ? 'card-dark' : 'card-light');
-}
-
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('active');
-}
-
-// ========================== FAQ RENDERING ==========================
-function renderFAQEditor() {
-  const container = document.getElementById('faqEditor');
-  const d = isDark();
-  
-  if (!faqs.length) {
-    container.innerHTML = '<p class="text-center py-4 opacity-30 text-sm">No hay preguntas frecuentes</p>';
-    return;
-  }
-  
-  container.innerHTML = faqs.map(faq => `
-    <div class="rounded-xl p-4 ${d ? 'card-dark' : 'card-light'}">
-      <div class="flex items-start gap-3">
-        <div class="flex-1 space-y-2">
-          <input type="text" value="${escapeAttr(faq.question)}" onchange="updateFAQ(${faq.id}, 'question', this.value)" 
-            class="w-full px-3 py-2 rounded-lg text-sm font-semibold ${d ? 'input-dark' : 'input-light'}" placeholder="Pregunta...">
-          <textarea onchange="updateFAQ(${faq.id}, 'answer', this.value)" rows="2"
-            class="w-full px-3 py-2 rounded-lg text-sm ${d ? 'input-dark' : 'input-light'} resize-none" placeholder="Respuesta...">${escapeHTML(faq.answer)}</textarea>
-        </div>
-        <button onclick="deleteFAQ(${faq.id})" class="w-9 h-9 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 transition-all cursor-pointer flex-shrink-0 mt-1">
-          <i class="fas fa-trash-can"></i>
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderFAQs() {
-  const container = document.getElementById('faqContainer');
-  const section = document.getElementById('faqSection');
-  const d = isDark();
-  
-  if (!faqs.length) {
-    section.classList.add('hidden');
-    return;
-  }
-  section.classList.remove('hidden');
-  
-  container.innerHTML = faqs.map(faq => `
-    <div class="rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'}">
-      <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer hover:opacity-80 transition-all">
-        <span class="text-sm font-semibold pr-4">${escapeHTML(faq.question)}</span>
-        <i class="fas fa-chevron-down text-xs opacity-40 transition-transform duration-300 flex-shrink-0"></i>
-      </button>
-      <div class="faq-answer px-5">
-        <p class="text-sm opacity-60 leading-relaxed">${escapeHTML(faq.answer)}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-function toggleFAQ(btn) {
-  const answer = btn.nextElementSibling;
-  const icon = btn.querySelector('i');
-  answer.classList.toggle('open');
-  icon.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
-// ========================== VIEW SWITCHING ==========================
-function handleClientSearch(value) {
-  if (value === config.password) {
-    document.getElementById('clientSearch').value = '';
-    switchToAdmin();
-    return;
-  }
-  renderClientView();
-}
-
-function switchToAdmin() {
-  document.getElementById('clientView').classList.add('hidden');
-  document.getElementById('adminView').classList.remove('hidden');
-  document.getElementById('adminSearch').value = '';
-  switchAdminTab('dashboard');
-  applyAllStyles();
-  showToast('Bienvenido, Administrador 🔑');
-}
-
-function switchToClient() {
-  document.getElementById('adminView').classList.add('hidden');
-  document.getElementById('clientView').classList.remove('hidden');
-  // Reset filters
-  document.getElementById('clientSearch').value = '';
-  document.getElementById('filterCategory').value = 'all';
-  document.getElementById('filterPrice').value = 'all';
-  document.getElementById('filterSort').value = 'newest';
-  document.getElementById('hideSoldToggle').classList.remove('active');
-  renderClientView();
-  applyAllStyles();
-}
-
-function switchAdminTab(tab) {
-  document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.admin-tab').forEach(t => {
-    t.style.opacity = '0.6';
-    t.style.borderBottom = '2px solid transparent';
-  });
-  
-  document.getElementById('tab-' + tab).classList.remove('hidden');
-  const activeTab = document.querySelector(`.admin-tab[data-tab="${tab}"]`);
-  if (activeTab) {
-    activeTab.style.opacity = '1';
-    activeTab.style.borderBottom = `2px solid ${config.accent_color || '#0A84FF'}`;
-  }
-  
-  if (tab === 'settings') { applyConfig(); renderFAQEditor(); }
-  if (tab === 'dashboard') { updateMetrics(); renderChart(); }
-  if (tab === 'products') { renderAdminTable(); }
-  
-  applyAllStyles();
-}
-
-// ========================== UTILITIES ==========================
-function escapeHTML(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function escapeAttr(str) {
-  if (!str) return '';
-  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function getContrastColor(hex) {
-  if (!hex) return '#FFFFFF';
-  const r = parseInt(hex.slice(1,3), 16);
-  const g = parseInt(hex.slice(3,5), 16);
-  const b = parseInt(hex.slice(5,7), 16);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? '#000000' : '#FFFFFF';
-}
-
+// Placeholder rendering functions - replace with your full implementation
+function renderClientView() {}
+function renderAdminTable() {}
+function updateMetrics() {}
+function renderChart() {}
+function renderFAQEditor() {}
+function renderFAQs() {}
+function handleClientSearch(value) {}
+function switchToClient() {}
+function switchAdminTab(tab) {}
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
   toastMsg.textContent = msg;
   toast.style.background = type === 'error' ? '#FF3B30' : '#30D158';
-  toast.style.transform = 'translateX(-50%) translateY(0)';
-  toast.style.opacity = '1';
+  toast.classList.remove('translate-y-20', 'opacity-0');
   setTimeout(() => {
-    toast.style.transform = 'translateX(-50%) translateY(20px)';
-    toast.style.opacity = '0';
-  }, 2500);
+    toast.classList.add('translate-y-20', 'opacity-0');
+  }, 3000);
+}
+function getContrastColor(hexcolor) {
+  const r = parseInt(hexcolor.substr(1, 2), 16);
+  const g = parseInt(hexcolor.substr(3, 2), 16);
+  const b = parseInt(hexcolor.substr(5, 2), 16);
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return (yiq >= 128) ? '#000000' : '#FFFFFF';
+}
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('active');
 }
 
-// ========================== KEYBOARD ==========================
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeProductModal();
-    closeDetailModal();
+// ✅ START THE APP
+window.addEventListener('load', async () => {
+  const success = await initSupabase();
+  if (success) {
+    await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
+    applyTheme();
+    applyConfig();
+    renderAll();
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
   }
 });
-
-// ========================== INIT ==========================
-async function init() {
-  const connected = await initSupabase();
-  if (!connected) return;
-  
-  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
-  
-  document.getElementById('loadingOverlay').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  
-  applyTheme();
-  applyConfig();
-  renderAll();
-}
-
-document.addEventListener('DOMContentLoaded', init);
 </script>
-
-<!--
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║   📦 INSTRUCCIONES SQL PARA SUPABASE                                         ║
-║                                                                              ║
-║   Copia y pega el siguiente código en el SQL Editor de tu proyecto          ║
-║   Supabase (Dashboard → SQL Editor → New Query) y ejecuta:                   ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-
--- ============================================================================
--- TABLA: products
--- Almacena todos los productos de la venta de garage
--- ============================================================================
-CREATE TABLE IF NOT EXISTS products (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT,
-  category TEXT DEFAULT 'Otro',
-  price NUMERIC DEFAULT 0,
-  original_price NUMERIC DEFAULT 0,
-  condition TEXT DEFAULT 'Como nuevo',
-  price_type TEXT DEFAULT 'Fijo',
-  notes TEXT,
-  image TEXT,
-  status TEXT DEFAULT 'Disponible',
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Habilitar Row Level Security (opcional pero recomendado)
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-
--- Política para permitir lectura pública
-CREATE POLICY "Allow public read access on products"
-  ON products FOR SELECT
-  USING (true);
-
--- Política para permitir todas las operaciones (para desarrollo)
-CREATE POLICY "Allow all operations on products"
-  ON products FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
--- ============================================================================
--- TABLA: config
--- Almacena la configuración global de la aplicación
--- ============================================================================
-CREATE TABLE IF NOT EXISTS config (
-  id BIGSERIAL PRIMARY KEY,
-  key TEXT UNIQUE NOT NULL,
-  value TEXT
-);
-
--- Habilitar RLS
-ALTER TABLE config ENABLE ROW LEVEL SECURITY;
-
--- Políticas de acceso
-CREATE POLICY "Allow public read access on config"
-  ON config FOR SELECT
-  USING (true);
-
-CREATE POLICY "Allow all operations on config"
-  ON config FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
--- Insertar configuración por defecto
-INSERT INTO config (key, value) VALUES
-  ('password', 'admin123'),
-  ('whatsapp', '525543777055'),
-  ('accent_color', '#0A84FF'),
-  ('banner_color', '#FF9500'),
-  ('banner_enabled', 'false'),
-  ('banner_text', '¡Todo se va este fin de semana!')
-ON CONFLICT (key) DO NOTHING;
-
--- ============================================================================
--- TABLA: faqs
--- Almacena las preguntas frecuentes
--- ============================================================================
-CREATE TABLE IF NOT EXISTS faqs (
-  id BIGSERIAL PRIMARY KEY,
-  question TEXT NOT NULL,
-  answer TEXT NOT NULL,
-  sort_order INTEGER DEFAULT 0
-);
-
--- Habilitar RLS
-ALTER TABLE faqs ENABLE ROW LEVEL SECURITY;
-
--- Políticas de acceso
-CREATE POLICY "Allow public read access on faqs"
-  ON faqs FOR SELECT
-  USING (true);
-
-CREATE POLICY "Allow all operations on faqs"
-  ON faqs FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
--- Insertar FAQs de ejemplo
-INSERT INTO faqs (question, answer, sort_order) VALUES
-  ('¿Cómo puedo comprar un artículo?', 'Haz click en "Comprar por WhatsApp" y te pondremos en contacto directo para coordinar la entrega.', 0),
-  ('¿Hacen envíos?', 'Preferimos entrega en persona para que puedas ver el artículo, pero podemos negociar envío según el caso.', 1),
-  ('¿Los precios son negociables?', 'Algunos artículos tienen precio negociable, lo verás marcado en la tarjeta del producto.', 2),
-  ('¿Aceptan pagos con tarjeta?', 'Aceptamos efectivo y transferencia bancaria. Contáctanos para más detalles.', 3);
-
--- ============================================================================
--- ¡LISTO! Tu base de datos está configurada correctamente.
--- Ahora copia tu URL y API Key de Supabase y pégalos en el archivo index.html
--- ============================================================================
-
--->
 </body>
 </html>
