@@ -483,7 +483,7 @@ select { cursor: pointer; -webkit-appearance: none; appearance: none; background
 
 <script>
 // ========================== STATE ==========================
-let supabase = null;
+let supabaseClient = null;
 let products = [];
 let config = {};
 let faqs = [];
@@ -494,7 +494,7 @@ let tempImageBase64 = null;
 // ========================== SUPABASE INIT ==========================
 async function initSupabase() {
   try {
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const { error } = await supabaseClient.from('config').select('key').limit(1);
     if (error) throw error;
     return true;
