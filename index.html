@@ -508,8 +508,7 @@ select { cursor: pointer; -webkit-appearance: none; appearance: none; background
 
 <script>
 // ========================== SUPABASE INIT ==========================
-// 1. Cambiamos el nombre a 'supabaseClient' para que no choque con la librería
-let supabaseClient = null; 
+let supabaseClient = null; // Usamos este nombre para que no choque con el script del CDN
 let products = [];
 let config = {};
 let faqs = [];
@@ -518,7 +517,7 @@ let editingProductId = null;
 let tempImageBase64 = null;
 
 async function initSupabase() {
-  // Check if credentials exist
+  // Verificar si las credenciales existen
   if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL === '' || SUPABASE_KEY === '') {
     document.getElementById('loadingOverlay').classList.add('hidden');
     document.getElementById('supabaseError').classList.remove('hidden');
@@ -526,20 +525,11 @@ async function initSupabase() {
   }
 
   try {
-    // 2. Aquí usamos la librería (supabase) para rellenar nuestra variable (supabaseClient)
+    // Inicializamos el cliente en nuestra variable personalizada
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    return true;
-  } catch (error) {
-    console.error("Error inicializando Supabase:", error);
-    return false;
-  }
-}
-
-  try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // Test connection by fetching config
-    const { data, error } = await supabase.from('config').select('*');
+    // Probamos la conexión intentando traer la configuración
+    const { data, error } = await supabaseClient.from('config').select('*');
     if (error) throw error;
     
     return true;
@@ -557,7 +547,65 @@ async function initSupabase() {
 
 // ========================== DATA FETCHING ==========================
 async function fetchConfig() {
-  const { data, error } = await supabase.from('config').select('*');
+  const { data, error } = await supabaseClient.from('config').select('*');
+  if (error) { console.error('Error fetching config:', error); return; }
+  
+  config = {};
+  data.forEach(row => { config[row.key] = row.value; });
+  
+  // Valores por defecto si faltan en la base de datos
+  if (!config.password) config.password = 'admin123';
+  if (!config.whatsapp) config.whatsapp = '525543777055';
+  if (!config.accent_color) config.accent_color = '#0A84FF';
+  if (!config.banner_color) config.banner_color = '#FF9500';
+  if (!config.banner_enabled) config.banner_enabled = 'false';
+  if (!config.banner_text) config.banner_text = '¡Todo se va este fin de semana!';
+}
+
+async function fetchProducts() {
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (error) { console.error('Error fetching products:', error); return; }
+  products = data || [];
+}
+
+async function fetchFAQs() {
+  const { data, error } = await supabaseClient
+    .from('faqs')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  
+  if (error) { console.error('Error fetching FAQs:', error); return; }
+  faqs = data || [];
+}
+
+async function refreshData() {
+  showToast('Actualizando datos...');
+  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
+  renderAll();
+  showToast('Datos actualizados ✓');
+}
+
+// ========================== CONFIG UPDATES ==========================
+async function updateConfig(key, value) {
+  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
+  
+  if (existing) {
+    await supabaseClient.from('config').update({ value }).eq('key', key);
+  } else {
+    await supabaseClient.from('config').insert({ key, value });
+  }
+  
+  config[key] = value;
+  applyConfig();
+  showToast('Configuración guardada ✓');
+}
+// ========================== DATA FETCHING ==========================
+async function fetchConfig() {
+  const { data, error } = await supabaseClient.from('config').select('*');
   if (error) { console.error('Error fetching config:', error); return; }
   
   config = {};
@@ -601,12 +649,12 @@ async function refreshData() {
 
 // ========================== CONFIG UPDATES ==========================
 async function updateConfig(key, value) {
-  const { data: existing } = await supabase.from('config').select('id').eq('key', key).single();
+  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
   
   if (existing) {
-    await supabase.from('config').update({ value }).eq('key', key);
+    await supabaseClient.from('config').update({ value }).eq('key', key);
   } else {
-    await supabase.from('config').insert({ key, value });
+    await supabaseClient.from('config').insert({ key, value });
   }
   
   config[key] = value;
@@ -646,7 +694,7 @@ async function saveWhatsApp() {
 
 // ========================== FAQ CRUD ==========================
 async function addFAQ() {
-  const { data, error } = await supabase.from('faqs').insert({
+  const { data, error } = await supabaseClient.from('faqs').insert({
     question: 'Nueva pregunta',
     answer: 'Respuesta aquí...',
     sort_order: faqs.length
@@ -660,14 +708,14 @@ async function addFAQ() {
 }
 
 async function updateFAQ(id, field, value) {
-  await supabase.from('faqs').update({ [field]: value }).eq('id', id);
+  await supabaseClient.from('faqs').update({ [field]: value }).eq('id', id);
   const faq = faqs.find(f => f.id === id);
   if (faq) faq[field] = value;
   renderFAQs();
 }
 
 async function deleteFAQ(id) {
-  await supabase.from('faqs').delete().eq('id', id);
+  await supabaseClient.from('faqs').delete().eq('id', id);
   faqs = faqs.filter(f => f.id !== id);
   renderFAQEditor();
   renderFAQs();
@@ -775,7 +823,7 @@ async function saveProduct(e) {
       showToast('Producto actualizado ✓');
     } else {
       productData.status = 'Disponible';
-      const { error } = await supabase.from('products').insert(productData);
+      const { error } = await supabaseClient.from('products').insert(productData);
       if (error) throw error;
       showToast('Producto agregado ✓');
     }
@@ -807,7 +855,7 @@ async function changeProductStatus(id, newStatus) {
 async function deleteProduct(id) {
   if (!confirm('¿Eliminar este producto permanentemente?')) return;
   
-  const { error } = await supabase.from('products').delete().eq('id', id);
+  const { error } = await supabaseClient.from('products').delete().eq('id', id);
   if (error) { showToast('Error al eliminar', 'error'); return; }
   
   products = products.filter(p => p.id !== id);
