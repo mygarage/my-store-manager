@@ -508,7 +508,8 @@ select { cursor: pointer; -webkit-appearance: none; appearance: none; background
 
 <script>
 // ========================== SUPABASE INIT ==========================
-let supabase = null;
+// 1. Cambiamos el nombre a 'supabaseClient' para que no choque con la librería
+let supabaseClient = null; 
 let products = [];
 let config = {};
 let faqs = [];
@@ -523,6 +524,16 @@ async function initSupabase() {
     document.getElementById('supabaseError').classList.remove('hidden');
     return false;
   }
+
+  try {
+    // 2. Aquí usamos la librería (supabase) para rellenar nuestra variable (supabaseClient)
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  } catch (error) {
+    console.error("Error inicializando Supabase:", error);
+    return false;
+  }
+}
 
   try {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
