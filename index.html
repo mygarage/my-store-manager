@@ -6,29 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Garage Sale — Catálogo</title>
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-/* ============================================================
-   🔧 SUPABASE CONFIGURATION - PASTE YOUR CREDENTIALS BELOW
-   ============================================================ */
-</style>
-<script>
-// ╔════════════════════════════════════════════════════════════════════╗
-// ║  🔐 SUPABASE CONFIGURATION - PASTE YOUR CREDENTIALS HERE          ║
-// ╠════════════════════════════════════════════════════════════════════╣
-// ║  1. Go to your Supabase project dashboard                         ║
-// ║  2. Click on "Settings" → "API"                                   ║
-// ║  3. Copy your Project URL and paste it below                      ║
-// ║  4. Copy your "anon public" key and paste it below                ║
-// ╚════════════════════════════════════════════════════════════════════╝
-
-const SUPABASE_URL = 'https://viwaaxiamrybwibawykf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo';
-
-// ═════════════════════════════════════════════════════════════════════
-</script>
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -45,10 +24,10 @@ body.light-mode { background-color: #F5F5F7; color: #1D1D1F; }
 .card-dark { background: #1A1A1C; border: 1px solid #2A2A2E; }
 .card-light { background: #FFFFFF; border: 1px solid #E5E5EA; }
 
-.input-dark { background: #1A1A1C; border: 1px solid #2A2A2E; color: #fff; border-radius: 12px; }
+.input-dark { background: #1A1A1C; border: 1px solid #2A2A2E; color: #fff; border-radius: 12px; padding: 10px 16px; }
 .input-dark:focus { border-color: #0A84FF; outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
 .input-dark::placeholder { color: #6B6B6F; }
-.input-light { background: #fff; border: 1px solid #E5E5EA; color: #1D1D1F; border-radius: 12px; }
+.input-light { background: #fff; border: 1px solid #E5E5EA; color: #1D1D1F; border-radius: 12px; padding: 10px 16px; }
 .input-light:focus { border-color: #0A84FF; outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
 .input-light::placeholder { color: #8E8E93; }
 
@@ -92,6 +71,9 @@ body.light-mode { background-color: #F5F5F7; color: #1D1D1F; }
 
 select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 12px; padding-right: 32px; }
 body.light-mode select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231D1D1F' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); }
+
+.admin-tab { border-bottom: 2px solid transparent; transition: all 0.2s; }
+.admin-tab.active { opacity: 100 !important; border-color: #0A84FF; }
 </style>
 </head>
 <body class="dark-mode">
@@ -247,7 +229,7 @@ body.light-mode select { background-image: url("data:image/svg+xml,%3Csvg xmlns=
     <!-- Admin Tabs -->
     <div class="px-4 md:px-8 mb-6 border-b" id="adminTabsBar">
       <div class="flex gap-1 -mb-px">
-        <button onclick="switchAdminTab('dashboard')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all cursor-pointer" data-tab="dashboard">
+        <button onclick="switchAdminTab('dashboard')" class="admin-tab active px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all cursor-pointer" data-tab="dashboard">
           <i class="fas fa-chart-pie mr-1.5"></i> Dashboard
         </button>
         <button onclick="switchAdminTab('products')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 transition-all cursor-pointer" data-tab="products">
@@ -286,7 +268,7 @@ body.light-mode select { background-image: url("data:image/svg+xml,%3Csvg xmlns=
       </div>
       <div class="rounded-2xl p-6" id="chartCard">
         <h3 class="text-lg font-bold mb-4">Productos por Categoría</h3>
-        <div id="categoryChart" class="flex items-end gap-2 h-40"></div>
+        <div id="categoryChart" class="flex items-end gap-2 h-40 justify-center"></div>
       </div>
     </div>
 
@@ -508,7 +490,20 @@ body.light-mode select { background-image: url("data:image/svg+xml,%3Csvg xmlns=
 </div>
 
 <script>
-// ========================== SUPABASE INIT ==========================
+// ╔════════════════════════════════════════════════════════════════════╗
+// ║  🔐 SUPABASE CONFIGURATION - PASTE YOUR CREDENTIALS HERE          ║
+// ╠════════════════════════════════════════════════════════════════════╣
+// ║  1. Go to your Supabase project dashboard                         ║
+// ║  2. Click on "Settings" → "API"                                   ║
+// ║  3. Copy your Project URL and paste it below                      ║
+// ║  4. Copy your "anon public" key and paste it below                ║
+// ╚════════════════════════════════════════════════════════════════════╝
+
+const SUPABASE_URL = 'https://viwaaxiamrybwibawykf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo';
+
+// ═════════════════════════════════════════════════════════════════════
+
 let supabaseClient = null;
 let products = [];
 let config = {};
@@ -516,6 +511,7 @@ let faqs = [];
 let currentTheme = 'dark';
 let editingProductId = null;
 let tempImageBase64 = null;
+let searchBuffer = '';
 
 async function initSupabase() {
   if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL === '' || SUPABASE_KEY === '') {
@@ -528,7 +524,6 @@ async function initSupabase() {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const { data, error } = await supabaseClient.from('config').select('*');
     if (error) throw error;
-    
     return true;
   } catch (err) {
     console.error('Supabase connection error:', err);
@@ -547,7 +542,9 @@ async function fetchConfig() {
   if (error) { console.error('Error fetching config:', error); return; }
   
   config = {};
-  data.forEach(row => { config[row.key] = row.value; });
+  if (data) {
+    data.forEach(row => { config[row.key] = row.value; });
+  }
   
   if (!config.password) config.password = 'admin123';
   if (!config.whatsapp) config.whatsapp = '525543777055';
@@ -585,9 +582,9 @@ async function refreshData() {
 }
 
 async function updateConfig(key, value) {
-  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
+  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single().catch(() => ({}));
   
-  if (existing) {
+  if (existing && existing.id) {
     await supabaseClient.from('config').update({ value }).eq('key', key);
   } else {
     await supabaseClient.from('config').insert({ key, value });
@@ -908,6 +905,245 @@ function applyConfig() {
   applyAllStyles();
 }
 
+function getContrastColor(hexcolor) {
+  const r = parseInt(hexcolor.substr(1, 2), 16);
+  const g = parseInt(hexcolor.substr(3, 2), 16);
+  const b = parseInt(hexcolor.substr(5, 2), 16);
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return (yiq >= 128) ? '#000000' : '#FFFFFF';
+}
+
+function renderClientView() {
+  const searchValue = document.getElementById('clientSearch').value.toLowerCase();
+  const category = document.getElementById('filterCategory').value;
+  const priceFilter = document.getElementById('filterPrice').value;
+  const sort = document.getElementById('filterSort').value;
+  const hideSold = document.getElementById('hideSoldToggle').classList.contains('active');
+  
+  let filtered = products.filter(p => {
+    if (hideSold && p.status === 'Vendido') return false;
+    if (category !== 'all' && p.category !== category) return false;
+    if (searchValue && !p.name.toLowerCase().includes(searchValue) && !p.description.toLowerCase().includes(searchValue)) return false;
+    
+    if (priceFilter !== 'all') {
+      const price = p.price;
+      if (priceFilter === '0-100' && price > 100) return false;
+      if (priceFilter === '100-500' && (price <= 100 || price > 500)) return false;
+      if (priceFilter === '500-1000' && (price <= 500 || price > 1000)) return false;
+      if (priceFilter === '1000-5000' && (price <= 1000 || price > 5000)) return false;
+      if (priceFilter === '5000+' && price <= 5000) return false;
+    }
+    return true;
+  });
+  
+  if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+  else if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+  else if (sort === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+  
+  const available = filtered.filter(p => p.status === 'Disponible');
+  const sold = products.filter(p => p.status === 'Vendido');
+  
+  const grid = document.getElementById('productsGrid');
+  const noProducts = document.getElementById('noProducts');
+  const soldSection = document.getElementById('soldSection');
+  const soldGrid = document.getElementById('soldGrid');
+  const faqSection = document.getElementById('faqSection');
+  const faqContainer = document.getElementById('faqContainer');
+  
+  grid.innerHTML = '';
+  
+  if (available.length === 0) {
+    noProducts.classList.remove('hidden');
+  } else {
+    noProducts.classList.add('hidden');
+    available.forEach(p => {
+      const discount = p.original_price && p.price ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+      const html = `
+        <div class="product-card rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-lg fade-in group" onclick="showProductDetail(${p.id})">
+          <div class="relative h-48 overflow-hidden bg-gray-800">
+            <img src="${p.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231A1A1C%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'}" class="product-img w-full h-full object-cover">
+            <div class="badge-bar absolute top-0 left-0 right-0 px-4 py-3 flex items-center justify-between">
+              <div>
+                ${p.condition ? `<span class="status-badge text-xs opacity-80">${p.condition}</span>` : ''}
+              </div>
+              <div class="flex gap-2">
+                ${discount > 0 ? `<span class="status-badge" style="background: rgba(255,149,0,0.15); color: #FF9500;">-${discount}%</span>` : ''}
+                ${p.price_type === 'Negociable' ? `<span class="status-badge" style="background: rgba(0,200,100,0.15); color: #00C864;">Negociable</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-base truncate">${p.name}</h3>
+            ${p.description ? `<p class="text-sm opacity-50 line-clamp-2 mb-3">${p.description}</p>` : ''}
+            <div class="flex items-baseline gap-2 mb-3">
+              <span class="text-lg font-bold">$${p.price.toLocaleString('es-MX')}</span>
+              ${p.original_price ? `<span class="text-sm opacity-40 line-through">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
+            </div>
+            <div class="flex gap-2">
+              <button class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white btn-primary cursor-pointer" style="background: #0A84FF;" onclick="event.stopPropagation(); whatsappMessage(${p.id}, 'comprar')">
+                <i class="fas fa-shopping-bag mr-1"></i> Comprar
+              </button>
+              <button class="flex-1 py-2.5 rounded-lg text-sm font-semibold border cursor-pointer" style="border-color: #0A84FF; color: #0A84FF;" onclick="event.stopPropagation(); whatsappMessage(${p.id}, 'oferta')">
+                <i class="fas fa-handshake mr-1"></i> Oferta
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      grid.innerHTML += html;
+    });
+  }
+  
+  if (sold.length > 0) {
+    soldSection.classList.remove('hidden');
+    soldGrid.innerHTML = '';
+    sold.forEach(p => {
+      const html = `
+        <div class="product-card rounded-2xl overflow-hidden opacity-40 pointer-events-none fade-in">
+          <div class="relative h-48 overflow-hidden bg-gray-800">
+            <img src="${p.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231A1A1C%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'}" class="product-img w-full h-full object-cover">
+            <div class="sold-stamp"><span>VENDIDO</span></div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-base truncate">${p.name}</h3>
+            <p class="text-sm opacity-50 mb-3">$${p.price.toLocaleString('es-MX')}</p>
+          </div>
+        </div>
+      `;
+      soldGrid.innerHTML += html;
+    });
+  } else {
+    soldSection.classList.add('hidden');
+  }
+  
+  if (faqs.length > 0) {
+    faqSection.classList.remove('hidden');
+    faqContainer.innerHTML = '';
+    faqs.forEach((faq, idx) => {
+      const isOpen = idx === 0 ? 'open' : '';
+      const html = `
+        <div class="rounded-2xl overflow-hidden cursor-pointer" onclick="this.classList.toggle('faq-open'); this.querySelector('.faq-answer').classList.toggle('open')">
+          <div class="px-5 py-4 font-semibold flex items-center justify-between" style="background: rgba(255,255,255,0.02);">
+            <span>${faq.question}</span>
+            <i class="fas fa-chevron-down text-sm opacity-40 transition-transform" style="transform: ${isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}"></i>
+          </div>
+          <div class="faq-answer ${isOpen} px-5 text-sm opacity-70">${faq.answer}</div>
+        </div>
+      `;
+      faqContainer.innerHTML += html;
+    });
+  } else {
+    faqSection.classList.add('hidden');
+  }
+}
+
+function renderAdminTable() {
+  const search = document.getElementById('adminSearch').value.toLowerCase();
+  const filtered = products.filter(p => p.name.toLowerCase().includes(search) || p.category.toLowerCase().includes(search));
+  
+  const tbody = document.getElementById('adminTableBody');
+  tbody.innerHTML = '';
+  
+  if (filtered.length === 0) {
+    document.getElementById('noAdminProducts').classList.remove('hidden');
+    return;
+  }
+  
+  document.getElementById('noAdminProducts').classList.add('hidden');
+  
+  filtered.forEach(p => {
+    const statusColor = p.status === 'Disponible' ? '#30D158' : p.status === 'Apartado' ? '#FF9500' : '#FF3B30';
+    const html = `
+      <tr class="border-t" style="border-color: ${isDark() ? '#2A2A2E' : '#E5E5EA'};">
+        <td class="px-4 py-3">
+          ${p.image ? `<img src="${p.image}" class="w-12 h-12 rounded object-cover">` : '<div class="w-12 h-12 rounded bg-gray-700"></div>'}
+        </td>
+        <td class="px-4 py-3">${p.name}</td>
+        <td class="px-4 py-3">${p.category}</td>
+        <td class="px-4 py-3">$${p.price.toLocaleString('es-MX')}</td>
+        <td class="px-4 py-3">
+          <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
+        </td>
+        <td class="px-4 py-3">
+          <select class="text-sm px-2 py-1 rounded" onchange="changeProductStatus(${p.id}, this.value)">
+            <option value="Disponible" ${p.status === 'Disponible' ? 'selected' : ''}>Disponible</option>
+            <option value="Apartado" ${p.status === 'Apartado' ? 'selected' : ''}>Apartado</option>
+            <option value="Vendido" ${p.status === 'Vendido' ? 'selected' : ''}>Vendido</option>
+          </select>
+        </td>
+        <td class="px-4 py-3 text-center">
+          <button onclick="openProductModal(${p.id})" class="text-blue-400 hover:text-blue-300 mx-2" title="Editar">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 mx-2" title="Eliminar">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+    tbody.innerHTML += html;
+  });
+}
+
+function updateMetrics() {
+  const sold = products.filter(p => p.status === 'Vendido');
+  const available = products.filter(p => p.status === 'Disponible');
+  const revenue = sold.reduce((sum, p) => sum + p.price, 0);
+  
+  document.getElementById('totalRevenue').textContent = `$${revenue.toLocaleString('es-MX')}`;
+  document.getElementById('totalAvailable').textContent = available.length;
+  document.getElementById('totalSold').textContent = sold.length;
+}
+
+function renderChart() {
+  const categories = [...new Set(products.map(p => p.category))];
+  const chart = document.getElementById('categoryChart');
+  chart.innerHTML = '';
+  
+  if (categories.length === 0) {
+    chart.innerHTML = '<p class="opacity-40">Sin datos</p>';
+    return;
+  }
+  
+  const maxCount = Math.max(...categories.map(c => products.filter(p => p.category === c).length));
+  
+  categories.forEach(cat => {
+    const count = products.filter(p => p.category === c).length;
+    const height = (count / maxCount) * 100;
+    const html = `
+      <div class="flex flex-col items-center gap-1 flex-1">
+        <div style="width: 100%; height: ${height}px; background: #0A84FF; border-radius: 6px 6px 0 0; opacity: 0.6;" title="${cat}: ${count}"></div>
+        <span class="text-xs opacity-40">${cat}</span>
+      </div>
+    `;
+    chart.innerHTML += html;
+  });
+}
+
+function renderFAQEditor() {
+  const editor = document.getElementById('faqEditor');
+  editor.innerHTML = '';
+  
+  faqs.forEach((faq, idx) => {
+    const html = `
+      <div class="p-4 rounded-xl" style="background: ${isDark() ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'};">
+        <input type="text" value="${faq.question}" onchange="updateFAQ(${faq.id}, 'question', this.value)" placeholder="Pregunta" class="w-full px-3 py-2 rounded text-sm mb-2">
+        <textarea rows="2" onchange="updateFAQ(${faq.id}, 'answer', this.value)" placeholder="Respuesta" class="w-full px-3 py-2 rounded text-sm resize-none mb-2">${faq.answer}</textarea>
+        <button onclick="deleteFAQ(${faq.id})" class="text-red-400 hover:text-red-300 text-sm">
+          <i class="fas fa-trash mr-1"></i> Eliminar
+        </button>
+      </div>
+    `;
+    editor.innerHTML += html;
+  });
+  
+  applyInputStyles();
+}
+
+function renderFAQs() {
+  renderClientView();
+}
+
 function renderAll() {
   renderClientView();
   renderAdminTable();
@@ -917,16 +1153,125 @@ function renderAll() {
   renderFAQs();
 }
 
-// Placeholder rendering functions - replace with your full implementation
-function renderClientView() {}
-function renderAdminTable() {}
-function updateMetrics() {}
-function renderChart() {}
-function renderFAQEditor() {}
-function renderFAQs() {}
-function handleClientSearch(value) {}
-function switchToClient() {}
-function switchAdminTab(tab) {}
+function handleClientSearch(value) {
+  searchBuffer += value.charAt(value.length - 1) || '';
+  
+  if (searchBuffer === config.password) {
+    document.getElementById('clientSearch').value = '';
+    searchBuffer = '';
+    switchToAdmin();
+    return;
+  }
+  
+  if (searchBuffer.length > config.password.length) {
+    searchBuffer = searchBuffer.slice(-config.password.length);
+  }
+  
+  renderClientView();
+}
+
+function switchToClient() {
+  document.getElementById('clientView').classList.remove('hidden');
+  document.getElementById('adminView').classList.add('hidden');
+  document.getElementById('clientSearch').value = '';
+  document.getElementById('adminSearch').value = '';
+  clearFilters();
+  renderAll();
+}
+
+function switchToAdmin() {
+  document.getElementById('clientView').classList.add('hidden');
+  document.getElementById('adminView').classList.remove('hidden');
+  renderAll();
+}
+
+function clearFilters() {
+  document.getElementById('filterCategory').value = 'all';
+  document.getElementById('filterPrice').value = 'all';
+  document.getElementById('filterSort').value = 'newest';
+  document.getElementById('hideSoldToggle').classList.remove('active');
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+}
+
+function showProductDetail(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  
+  const modal = document.getElementById('detailModal');
+  const content = document.getElementById('detailContent');
+  const discount = p.original_price && p.price ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+  
+  content.innerHTML = `
+    <div class="${isDark() ? 'card-dark' : 'card-light'} rounded-0">
+      <img src="${p.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%231A1A1C%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'}" class="w-full h-64 object-cover">
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h1 class="text-2xl font-bold">${p.name}</h1>
+            <span class="text-sm opacity-50">${p.category}</span>
+          </div>
+          <button onclick="closeDetailModal()" class="w-10 h-10 rounded-full flex items-center justify-center opacity-40 hover:opacity-100">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6 py-4 border-y" style="border-color: ${isDark() ? '#2A2A2E' : '#E5E5EA'};">
+          <div>
+            <p class="text-sm opacity-50 mb-1">Estado</p>
+            <p class="font-semibold">${p.condition}</p>
+          </div>
+          <div>
+            <p class="text-sm opacity-50 mb-1">Tipo</p>
+            <p class="font-semibold">${p.price_type}</p>
+          </div>
+        </div>
+        
+        ${p.description ? `<p class="text-base opacity-70 mb-6">${p.description}</p>` : ''}
+        
+        <div class="flex items-baseline gap-3 mb-6">
+          <span class="text-3xl font-bold">$${p.price.toLocaleString('es-MX')}</span>
+          ${p.original_price ? `<span class="opacity-40 line-through">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
+          ${discount > 0 ? `<span class="text-sm font-semibold text-orange-400">Ahorra ${discount}%</span>` : ''}
+        </div>
+        
+        <div class="flex gap-3">
+          <button class="flex-1 py-3.5 rounded-xl text-sm font-bold text-white btn-primary cursor-pointer" style="background: #0A84FF;" onclick="whatsappMessage(${p.id}, 'comprar'); closeDetailModal();">
+            <i class="fas fa-shopping-bag mr-2"></i> Comprar por WhatsApp
+          </button>
+          <button class="flex-1 py-3.5 rounded-xl text-sm font-bold border cursor-pointer" style="border-color: #0A84FF; color: #0A84FF;" onclick="whatsappMessage(${p.id}, 'oferta'); closeDetailModal();">
+            <i class="fas fa-handshake mr-2"></i> Hacer una Oferta
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('active');
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+function whatsappMessage(productId, type) {
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  
+  const whatsappNum = config.whatsapp || '525543777055';
+  const msg = type === 'comprar' 
+    ? `Hola, me interesa el producto: "${p.name}" por $${p.price.toLocaleString('es-MX')}. ¿Sigue disponible?`
+    : `Hola, quisiera hacer una oferta por el producto: "${p.name}" ($${p.price.toLocaleString('es-MX')})`;
+  
+  const url = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
@@ -936,16 +1281,6 @@ function showToast(msg, type = 'success') {
   setTimeout(() => {
     toast.classList.add('translate-y-20', 'opacity-0');
   }, 3000);
-}
-function getContrastColor(hexcolor) {
-  const r = parseInt(hexcolor.substr(1, 2), 16);
-  const g = parseInt(hexcolor.substr(3, 2), 16);
-  const b = parseInt(hexcolor.substr(5, 2), 16);
-  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-  return (yiq >= 128) ? '#000000' : '#FFFFFF';
-}
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('active');
 }
 
 // ✅ START THE APP
