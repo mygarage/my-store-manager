@@ -1,1320 +1,1910 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Garage Sale — Catálogo</title>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script>
-// ╔════════════════════════════════════════════════════════════════════╗
-// ║  🔐 SUPABASE CONFIGURATION                                         ║
-// ╚════════════════════════════════════════════════════════════════════╝
-const SUPABASE_URL = 'https://viwaaxiamrybwibawykf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo';
-</script>
-<style>
-* { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; transition: background-color 0.3s, color 0.3s; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garage Sale — Catálogo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #3a3a3e; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+    :root {
+      --color-cream: #f7f3e8;
+      --color-blush: #dec2af;
+      --color-accent: #337a67;
+      --color-muted: #a0a088;
+      --color-dark: #747c70;
+    }
 
-body.dark-mode { background-color: #0D0D0E; color: #FFFFFF; }
-body.light-mode { background-color: #F5F5F7; color: #1D1D1F; }
+    * { box-sizing: border-box; }
 
-.card-dark { background: #1A1A1C; border: 1px solid #2A2A2E; }
-.card-light { background: #FFFFFF; border: 1px solid #E5E5EA; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--color-cream);
+      color: #2d2d2d;
+      transition: background 0.3s, color 0.3s;
+    }
 
-.input-dark { background: #1A1A1C; border: 1px solid #2A2A2E; color: #fff; border-radius: 12px; }
-.input-dark:focus { border-color: #0A84FF; outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
-.input-dark::placeholder { color: #6B6B6F; }
-.input-light { background: #fff; border: 1px solid #E5E5EA; color: #1D1D1F; border-radius: 12px; }
-.input-light:focus { border-color: #0A84FF; outline: none; box-shadow: 0 0 0 3px rgba(10,132,255,0.2); }
-.input-light::placeholder { color: #8E8E93; }
+    body.dark-mode {
+      background: #1a1e1a;
+      color: #e8e4da;
+    }
 
-.toggle-track { width: 52px; height: 30px; border-radius: 15px; background: #3a3a3e; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
-.toggle-track.active { background: #30D158; }
-.toggle-knob { width: 24px; height: 24px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.toggle-track.active .toggle-knob { transform: translateX(22px); }
+    .font-display { font-family: 'Playfair Display', serif; }
 
-.sold-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 1.8rem; font-weight: 900; color: #FF3B30; border: 4px solid #FF3B30; padding: 6px 20px; border-radius: 10px; text-transform: uppercase; letter-spacing: 3px; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 5; }
-.apartado-stamp { color: #FF9500; border-color: #FF9500; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--color-muted); border-radius: 3px; }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.fade-in { animation: fadeIn 0.4s ease-out forwards; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.slide-up { animation: slideUp 0.4s ease-out forwards; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner { animation: spin 1s linear infinite; }
+    /* Card styles */
+    .product-card {
+      background: white;
+      border: 1px solid var(--color-blush);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(51, 122, 103, 0.12);
+    }
+    body.dark-mode .product-card {
+      background: #2a2e2a;
+      border-color: #3a3e3a;
+    }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
-.modal-overlay.active { display: flex; }
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-available { background: #e6f4ef; color: #337a67; }
+    .badge-sold { background: #f3e8e8; color: #b35555; }
+    .badge-reserved { background: #fef3e2; color: #b38b2d; }
+    body.dark-mode .badge-available { background: #1a3a2e; }
+    body.dark-mode .badge-sold { background: #3a1a1a; }
+    body.dark-mode .badge-reserved { background: #3a3018; }
 
-.product-card:hover .product-img { transform: scale(1.03); }
-.product-img { transition: transform 0.4s ease; }
+    /* Input styles */
+    .input-field {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--color-blush);
+      border-radius: 10px;
+      background: white;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(51, 122, 103, 0.1);
+    }
+    body.dark-mode .input-field {
+      background: #2a2e2a;
+      border-color: #4a4e4a;
+      color: #e8e4da;
+    }
+    body.dark-mode .input-field:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(51, 122, 103, 0.2);
+    }
 
-.badge-bar { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    /* Buttons */
+    .btn-primary {
+      background: var(--color-accent);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s, transform 0.1s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: #2a6655; }
+    .btn-primary:active { transform: scale(0.97); }
 
-.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-.faq-answer.open { max-height: 500px; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-accent);
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1.5px solid var(--color-accent);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(51, 122, 103, 0.06); }
 
-.table-row-dark:hover { background: #252528; }
-.table-row-light:hover { background: #F0F0F5; }
+    .btn-danger {
+      background: #c45050;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: #a83e3e; }
 
-.btn-primary { transition: all 0.2s ease; }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(10,132,255,0.3); }
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--color-blush);
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--color-dark);
+    }
+    .btn-icon:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    body.dark-mode .btn-icon { background: #2a2e2a; border-color: #4a4e4a; color: #aaa; }
+    body.dark-mode .btn-icon:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
-select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px !important; }
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 32px;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    body.dark-mode .modal-content { background: #2a2e2a; }
 
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-</style>
+    /* Tabs */
+    .tab-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--color-muted);
+      border: none;
+    }
+    .tab-btn.active {
+      background: var(--color-accent);
+      color: white;
+    }
+    .tab-btn:not(.active):hover {
+      background: rgba(51, 122, 103, 0.08);
+      color: var(--color-accent);
+    }
+
+    /* Filter chip */
+    .filter-chip {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--color-blush);
+      background: white;
+      color: var(--color-dark);
+      transition: all 0.2s;
+    }
+    .filter-chip.active {
+      background: var(--color-accent);
+      color: white;
+      border-color: var(--color-accent);
+    }
+    .filter-chip:not(.active):hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+    body.dark-mode .filter-chip { background: #2a2e2a; border-color: #4a4e4a; color: #ccc; }
+    body.dark-mode .filter-chip.active { background: var(--color-accent); color: white; border-color: var(--color-accent); }
+
+    /* Stat card */
+    .stat-card {
+      background: white;
+      border: 1px solid var(--color-blush);
+      border-radius: 16px;
+      padding: 24px;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    body.dark-mode .stat-card { background: #2a2e2a; border-color: #3a3e3a; }
+
+    /* Table */
+    .admin-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .admin-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-muted);
+      border-bottom: 2px solid var(--color-blush);
+    }
+    .admin-table td {
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(222, 194, 175, 0.3);
+      vertical-align: middle;
+    }
+    .admin-table tr:hover td { background: rgba(51, 122, 103, 0.03); }
+    body.dark-mode .admin-table th { border-color: #3a3e3a; }
+    body.dark-mode .admin-table td { border-color: #333; }
+    body.dark-mode .admin-table tr:hover td { background: rgba(51, 122, 103, 0.08); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      z-index: 200;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s ease;
+      max-width: 400px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-success { background: #337a67; color: white; }
+    .toast-error { background: #c45050; color: white; }
+    .toast-info { background: var(--color-dark); color: white; }
+
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-blush) 25%, #e8d4c5 50%, var(--color-blush) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    body.dark-mode .skeleton {
+      background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .lightbox.active { opacity: 1; pointer-events: all; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeInUp 0.4s ease forwards; }
+
+    /* Status select in admin */
+    select.input-field { appearance: none; cursor: pointer; }
+
+    /* Image preview */
+    .img-preview-container {
+      width: 100%;
+      height: 200px;
+      border: 2px dashed var(--color-blush);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .img-preview-container:hover { border-color: var(--color-accent); }
+    .img-preview-container img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Price tag styles */
+    .price-tag {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    .price-original {
+      text-decoration: line-through;
+      color: var(--color-muted);
+      font-size: 0.8rem;
+    }
+
+    /* FAQ accordion */
+    .faq-item { border-bottom: 1px solid var(--color-blush); }
+    body.dark-mode .faq-item { border-color: #3a3e3a; }
+    .faq-question {
+      padding: 16px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .faq-question:hover { color: var(--color-accent); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .faq-item.open .faq-answer { max-height: 500px; padding-bottom: 16px; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-arrow { transition: transform 0.3s; }
+
+    /* Nav dark mode */
+    body.dark-mode .nav-glass {
+      background: rgba(26, 30, 26, 0.92) !important;
+      border-color: #333 !important;
+    }
+
+    /* Status dot */
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .status-dot.available { background: #337a67; }
+    .status-dot.sold { background: #c45050; }
+    .status-dot.reserved { background: #d4a22e; }
+
+    /* WhatsApp button */
+    .wa-btn {
+      background: #25D366;
+      color: white;
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .wa-btn:hover { background: #1fb855; }
+  </style>
 </head>
-<body class="dark-mode">
+<body>
 
-<!-- LOADING OVERLAY -->
-<div id="loadingOverlay" class="fixed inset-0 z-[200] flex items-center justify-center" style="background:#0D0D0E;">
-  <div class="text-center">
-    <i class="fas fa-circle-notch spinner text-5xl mb-4" style="color:#0A84FF;"></i>
-    <p class="text-lg font-medium opacity-60">Cargando catálogo...</p>
-  </div>
-</div>
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
 
-<!-- CONNECTION ERROR -->
-<div id="connectionError" class="fixed inset-0 z-[200] flex items-center justify-center p-6 hidden" style="background:#0D0D0E;">
-  <div class="max-w-lg w-full text-center">
-    <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style="background:rgba(255,59,48,0.15);">
-      <i class="fas fa-wifi text-3xl" style="color:#FF3B30;"></i>
-    </div>
-    <h1 class="text-2xl font-bold mb-3">Error de Conexión</h1>
-    <p id="errorMessage" class="text-base opacity-60 mb-6 leading-relaxed">No se pudo conectar a la base de datos.</p>
-    <button onclick="location.reload()" class="px-6 py-3 rounded-xl font-semibold text-white cursor-pointer" style="background:#0A84FF;">
-      <i class="fas fa-arrows-rotate mr-2"></i> Reintentar
-    </button>
-  </div>
-</div>
-
-<!-- APP CONTAINER -->
-<div id="app" class="hidden">
-
-  <!-- ANNOUNCEMENT BANNER -->
-  <div id="announcementBanner" class="w-full py-2.5 px-4 text-center text-sm font-semibold tracking-wide hidden">
-    <span id="bannerText"></span>
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Imagen ampliada">
   </div>
 
-  <!-- THEME TOGGLE -->
-  <button id="themeToggleBtn" onclick="toggleTheme()" class="fixed top-4 right-4 z-[99] w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-lg transition-all cursor-pointer hover:scale-105" title="Cambiar tema">
-    <i class="fas fa-moon" id="themeIcon"></i>
-  </button>
-
-  <!-- ================= CLIENT VIEW ================= -->
-  <div id="clientView">
-    <header class="pt-20 pb-8 px-4 text-center">
-      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">🏷️ Garage Sale</h1>
-      <p class="text-lg opacity-50 font-light">Cosas con historia buscando nuevo hogar</p>
-    </header>
-
-    <!-- Search -->
-    <div class="max-w-2xl mx-auto px-4 mb-6">
-      <div class="relative">
-        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 opacity-40 pointer-events-none"></i>
-        <input id="clientSearch" type="text" placeholder="Buscar artículos..." 
-          class="w-full pl-14 pr-6 py-4 rounded-2xl text-base"
-          oninput="handleClientSearch(this.value)" autocomplete="off">
+  <!-- Navigation -->
+  <nav class="nav-glass fixed top-0 left-0 right-0 z-50" style="background:rgba(247,243,232,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--color-blush);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div style="background:var(--color-accent);width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M20 8h-3V6c0-1.1-.9-2-2-2H9C7.9 4 7 4.9 7 6v2H4c-1.1 0-2 .9-2 2v10h20V10c0-1.1-.9-2-2-2zM9 6h6v2H9V6zm11 12H4v-6h16v6z"/></svg>
+        </div>
+        <div>
+          <h1 class="font-display text-lg sm:text-xl font-bold" style="color:var(--color-accent);" id="nav-title">Garage Sale</h1>
+          <p class="text-xs" style="color:var(--color-muted);" id="nav-subtitle">Catálogo</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleDarkMode()" class="btn-icon" title="Cambiar tema">
+          <svg id="icon-sun" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-3a1 1 0 01-1-1V1a1 1 0 112 0v2a1 1 0 01-1 1zm0 18a1 1 0 01-1-1v-2a1 1 0 112 0v2a1 1 0 01-1 1zm9-9a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM5 12a1 1 0 01-1 1H2a1 1 0 110-2h2a1 1 0 011 1zm13.07-5.07a1 1 0 01-.71-.29l-1.41-1.41a1 1 0 111.41-1.41l1.41 1.41a1 1 0 01-.7 1.7zM7.05 19.36a1 1 0 01-.7-.29l-1.42-1.42a1 1 0 111.42-1.41l1.41 1.41a1 1 0 01-.71 1.71zm11.31 0a1 1 0 01-.71-1.71l1.42-1.41a1 1 0 111.41 1.41l-1.41 1.42a1 1 0 01-.71.29zM7.05 4.64a1 1 0 01-.71-1.7l1.42-1.42a1 1 0 011.41 1.41L7.76 4.35a1 1 0 01-.71.29z"/></svg>
+          <svg id="icon-moon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="display:none;"><path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.39 5.39 0 01-4.4 2.26 5.4 5.4 0 01-3.14-9.8A9.06 9.06 0 0012 3z"/></svg>
+        </button>
+        <button id="btn-back-catalog" onclick="showCatalog()" class="btn-secondary text-sm" style="display:none;">
+          ← Catálogo
+        </button>
       </div>
     </div>
+  </nav>
 
-    <!-- Filters -->
-    <div class="max-w-6xl mx-auto px-4 mb-8">
-      <div class="flex flex-wrap items-center gap-3 justify-center">
-        <select id="filterCategory" onchange="renderClientView()" class="px-4 py-2.5 rounded-xl text-sm font-medium">
-          <option value="all">Todas las categorías</option>
-          <option value="Electrónica">Electrónica</option>
-          <option value="Muebles">Muebles</option>
-          <option value="Ropa">Ropa</option>
-          <option value="Hogar">Hogar</option>
-          <option value="Deportes">Deportes</option>
-          <option value="Libros">Libros</option>
-          <option value="Juguetes">Juguetes</option>
-          <option value="Otro">Otro</option>
-        </select>
-        <select id="filterPrice" onchange="renderClientView()" class="px-4 py-2.5 rounded-xl text-sm font-medium">
-          <option value="all">Cualquier precio</option>
-          <option value="0-100">$0 - $100</option>
-          <option value="100-500">$100 - $500</option>
-          <option value="500-1000">$500 - $1,000</option>
-          <option value="1000-5000">$1,000 - $5,000</option>
-          <option value="5000+">Más de $5,000</option>
-        </select>
-        <select id="filterSort" onchange="renderClientView()" class="px-4 py-2.5 rounded-xl text-sm font-medium">
-          <option value="newest">Más recientes</option>
-          <option value="price-asc">Precio: Menor a Mayor</option>
-          <option value="price-desc">Precio: Mayor a Menor</option>
+  <!-- ======================== CLIENT VIEW ======================== -->
+  <main id="view-catalog" class="pt-20">
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-6">
+      <div class="text-center mb-8">
+        <h2 class="font-display text-3xl sm:text-4xl font-bold mb-3" id="hero-title" style="color:#2d2d2d;">Encuentra tu próximo tesoro</h2>
+        <p class="text-base sm:text-lg max-w-xl mx-auto" style="color:var(--color-muted);" id="hero-subtitle">Artículos únicos a precios increíbles. ¡Todo debe irse!</p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="max-w-xl mx-auto relative mb-6">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2" width="18" height="18" fill="none" stroke="var(--color-muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" class="input-field pl-12 pr-4 py-3" placeholder="Buscar artículos..." oninput="handleSearch()" style="font-size:1rem;">
+      </div>
+
+      <!-- Category Filters -->
+      <div class="flex flex-wrap gap-2 justify-center mb-4" id="category-filters"></div>
+
+      <!-- Sort & Price Range -->
+      <div class="flex flex-wrap gap-3 justify-center items-center mt-4">
+        <select id="sort-select" class="input-field" style="width:auto;min-width:160px;" onchange="applyFilters()">
+          <option value="recent">Más recientes</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
           <option value="name-asc">Nombre: A-Z</option>
+          <option value="name-desc">Nombre: Z-A</option>
         </select>
-        <label class="flex items-center gap-2.5 cursor-pointer select-none text-sm font-medium opacity-70 hover:opacity-100">
-          <div id="hideSoldToggle" class="toggle-track" onclick="this.classList.toggle('active'); renderClientView();">
-            <div class="toggle-knob"></div>
-          </div>
-          <span>Ocultar vendidos</span>
-        </label>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-medium" style="color:var(--color-muted);">Precio:</span>
+          <input type="number" id="price-min" class="input-field" style="width:80px;" placeholder="Min" oninput="applyFilters()">
+          <span style="color:var(--color-muted);">—</span>
+          <input type="number" id="price-max" class="input-field" style="width:80px;" placeholder="Max" oninput="applyFilters()">
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-medium" style="color:var(--color-muted);">Estado:</span>
+          <select id="status-filter" class="input-field" style="width:auto;min-width:130px;" onchange="applyFilters()">
+            <option value="all">Todos</option>
+            <option value="disponible">Disponible</option>
+            <option value="reservado">Reservado</option>
+            <option value="vendido">Vendido</option>
+          </select>
+        </div>
       </div>
-    </div>
+
+      <!-- Results count -->
+      <div class="text-center mt-4">
+        <span id="results-count" class="text-sm" style="color:var(--color-muted);"></span>
+      </div>
+    </section>
 
     <!-- Products Grid -->
-    <div class="max-w-7xl mx-auto px-4 mb-12">
-      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-      <div id="noProducts" class="text-center py-20 hidden">
-        <i class="fas fa-box-open text-6xl opacity-15 mb-4"></i>
-        <p class="text-xl font-semibold opacity-30">No se encontraron artículos</p>
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Skeleton loaders -->
       </div>
-    </div>
-
-    <!-- Sold Section -->
-    <div id="soldSection" class="max-w-7xl mx-auto px-4 mb-12 hidden">
-      <div class="border-t border-dashed pt-10 mb-6" id="soldDivider">
-        <h2 class="text-2xl font-bold mb-1 flex items-center gap-3">
-          <i class="fas fa-gem opacity-40"></i> Joyas Vendidas
-        </h2>
-        <p class="text-sm opacity-40 mb-6">Estos artículos ya encontraron un nuevo hogar ✨</p>
+      <div id="no-results" class="text-center py-16" style="display:none;">
+        <svg class="mx-auto mb-4" width="64" height="64" fill="none" stroke="var(--color-muted)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="8" x2="14" y2="14"/><line x1="14" y1="8" x2="8" y2="14"/></svg>
+        <p class="text-lg font-medium" style="color:var(--color-muted);">No se encontraron artículos</p>
+        <p class="text-sm" style="color:var(--color-muted);">Intenta con otros filtros o términos de búsqueda</p>
       </div>
-      <div id="soldGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-    </div>
+    </section>
 
-    <!-- FAQs -->
-    <div id="faqSection" class="max-w-3xl mx-auto px-4 pb-16 hidden">
-      <h2 class="text-2xl font-bold mb-6 text-center">
-        <i class="fas fa-circle-question opacity-40 mr-2"></i> Preguntas Frecuentes
-      </h2>
-      <div id="faqContainer" class="space-y-3"></div>
-    </div>
+    <!-- FAQ Section -->
+    <section id="faq-section" class="max-w-3xl mx-auto px-4 sm:px-6 py-12" style="display:none;">
+      <h3 class="font-display text-2xl font-bold mb-6 text-center" style="color:var(--color-accent);">Preguntas Frecuentes</h3>
+      <div id="faq-list"></div>
+    </section>
 
-    <footer class="text-center py-8 px-4 opacity-25 text-sm">
-      <p>Garage Sale © 2025</p>
+    <!-- Footer -->
+    <footer class="py-8 text-center" style="border-top:1px solid var(--color-blush);">
+      <p class="text-sm" style="color:var(--color-muted);" id="footer-text">Garage Sale © 2025 — Hecho con ❤️</p>
     </footer>
-  </div>
+  </main>
 
-  <!-- ================= ADMIN VIEW ================= -->
-  <div id="adminView" class="hidden">
-    <header class="pt-6 pb-4 px-4 md:px-8 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold flex items-center gap-3">
-          <i class="fas fa-gauge-high opacity-50"></i> Panel de Administrador
-        </h1>
-        <p class="text-sm opacity-40 mt-1">Gestiona tu venta de garage</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button onclick="refreshData()" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform" id="refreshBtn">
-          <i class="fas fa-arrows-rotate"></i> Actualizar
-        </button>
-        <button onclick="switchToClient()" class="px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform" id="backToClientBtn">
-          <i class="fas fa-eye"></i> Ver Catálogo
+  <!-- ======================== ADMIN VIEW ======================== -->
+  <main id="view-admin" class="pt-20" style="display:none;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+      <!-- Admin Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold" style="color:var(--color-accent);">Panel de Administración</h2>
+          <p class="text-sm" style="color:var(--color-muted);">Gestiona tu Garage Sale</p>
+        </div>
+        <button onclick="openProductModal()" class="btn-primary flex items-center gap-2">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Producto
         </button>
       </div>
-    </header>
 
-    <!-- Tabs -->
-    <div class="px-4 md:px-8 mb-6 border-b" id="adminTabsBar">
-      <div class="flex gap-1 -mb-px">
-        <button onclick="switchAdminTab('dashboard')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 cursor-pointer" data-tab="dashboard">
-          <i class="fas fa-chart-pie mr-1.5"></i> Dashboard
-        </button>
-        <button onclick="switchAdminTab('products')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 cursor-pointer" data-tab="products">
-          <i class="fas fa-boxes-stacked mr-1.5"></i> Productos
-        </button>
-        <button onclick="switchAdminTab('settings')" class="admin-tab px-5 py-3 text-sm font-semibold opacity-60 hover:opacity-100 cursor-pointer" data-tab="settings">
-          <i class="fas fa-gear mr-1.5"></i> Configuración
-        </button>
+      <!-- Admin Tabs -->
+      <div class="flex gap-2 mb-6 flex-wrap">
+        <button class="tab-btn active" onclick="switchAdminTab('dashboard', this)">Dashboard</button>
+        <button class="tab-btn" onclick="switchAdminTab('products', this)">Productos</button>
+        <button class="tab-btn" onclick="switchAdminTab('faqs', this)">FAQs</button>
+        <button class="tab-btn" onclick="switchAdminTab('config', this)">Configuración</button>
       </div>
-    </div>
 
-    <!-- DASHBOARD TAB -->
-    <div id="tab-dashboard" class="admin-tab-content px-4 md:px-8 pb-12">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="rounded-2xl p-6" id="metricRevenue">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-sm font-medium opacity-50">Dinero Recaudado</span>
-            <i class="fas fa-coins text-xl" style="color:#FFD60A; opacity:0.6;"></i>
+      <!-- ===== DASHBOARD TAB ===== -->
+      <div id="tab-dashboard" class="admin-tab">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="stat-card">
+            <p class="text-sm font-medium" style="color:var(--color-muted);">Total Productos</p>
+            <p class="text-3xl font-bold mt-1" id="stat-total" style="color:var(--color-accent);">0</p>
           </div>
-          <p class="text-3xl font-extrabold" id="totalRevenue">$0</p>
-        </div>
-        <div class="rounded-2xl p-6" id="metricAvailable">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-sm font-medium opacity-50">Disponibles</span>
-            <i class="fas fa-check-circle text-xl" style="color:#30D158; opacity:0.6;"></i>
+          <div class="stat-card">
+            <p class="text-sm font-medium" style="color:var(--color-muted);">Disponibles</p>
+            <p class="text-3xl font-bold mt-1" id="stat-available" style="color:#337a67;">0</p>
           </div>
-          <p class="text-3xl font-extrabold" id="totalAvailable">0</p>
-        </div>
-        <div class="rounded-2xl p-6" id="metricSold">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-sm font-medium opacity-50">Vendidos</span>
-            <i class="fas fa-bag-shopping text-xl" style="color:#FF3B30; opacity:0.6;"></i>
+          <div class="stat-card">
+            <p class="text-sm font-medium" style="color:var(--color-muted);">Vendidos</p>
+            <p class="text-3xl font-bold mt-1" id="stat-sold" style="color:#c45050;">0</p>
           </div>
-          <p class="text-3xl font-extrabold" id="totalSold">0</p>
+          <div class="stat-card">
+            <p class="text-sm font-medium" style="color:var(--color-muted);">Ingresos Totales</p>
+            <p class="text-3xl font-bold mt-1" id="stat-income" style="color:var(--color-accent);">$0</p>
+          </div>
+        </div>
+        <!-- Chart -->
+        <div class="stat-card mb-6">
+          <h4 class="font-semibold mb-4" style="color:var(--color-dark);">Productos por Categoría</h4>
+          <div style="max-height:320px;"><canvas id="chart-categories"></canvas></div>
         </div>
       </div>
-      <div class="rounded-2xl p-6" id="chartCard">
-        <h3 class="text-lg font-bold mb-4">Productos por Categoría</h3>
-        <div id="categoryChart" class="flex items-end gap-2 h-40"></div>
-      </div>
-    </div>
 
-    <!-- PRODUCTS TAB -->
-    <div id="tab-products" class="admin-tab-content px-4 md:px-8 pb-12 hidden">
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <button onclick="openProductModal()" class="px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 text-white btn-primary cursor-pointer" id="addProductBtn">
-          <i class="fas fa-plus"></i> Agregar Producto
-        </button>
-        <div class="relative">
-          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 opacity-40"></i>
-          <input id="adminSearch" type="text" placeholder="Buscar..." class="pl-11 pr-5 py-2.5 rounded-xl text-sm w-56" oninput="renderAdminTable()" autocomplete="off">
+      <!-- ===== PRODUCTS TAB ===== -->
+      <div id="tab-products" class="admin-tab" style="display:none;">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+          <input type="text" id="admin-search" class="input-field" style="max-width:320px;" placeholder="Buscar producto..." oninput="renderAdminTable()">
+          <select id="admin-status-filter" class="input-field" style="width:auto;min-width:140px;" onchange="renderAdminTable()">
+            <option value="all">Todos los estados</option>
+            <option value="disponible">Disponible</option>
+            <option value="reservado">Reservado</option>
+            <option value="vendido">Vendido</option>
+          </select>
         </div>
-      </div>
-      <div class="rounded-2xl overflow-hidden" id="adminTableCard">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead id="adminTableHead">
-              <tr class="text-left opacity-50">
-                <th class="px-4 py-3 font-semibold">Imagen</th>
-                <th class="px-4 py-3 font-semibold">Producto</th>
-                <th class="px-4 py-3 font-semibold">Categoría</th>
-                <th class="px-4 py-3 font-semibold">Precio</th>
-                <th class="px-4 py-3 font-semibold">Condición</th>
-                <th class="px-4 py-3 font-semibold">Estado</th>
-                <th class="px-4 py-3 font-semibold text-center">Acciones</th>
+        <div class="overflow-x-auto rounded-xl" style="border:1px solid var(--color-blush);">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
-            <tbody id="adminTableBody"></tbody>
+            <tbody id="admin-table-body"></tbody>
           </table>
         </div>
-        <div id="noAdminProducts" class="text-center py-12 hidden">
-          <i class="fas fa-inbox text-4xl opacity-15 mb-3"></i>
-          <p class="opacity-30 font-medium">No hay productos</p>
+        <div id="admin-no-products" class="text-center py-12" style="display:none;">
+          <p class="text-lg" style="color:var(--color-muted);">No hay productos aún. ¡Agrega el primero!</p>
         </div>
       </div>
-    </div>
 
-    <!-- SETTINGS TAB -->
-    <div id="tab-settings" class="admin-tab-content px-4 md:px-8 pb-12 hidden">
-      <div class="max-w-3xl mx-auto space-y-6">
-        
-        <!-- Colors -->
-        <div class="rounded-2xl p-6" id="settingsCard1">
-          <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-palette opacity-50"></i> Colores</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium opacity-60 mb-2">Color de acento</label>
-              <div class="flex items-center gap-3">
-                <input type="color" id="accentColorPicker" value="#0A84FF" onchange="updateConfig('accent_color', this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-0 p-0">
-                <span id="accentColorLabel" class="text-sm font-mono opacity-50">#0A84FF</span>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium opacity-60 mb-2">Color del banner</label>
-              <div class="flex items-center gap-3">
-                <input type="color" id="bannerColorPicker" value="#FF9500" onchange="updateConfig('banner_color', this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-0 p-0">
-                <span id="bannerColorLabel" class="text-sm font-mono opacity-50">#FF9500</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Banner -->
-        <div class="rounded-2xl p-6" id="settingsCard2">
-          <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-bullhorn opacity-50"></i> Banner de Anuncio</h3>
-          <div class="flex items-center gap-4 mb-4">
-            <label class="text-sm font-medium opacity-60">Activar:</label>
-            <div id="bannerToggle" class="toggle-track" onclick="toggleBannerConfig()">
-              <div class="toggle-knob"></div>
-            </div>
-          </div>
-          <input id="bannerTextInput" type="text" placeholder="Texto del banner..." class="w-full px-4 py-3 rounded-xl text-sm" onchange="updateConfig('banner_text', this.value)">
-        </div>
-
-        <!-- Password -->
-        <div class="rounded-2xl p-6" id="settingsCard3">
-          <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-lock opacity-50"></i> Contraseña de Acceso</h3>
-          <div class="flex gap-3">
-            <input id="passwordInput" type="password" placeholder="Nueva contraseña..." class="flex-1 px-4 py-3 rounded-xl text-sm">
-            <button onclick="changePassword()" class="px-5 py-3 rounded-xl text-sm font-bold text-white cursor-pointer btn-primary" id="savePassBtn">Guardar</button>
-          </div>
-          <p class="text-xs opacity-40 mt-2">Contraseña actual guardada en la base de datos</p>
-        </div>
-
-        <!-- WhatsApp -->
-        <div class="rounded-2xl p-6" id="settingsCard4">
-          <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp</h3>
-          <div class="flex gap-3">
-            <input id="whatsappInput" type="text" placeholder="Número con código de país..." class="flex-1 px-4 py-3 rounded-xl text-sm">
-            <button onclick="saveWhatsApp()" class="px-5 py-3 rounded-xl text-sm font-bold text-white cursor-pointer btn-primary" id="saveWABtn">Guardar</button>
-          </div>
-        </div>
-
-        <!-- FAQs -->
-        <div class="rounded-2xl p-6" id="settingsCard5">
-          <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fas fa-circle-question opacity-50"></i> Preguntas Frecuentes</h3>
-          <div id="faqEditor" class="space-y-3 mb-4"></div>
-          <button onclick="addFAQ()" class="w-full py-3 rounded-xl text-sm font-bold border-2 border-dashed opacity-50 hover:opacity-100 cursor-pointer" id="addFAQBtn">
-            <i class="fas fa-plus mr-1"></i> Agregar Pregunta
+      <!-- ===== FAQS TAB ===== -->
+      <div id="tab-faqs" class="admin-tab" style="display:none;">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="font-semibold" style="color:var(--color-dark);">Preguntas Frecuentes</h4>
+          <button onclick="openFaqModal()" class="btn-primary text-sm flex items-center gap-2">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nueva FAQ
           </button>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- PRODUCT MODAL -->
-<div id="productModal" class="modal-overlay" onclick="if(event.target===this)closeProductModal()">
-  <div class="w-full max-w-lg rounded-3xl p-6 max-h-[90vh] overflow-y-auto slide-up" id="productModalCard">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold" id="modalTitle">Agregar Producto</h2>
-      <button onclick="closeProductModal()" class="w-10 h-10 rounded-xl flex items-center justify-center opacity-40 hover:opacity-100 cursor-pointer">
-        <i class="fas fa-xmark text-xl"></i>
-      </button>
-    </div>
-    <form id="productForm" onsubmit="saveProduct(event)" class="space-y-4">
-      <input type="hidden" id="editProductId" value="">
-      
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Imagen</label>
-        <div id="imageUploadArea" class="border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer hover:border-blue-400 transition-all" onclick="document.getElementById('imageInput').click()">
-          <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-          <div id="imagePreviewContainer" class="hidden">
-            <img id="imagePreview" class="w-full max-h-48 object-contain rounded-xl mb-2" alt="">
-            <p class="text-xs opacity-40">Click para cambiar</p>
-          </div>
-          <div id="imageUploadPlaceholder">
-            <i class="fas fa-cloud-arrow-up text-3xl opacity-20 mb-2"></i>
-            <p class="text-sm opacity-40">Click para subir</p>
-          </div>
+        <div id="admin-faq-list"></div>
+        <div id="admin-no-faqs" class="text-center py-12" style="display:none;">
+          <p class="text-lg" style="color:var(--color-muted);">No hay FAQs. ¡Agrega la primera!</p>
         </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Nombre *</label>
-        <input type="text" id="productName" required placeholder="Ej: MacBook Pro 2019" class="w-full px-4 py-3 rounded-xl text-sm">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Descripción</label>
-        <textarea id="productDesc" rows="3" placeholder="Describe el artículo..." class="w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Categoría</label>
-        <select id="productCategory" class="w-full px-4 py-3 rounded-xl text-sm">
-          <option value="Electrónica">Electrónica</option>
-          <option value="Muebles">Muebles</option>
-          <option value="Ropa">Ropa</option>
-          <option value="Hogar">Hogar</option>
-          <option value="Deportes">Deportes</option>
-          <option value="Libros">Libros</option>
-          <option value="Juguetes">Juguetes</option>
-          <option value="Otro">Otro</option>
-        </select>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium opacity-60 mb-2">Precio Garage *</label>
-          <input type="number" id="productPrice" required min="0" step="1" placeholder="500" class="w-full px-4 py-3 rounded-xl text-sm">
-        </div>
-        <div>
-          <label class="block text-sm font-medium opacity-60 mb-2">Precio Original</label>
-          <input type="number" id="productOriginalPrice" min="0" step="1" placeholder="1500" class="w-full px-4 py-3 rounded-xl text-sm">
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Condición</label>
-        <select id="productCondition" class="w-full px-4 py-3 rounded-xl text-sm">
-          <option value="Como nuevo">Como nuevo</option>
-          <option value="Poco uso">Poco uso</option>
-          <option value="Detalle estético">Detalle estético</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Tipo de precio</label>
-        <div class="flex gap-3">
-          <label class="flex-1 cursor-pointer">
-            <input type="radio" name="priceType" value="Fijo" checked class="hidden peer">
-            <div class="peer-checked:ring-2 ring-blue-500 px-4 py-3 rounded-xl text-sm text-center font-medium border">
-              <i class="fas fa-lock mr-1"></i> Fijo
+      <!-- ===== CONFIG TAB ===== -->
+      <div id="tab-config" class="admin-tab" style="display:none;">
+        <div class="max-w-lg">
+          <div class="stat-card">
+            <h4 class="font-semibold mb-4" style="color:var(--color-dark);">Configuración General</h4>
+            <div class="space-y-4">
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Título de la Tienda</label>
+                <input type="text" id="cfg-title" class="input-field" placeholder="Garage Sale">
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Subtítulo</label>
+                <input type="text" id="cfg-subtitle" class="input-field" placeholder="Catálogo">
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Título del Hero</label>
+                <input type="text" id="cfg-hero-title" class="input-field" placeholder="Encuentra tu próximo tesoro">
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Subtítulo del Hero</label>
+                <input type="text" id="cfg-hero-subtitle" class="input-field" placeholder="Artículos únicos a precios increíbles">
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">WhatsApp (con código de país, ej: 521234567890)</label>
+                <input type="text" id="cfg-whatsapp" class="input-field" placeholder="521234567890">
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Moneda</label>
+                <input type="text" id="cfg-currency" class="input-field" placeholder="$" maxlength="5">
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Contraseña de Admin</label>
+                <div class="relative">
+                  <input type="password" id="cfg-password" class="input-field pr-10" placeholder="••••••••">
+                  <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2" style="color:var(--color-muted);">
+                    <svg id="eye-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Texto del Footer</label>
+                <input type="text" id="cfg-footer" class="input-field" placeholder="Garage Sale © 2025">
+              </div>
+              <button onclick="saveConfig()" class="btn-primary w-full mt-2">Guardar Configuración</button>
             </div>
-          </label>
-          <label class="flex-1 cursor-pointer">
-            <input type="radio" name="priceType" value="Negociable" class="hidden peer">
-            <div class="peer-checked:ring-2 ring-blue-500 px-4 py-3 rounded-xl text-sm text-center font-medium border">
-              <i class="fas fa-comments-dollar mr-1"></i> Negociable
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ======================== PRODUCT MODAL ======================== -->
+  <div id="product-modal" class="modal-overlay" onclick="if(event.target===this)closeProductModal()">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-display text-xl font-bold" id="product-modal-title" style="color:var(--color-accent);">Nuevo Producto</h3>
+        <button onclick="closeProductModal()" class="btn-icon">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="product-form" onsubmit="handleProductSubmit(event)" class="space-y-4">
+        <input type="hidden" id="prod-id">
+        <!-- Image upload -->
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Imagen del producto</label>
+          <div class="img-preview-container" onclick="document.getElementById('prod-image-input').click()">
+            <img id="prod-image-preview" src="" alt="" style="display:none;">
+            <div id="prod-image-placeholder" class="text-center">
+              <svg class="mx-auto mb-2" width="40" height="40" fill="none" stroke="var(--color-muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p class="text-sm" style="color:var(--color-muted);">Clic para subir imagen</p>
             </div>
-          </label>
+          </div>
+          <input type="file" id="prod-image-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
         </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium opacity-60 mb-2">Notas privadas</label>
-        <textarea id="productNotes" rows="2" placeholder="Solo visible para admin..." class="w-full px-4 py-3 rounded-xl text-sm resize-none"></textarea>
-      </div>
-
-      <button type="submit" class="w-full py-3.5 rounded-xl text-sm font-bold text-white btn-primary cursor-pointer" id="saveProductBtn">
-        <i class="fas fa-floppy-disk mr-2"></i> Guardar
-      </button>
-    </form>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Nombre *</label>
+            <input type="text" id="prod-name" class="input-field" required>
+          </div>
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Categoría *</label>
+            <input type="text" id="prod-category" class="input-field" required list="categories-list" placeholder="Ej: Electrónica, Ropa...">
+            <datalist id="categories-list"></datalist>
+          </div>
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Descripción</label>
+          <textarea id="prod-description" class="input-field" rows="3" placeholder="Describe el artículo..."></textarea>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Precio *</label>
+            <input type="number" id="prod-price" class="input-field" step="0.01" min="0" required>
+          </div>
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Precio Original</label>
+            <input type="number" id="prod-original-price" class="input-field" step="0.01" min="0" placeholder="Opcional">
+          </div>
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Tipo de precio</label>
+            <select id="prod-price-type" class="input-field">
+              <option value="fijo">Fijo</option>
+              <option value="negociable">Negociable</option>
+              <option value="gratis">Gratis</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Condición</label>
+            <select id="prod-condition" class="input-field">
+              <option value="nuevo">Nuevo</option>
+              <option value="como_nuevo">Como nuevo</option>
+              <option value="buen_estado">Buen estado</option>
+              <option value="uso_visible">Uso visible</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Estado</label>
+            <select id="prod-status" class="input-field">
+              <option value="disponible">Disponible</option>
+              <option value="reservado">Reservado</option>
+              <option value="vendido">Vendido</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Notas internas (solo admin)</label>
+          <textarea id="prod-notes" class="input-field" rows="2" placeholder="Notas privadas..."></textarea>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="btn-primary flex-1">Guardar</button>
+          <button type="button" onclick="closeProductModal()" class="btn-secondary flex-1">Cancelar</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- DETAIL MODAL -->
-<div id="detailModal" class="modal-overlay" onclick="if(event.target===this)closeDetailModal()">
-  <div class="w-full max-w-2xl rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto slide-up" id="detailModalCard">
-    <div id="detailContent"></div>
+  <!-- ======================== FAQ MODAL ======================== -->
+  <div id="faq-modal" class="modal-overlay" onclick="if(event.target===this)closeFaqModal()">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-display text-xl font-bold" id="faq-modal-title" style="color:var(--color-accent);">Nueva Pregunta</h3>
+        <button onclick="closeFaqModal()" class="btn-icon">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="faq-form" onsubmit="handleFaqSubmit(event)" class="space-y-4">
+        <input type="hidden" id="faq-id">
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Pregunta *</label>
+          <input type="text" id="faq-question" class="input-field" required>
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Respuesta *</label>
+          <textarea id="faq-answer" class="input-field" rows="4" required></textarea>
+        </div>
+        <div>
+          <label class="text-sm font-medium block mb-1" style="color:var(--color-muted);">Orden</label>
+          <input type="number" id="faq-order" class="input-field" min="0" value="0">
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="btn-primary flex-1">Guardar</button>
+          <button type="button" onclick="closeFaqModal()" class="btn-secondary flex-1">Cancelar</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- TOAST -->
-<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] px-6 py-3 rounded-2xl text-sm font-semibold text-white shadow-2xl transition-all duration-500 translate-y-20 opacity-0 pointer-events-none">
-  <span id="toastMsg"></span>
-</div>
-
-<script>
-// ========================== STATE ==========================
-let supabaseClient = null;
-let products = [];
-let config = {};
-let faqs = [];
-let currentTheme = 'dark';
-let editingProductId = null;
-let tempImageBase64 = null;
-
-// ========================== SUPABASE INIT ==========================
-async function initSupabase() {
-  try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const { error } = await supabaseClient.from('config').select('key').limit(1);
-    if (error) throw error;
-    return true;
-  } catch (err) {
-    console.error('Connection error:', err);
-    document.getElementById('loadingOverlay').classList.add('hidden');
-    document.getElementById('connectionError').classList.remove('hidden');
-    document.getElementById('errorMessage').textContent = err.message || 'Verifica la conexión a internet y las tablas de Supabase.';
-    return false;
-  }
-}
-
-// ========================== DATA FETCHING ==========================
-async function fetchConfig() {
-  const { data } = await supabaseClient.from('config').select('*');
-  config = {};
-  (data || []).forEach(row => { config[row.key] = row.value; });
-  
-  // Defaults
-  config.password = config.password || 'admin123';
-  config.whatsapp = config.whatsapp || '525543777055';
-  config.accent_color = config.accent_color || '#0A84FF';
-  config.banner_color = config.banner_color || '#FF9500';
-  config.banner_enabled = config.banner_enabled || 'false';
-  config.banner_text = config.banner_text || '¡Todo se va este fin de semana!';
-}
-
-async function fetchProducts() {
-  const { data } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-  products = data || [];
-}
-
-async function fetchFAQs() {
-  const { data } = await supabaseClient.from('faqs').select('*').order('sort_order', { ascending: true });
-  faqs = data || [];
-}
-
-async function refreshData() {
-  showToast('Actualizando...');
-  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
-  renderAll();
-  showToast('Actualizado ✓');
-}
-
-// ========================== CONFIG ==========================
-async function updateConfig(key, value) {
-  const { data: existing } = await supabaseClient.from('config').select('id').eq('key', key).single();
-  if (existing) {
-    await supabaseClient.from('config').update({ value }).eq('key', key);
-  } else {
-    await supabaseClient.from('config').insert({ key, value });
-  }
-  config[key] = value;
-  applyConfig();
-  showToast('Guardado ✓');
-}
-
-async function toggleBannerConfig() {
-  const toggle = document.getElementById('bannerToggle');
-  toggle.classList.toggle('active');
-  await updateConfig('banner_enabled', toggle.classList.contains('active') ? 'true' : 'false');
-}
-
-async function changePassword() {
-  const input = document.getElementById('passwordInput');
-  const newPass = input.value.trim();
-  if (!newPass || newPass.length < 4) { showToast('Mínimo 4 caracteres', 'error'); return; }
-  await updateConfig('password', newPass);
-  input.value = '';
-}
-
-async function saveWhatsApp() {
-  const input = document.getElementById('whatsappInput');
-  const num = input.value.trim().replace(/\D/g, '');
-  if (num.length < 10) { showToast('Número inválido', 'error'); return; }
-  await updateConfig('whatsapp', num);
-}
-
-// ========================== FAQs ==========================
-async function addFAQ() {
-  const { data, error } = await supabaseClient.from('faqs').insert({
-    question: 'Nueva pregunta',
-    answer: 'Respuesta...',
-    sort_order: faqs.length
-  }).select().single();
-  if (error) { showToast('Error', 'error'); return; }
-  faqs.push(data);
-  renderFAQEditor();
-  renderFAQs();
-  showToast('Añadida ✓');
-}
-
-async function updateFAQ(id, field, value) {
-  await supabaseClient.from('faqs').update({ [field]: value }).eq('id', id);
-  const faq = faqs.find(f => f.id === id);
-  if (faq) faq[field] = value;
-  renderFAQs();
-}
-
-async function deleteFAQ(id) {
-  await supabaseClient.from('faqs').delete().eq('id', id);
-  faqs = faqs.filter(f => f.id !== id);
-  renderFAQEditor();
-  renderFAQs();
-  showToast('Eliminada ✓');
-}
-
-// ========================== PRODUCTS ==========================
-function openProductModal(id = null) {
-  editingProductId = id;
-  tempImageBase64 = null;
-  document.getElementById('productModal').classList.add('active');
-  document.getElementById('modalTitle').textContent = id ? 'Editar Producto' : 'Agregar Producto';
-  
-  if (id) {
-    const p = products.find(x => x.id === id);
-    if (p) {
-      document.getElementById('editProductId').value = p.id;
-      document.getElementById('productName').value = p.name || '';
-      document.getElementById('productDesc').value = p.description || '';
-      document.getElementById('productCategory').value = p.category || 'Otro';
-      document.getElementById('productPrice').value = p.price || '';
-      document.getElementById('productOriginalPrice').value = p.original_price || '';
-      document.getElementById('productCondition').value = p.condition || 'Como nuevo';
-      document.querySelector(`input[name="priceType"][value="${p.price_type || 'Fijo'}"]`).checked = true;
-      document.getElementById('productNotes').value = p.notes || '';
-      if (p.image) {
-        document.getElementById('imagePreview').src = p.image;
-        document.getElementById('imagePreviewContainer').classList.remove('hidden');
-        document.getElementById('imageUploadPlaceholder').classList.add('hidden');
-        tempImageBase64 = p.image;
-      } else { resetImageUI(); }
-    }
-  } else {
-    document.getElementById('productForm').reset();
-    document.getElementById('editProductId').value = '';
-    resetImageUI();
-  }
-  applyInputStyles();
-}
-
-function closeProductModal() {
-  document.getElementById('productModal').classList.remove('active');
-  editingProductId = null;
-  tempImageBase64 = null;
-}
-
-function resetImageUI() {
-  document.getElementById('imagePreviewContainer').classList.add('hidden');
-  document.getElementById('imageUploadPlaceholder').classList.remove('hidden');
-  document.getElementById('imagePreview').src = '';
-  document.getElementById('imageInput').value = '';
-}
-
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { showToast('Máx 2MB', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    tempImageBase64 = e.target.result;
-    document.getElementById('imagePreview').src = tempImageBase64;
-    document.getElementById('imagePreviewContainer').classList.remove('hidden');
-    document.getElementById('imageUploadPlaceholder').classList.add('hidden');
-  };
-  reader.readAsDataURL(file);
-}
-
-async function saveProduct(e) {
-  e.preventDefault();
-  const name = document.getElementById('productName').value.trim();
-  const description = document.getElementById('productDesc').value.trim();
-  const category = document.getElementById('productCategory').value;
-  const price = parseFloat(document.getElementById('productPrice').value) || 0;
-  const original_price = parseFloat(document.getElementById('productOriginalPrice').value) || 0;
-  const condition = document.getElementById('productCondition').value;
-  const price_type = document.querySelector('input[name="priceType"]:checked').value;
-  const notes = document.getElementById('productNotes').value.trim();
-  
-  if (!name) { showToast('Nombre requerido', 'error'); return; }
-  if (price <= 0) { showToast('Precio inválido', 'error'); return; }
-  
-  const productData = { name, description, category, price, original_price, condition, price_type, notes, image: tempImageBase64 };
-  
-  try {
-    if (editingProductId) {
-      await supabaseClient.from('products').update(productData).eq('id', editingProductId);
-      showToast('Actualizado ✓');
-    } else {
-      productData.status = 'Disponible';
-      await supabaseClient.from('products').insert(productData);
-      showToast('Agregado ✓');
-    }
-    closeProductModal();
-    await fetchProducts();
-    renderAll();
-  } catch (err) {
-    showToast('Error al guardar', 'error');
-  }
-}
-
-async function changeProductStatus(id, newStatus) {
-  await supabaseClient.from('products').update({ status: newStatus }).eq('id', id);
-  const p = products.find(x => x.id === id);
-  if (p) p.status = newStatus;
-  renderAll();
-  showToast(`${newStatus} ✓`);
-}
-
-async function deleteProduct(id) {
-  if (!confirm('¿Eliminar este producto?')) return;
-  await supabaseClient.from('products').delete().eq('id', id);
-  products = products.filter(p => p.id !== id);
-  renderAll();
-  showToast('Eliminado ✓');
-}
-
-// ========================== THEME ==========================
-function toggleTheme() {
-  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  applyTheme();
-}
-
-function applyTheme() {
-  const d = currentTheme === 'dark';
-  document.body.className = d ? 'dark-mode' : 'light-mode';
-  document.getElementById('themeIcon').className = d ? 'fas fa-moon' : 'fas fa-sun';
-  const btn = document.getElementById('themeToggleBtn');
-  btn.style.background = d ? '#1A1A1C' : '#FFFFFF';
-  btn.style.color = d ? '#FFD60A' : '#FF9F0A';
-  btn.style.border = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
-  applyAllStyles();
-}
-
-function isDark() { return currentTheme === 'dark'; }
-
-function applyAllStyles() {
-  const d = isDark();
-  const accent = config.accent_color || '#0A84FF';
-  
-  // Cards
-  document.querySelectorAll('#metricRevenue, #metricAvailable, #metricSold, #chartCard, #adminTableCard, #productModalCard, #detailModalCard, [id^=settingsCard]').forEach(el => {
-    el.classList.remove('card-dark', 'card-light');
-    el.classList.add(d ? 'card-dark' : 'card-light');
-  });
-  
-  // Borders
-  const tabsBar = document.getElementById('adminTabsBar');
-  if (tabsBar) tabsBar.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-  const soldDivider = document.getElementById('soldDivider');
-  if (soldDivider) soldDivider.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-  
-  // Accent buttons
-  document.querySelectorAll('#addProductBtn, #saveProductBtn, #savePassBtn, #saveWABtn').forEach(el => {
-    el.style.background = accent;
-  });
-  
-  // Secondary buttons
-  ['refreshBtn', 'backToClientBtn'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.style.background = d ? '#1A1A1C' : '#fff';
-      el.style.color = d ? '#fff' : '#1D1D1F';
-      el.style.border = `1px solid ${d ? '#2A2A2E' : '#E5E5EA'}`;
-    }
-  });
-  
-  // Add FAQ button
-  const addFAQBtn = document.getElementById('addFAQBtn');
-  if (addFAQBtn) {
-    addFAQBtn.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-    addFAQBtn.style.color = d ? '#fff' : '#1D1D1F';
-    addFAQBtn.style.background = 'transparent';
-  }
-  
-  // Image upload
-  const uploadArea = document.getElementById('imageUploadArea');
-  if (uploadArea) uploadArea.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-  
-  applyInputStyles();
-}
-
-function applyInputStyles() {
-  const d = isDark();
-  document.querySelectorAll('input:not([type="file"]):not([type="color"]):not([type="radio"]):not([type="hidden"]), textarea, select').forEach(el => {
-    el.classList.remove('input-dark', 'input-light');
-    el.classList.add(d ? 'input-dark' : 'input-light');
-  });
-  
-  document.querySelectorAll('input[name="priceType"]').forEach(r => {
-    const div = r.nextElementSibling;
-    if (div) {
-      div.style.borderColor = d ? '#2A2A2E' : '#E5E5EA';
-      div.style.background = d ? '#1A1A1C' : '#fff';
-      div.style.color = d ? '#fff' : '#1D1D1F';
-    }
-  });
-}
-
-// ========================== CONFIG APPLICATION ==========================
-function applyConfig() {
-  const accent = config.accent_color || '#0A84FF';
-  const bannerColor = config.banner_color || '#FF9500';
-  
-  document.getElementById('accentColorPicker').value = accent;
-  document.getElementById('accentColorLabel').textContent = accent;
-  document.getElementById('bannerColorPicker').value = bannerColor;
-  document.getElementById('bannerColorLabel').textContent = bannerColor;
-  
-  const bannerToggle = document.getElementById('bannerToggle');
-  if (config.banner_enabled === 'true') bannerToggle.classList.add('active');
-  else bannerToggle.classList.remove('active');
-  
-  document.getElementById('bannerTextInput').value = config.banner_text || '';
-  document.getElementById('whatsappInput').value = config.whatsapp || '';
-  
-  // Banner visibility
-  const banner = document.getElementById('announcementBanner');
-  if (config.banner_enabled === 'true') {
-    banner.classList.remove('hidden');
-    banner.style.background = bannerColor;
-    banner.style.color = getContrastColor(bannerColor);
-    document.getElementById('bannerText').textContent = config.banner_text;
-  } else {
-    banner.classList.add('hidden');
-  }
-  
-  applyAllStyles();
-}
-
-// ========================== RENDERING ==========================
-function renderAll() {
-  renderClientView();
-  renderAdminTable();
-  updateMetrics();
-  renderChart();
-  renderFAQEditor();
-  renderFAQs();
-}
-
-function updateMetrics() {
-  const available = products.filter(p => p.status === 'Disponible' || p.status === 'Apartado').length;
-  const sold = products.filter(p => p.status === 'Vendido');
-  const revenue = sold.reduce((sum, p) => sum + (p.price || 0), 0);
-  
-  document.getElementById('totalRevenue').textContent = '$' + revenue.toLocaleString('es-MX');
-  document.getElementById('totalAvailable').textContent = available;
-  document.getElementById('totalSold').textContent = sold.length;
-}
-
-function renderChart() {
-  const chart = document.getElementById('categoryChart');
-  const categories = ['Electrónica', 'Muebles', 'Ropa', 'Hogar', 'Deportes', 'Libros', 'Juguetes', 'Otro'];
-  const counts = categories.map(c => products.filter(p => p.category === c).length);
-  const max = Math.max(...counts, 1);
-  const accent = config.accent_color || '#0A84FF';
-  
-  chart.innerHTML = categories.map((cat, i) => `
-    <div class="flex-1 flex flex-col items-center gap-1">
-      <span class="text-xs font-bold">${counts[i]}</span>
-      <div class="w-full rounded-t-lg" style="height:${Math.max((counts[i]/max)*100, 5)}%;background:${accent};opacity:${0.3 + (counts[i]/max)*0.7}"></div>
-      <span class="text-[9px] opacity-40 truncate w-full text-center">${cat.slice(0,5)}</span>
+  <!-- ======================== PRODUCT DETAIL MODAL ======================== -->
+  <div id="detail-modal" class="modal-overlay" onclick="if(event.target===this)closeDetailModal()">
+    <div class="modal-content" style="max-width:700px;">
+      <div class="flex justify-between items-start mb-4">
+        <div id="detail-badge"></div>
+        <button onclick="closeDetailModal()" class="btn-icon">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="detail-content"></div>
     </div>
-  `).join('');
-}
+  </div>
 
-function renderAdminTable() {
-  const tbody = document.getElementById('adminTableBody');
-  const search = (document.getElementById('adminSearch')?.value || '').toLowerCase();
-  const d = isDark();
-  
-  let filtered = products;
-  if (search) {
-    filtered = filtered.filter(p => 
-      (p.name || '').toLowerCase().includes(search) ||
-      (p.category || '').toLowerCase().includes(search)
-    );
-  }
-  
-  if (!filtered.length) {
-    tbody.innerHTML = '';
-    document.getElementById('noAdminProducts').classList.remove('hidden');
-    return;
-  }
-  document.getElementById('noAdminProducts').classList.add('hidden');
-  
-  const placeholder = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='100' height='100'/%3E%3Ctext fill='%23${d?'666':'999'}' font-size='28' x='50%25' y='58%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
-  
-  tbody.innerHTML = filtered.map(p => {
-    const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-    return `
-      <tr class="${d ? 'table-row-dark' : 'table-row-light'}" style="border-bottom:1px solid ${d ? '#2A2A2E' : '#E5E5EA'}">
-        <td class="px-4 py-3">
-          <div class="w-12 h-12 rounded-xl overflow-hidden" style="background:${d?'#2A2A2E':'#E5E5EA'}">
-            <img src="${p.image || placeholder}" class="w-full h-full object-cover" alt="">
+  <!-- ======================== JAVASCRIPT ======================== -->
+  <script>
+    // ========== SUPABASE CONFIG ==========
+    const SUPABASE_URL = 'https://viwaaxiamrybwibawykf.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo';
+
+    let supabaseClient = null;
+
+    // ========== STATE ==========
+    let products = [];
+    let faqs = [];
+    let config = {};
+    let currentView = 'catalog'; // 'catalog' | 'admin'
+    let activeCategory = 'all';
+    let chartInstance = null;
+    let isAdmin = false;
+
+    // ========== INIT ==========
+    function initSupabase() {
+      const { createClient } = window.supabase;
+      supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
+    async function initApp() {
+      initSupabase();
+      showSkeletons();
+      await Promise.all([fetchProducts(), fetchConfig(), fetchFaqs()]);
+      applyConfig();
+      renderCatalog();
+      renderCategoryFilters();
+      hideSkeletons();
+    }
+
+    // ========== FETCH DATA ==========
+    async function fetchProducts() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        products = data || [];
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        showToast('Error al cargar productos', 'error');
+        products = [];
+      }
+    }
+
+    async function fetchConfig() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('config')
+          .select('*')
+          .limit(1)
+          .single();
+        if (error && error.code !== 'PGRST116') throw error;
+        config = data || {};
+      } catch (err) {
+        console.error('Error fetching config:', err);
+        config = {};
+      }
+    }
+
+    async function fetchFaqs() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('faqs')
+          .select('*')
+          .order('sort_order', { ascending: true });
+        if (error) throw error;
+        faqs = data || [];
+      } catch (err) {
+        console.error('Error fetching FAQs:', err);
+        faqs = [];
+      }
+    }
+
+    // ========== CONFIG ==========
+    function applyConfig() {
+      if (config.title) {
+        document.getElementById('nav-title').textContent = config.title;
+        document.title = config.title + ' — Catálogo';
+      }
+      if (config.subtitle) document.getElementById('nav-subtitle').textContent = config.subtitle;
+      if (config.hero_title) document.getElementById('hero-title').textContent = config.hero_title;
+      if (config.hero_subtitle) document.getElementById('hero-subtitle').textContent = config.hero_subtitle;
+      if (config.footer_text) document.getElementById('footer-text').textContent = config.footer_text;
+    }
+
+    function getCurrency() {
+      return config.currency || '$';
+    }
+
+    // ========== SKELETONS ==========
+    function showSkeletons() {
+      const grid = document.getElementById('products-grid');
+      let html = '';
+      for (let i = 0; i < 8; i++) {
+        html += `
+          <div class="product-card animate-in" style="animation-delay:${i * 0.05}s">
+            <div class="skeleton" style="height:200px;border-radius:0;"></div>
+            <div class="p-4 space-y-3">
+              <div class="skeleton" style="height:14px;width:60%;"></div>
+              <div class="skeleton" style="height:20px;width:80%;"></div>
+              <div class="skeleton" style="height:14px;width:40%;"></div>
+            </div>
+          </div>`;
+      }
+      grid.innerHTML = html;
+    }
+
+    function hideSkeletons() {
+      // Rendering is handled by renderCatalog
+    }
+
+    // ========== RENDER CATALOG ==========
+    function getFilteredProducts() {
+      let filtered = [...products];
+      const search = document.getElementById('search-input').value.toLowerCase().trim();
+      const sort = document.getElementById('sort-select').value;
+      const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+      const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
+      const statusFilter = document.getElementById('status-filter').value;
+
+      // Search
+      if (search) {
+        filtered = filtered.filter(p =>
+          (p.name || '').toLowerCase().includes(search) ||
+          (p.description || '').toLowerCase().includes(search) ||
+          (p.category || '').toLowerCase().includes(search)
+        );
+      }
+
+      // Category
+      if (activeCategory !== 'all') {
+        filtered = filtered.filter(p => (p.category || '').toLowerCase() === activeCategory.toLowerCase());
+      }
+
+      // Price range
+      filtered = filtered.filter(p => {
+        const price = p.price || 0;
+        return price >= priceMin && price <= priceMax;
+      });
+
+      // Status
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(p => (p.status || 'disponible') === statusFilter);
+      }
+
+      // Sort
+      switch (sort) {
+        case 'price-asc':
+          filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+          break;
+        case 'price-desc':
+          filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+          break;
+        case 'name-asc':
+          filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+          break;
+        case 'name-desc':
+          filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+          break;
+        case 'recent':
+        default:
+          filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+      }
+
+      return filtered;
+    }
+
+    function renderCatalog() {
+      const filtered = getFilteredProducts();
+      const grid = document.getElementById('products-grid');
+      const noResults = document.getElementById('no-results');
+      const resultsCount = document.getElementById('results-count');
+
+      resultsCount.textContent = `${filtered.length} artículo${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      const currency = getCurrency();
+
+      grid.innerHTML = filtered.map((p, i) => {
+        const status = p.status || 'disponible';
+        const badgeClass = status === 'vendido' ? 'badge-sold' : status === 'reservado' ? 'badge-reserved' : 'badge-available';
+        const badgeText = status.charAt(0).toUpperCase() + status.slice(1);
+        const conditionMap = { nuevo: 'Nuevo', como_nuevo: 'Como nuevo', buen_estado: 'Buen estado', uso_visible: 'Uso visible' };
+        const conditionText = conditionMap[p.condition] || p.condition || '';
+        const priceTypeText = p.price_type === 'negociable' ? ' · Negociable' : p.price_type === 'gratis' ? '' : '';
+        const hasDiscount = p.original_price && p.original_price > p.price;
+        const discountPct = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+
+        const imgSrc = p.image
+          ? p.image
+          : `https://images.pexels.com/photos/6070061/pexels-photo-6070061.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=600`;
+
+        return `
+          <div class="product-card animate-in cursor-pointer" style="animation-delay:${i * 0.04}s" onclick="openDetailModal(${p.id})">
+            <div class="relative" style="height:200px;overflow:hidden;">
+              <img src="${imgSrc}" alt="${p.name || ''}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"
+                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%23f0ebe0%22 width=%22400%22 height=%22300%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23a0a088%22 font-size=%2218%22>Sin imagen</text></svg>'">
+              <div class="absolute top-3 left-3">
+                <span class="badge ${badgeClass}">${badgeText}</span>
+              </div>
+              ${hasDiscount ? `<div class="absolute top-3 right-3 badge" style="background:#c45050;color:white;">-${discountPct}%</div>` : ''}
+              ${status === 'vendido' ? '<div class="absolute inset-0" style="background:rgba(0,0,0,0.35);"></div>' : ''}
+            </div>
+            <div class="p-4">
+              <p class="text-xs font-medium mb-1" style="color:var(--color-muted);">${p.category || 'Sin categoría'}${conditionText ? ' · ' + conditionText : ''}</p>
+              <h3 class="font-semibold text-base mb-2 line-clamp-2" style="min-height:2.5em;">${p.name || 'Sin nombre'}</h3>
+              <div class="flex items-baseline gap-2">
+                ${p.price_type === 'gratis'
+                  ? '<span class="price-tag text-xl">¡Gratis!</span>'
+                  : `<span class="price-tag text-xl">${currency}${formatNumber(p.price)}</span>
+                     ${hasDiscount ? `<span class="price-original">${currency}${formatNumber(p.original_price)}</span>` : ''}
+                     <span class="text-xs" style="color:var(--color-muted);">${priceTypeText}</span>`
+                }
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderCategoryFilters() {
+      const categories = [...new Set(products.map(p => p.category || 'Sin categoría'))].sort();
+      const container = document.getElementById('category-filters');
+      let html = `<button class="filter-chip ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')">Todos</button>`;
+      categories.forEach(cat => {
+        const count = products.filter(p => (p.category || 'Sin categoría') === cat).length;
+        html += `<button class="filter-chip ${activeCategory.toLowerCase() === cat.toLowerCase() ? 'active' : ''}" onclick="setCategory('${cat.replace(/'/g, "\\'")}')">${cat} (${count})</button>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderCategoryFilters();
+      renderCatalog();
+    }
+
+    function applyFilters() {
+      renderCatalog();
+    }
+
+    function handleSearch() {
+      const val = document.getElementById('search-input').value.trim();
+
+      // Check admin password
+      if (config.admin_password && val === config.admin_password) {
+        document.getElementById('search-input').value = '';
+        isAdmin = true;
+        showAdmin();
+        showToast('¡Bienvenido, Administrador!', 'success');
+        return;
+      }
+
+      applyFilters();
+    }
+
+    // ========== RENDER FAQs ==========
+    function renderFaqs() {
+      const section = document.getElementById('faq-section');
+      const list = document.getElementById('faq-list');
+
+      if (faqs.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+
+      section.style.display = 'block';
+      list.innerHTML = faqs.map(f => `
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            <span>${f.question}</span>
+            <svg class="faq-arrow flex-shrink-0 ml-4" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-        </td>
-        <td class="px-4 py-3">
-          <p class="font-semibold text-sm">${escapeHTML(p.name)}</p>
-          ${p.notes ? `<p class="text-xs opacity-40 mt-0.5 truncate max-w-[180px]"><i class="fas fa-eye-slash mr-1"></i>${escapeHTML(p.notes)}</p>` : ''}
-        </td>
-        <td class="px-4 py-3"><span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span></td>
-        <td class="px-4 py-3">
-          <span class="font-bold">$${(p.price||0).toLocaleString('es-MX')}</span>
-          ${discount > 0 ? `<span class="text-xs text-red-400 ml-1">-${discount}%</span>` : ''}
-        </td>
-        <td class="px-4 py-3 text-xs">${p.condition || 'N/A'}</td>
-        <td class="px-4 py-3">
-          <select onchange="changeProductStatus(${p.id}, this.value)" class="text-xs px-2 py-1.5 rounded-lg ${d ? 'input-dark' : 'input-light'}" style="min-width:115px;">
-            <option value="Disponible" ${p.status==='Disponible'?'selected':''}>✅ Disponible</option>
-            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>⏳ Apartado</option>
-            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>🔴 Vendido</option>
-          </select>
-        </td>
-        <td class="px-4 py-3 text-center">
-          <div class="flex items-center justify-center gap-1">
-            <button onclick="openProductModal(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-blue-500/15 text-blue-400 cursor-pointer"><i class="fas fa-pen text-sm"></i></button>
-            <button onclick="deleteProduct(${p.id})" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/15 text-red-400 cursor-pointer"><i class="fas fa-trash text-sm"></i></button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function renderClientView() {
-  const search = (document.getElementById('clientSearch')?.value || '').toLowerCase();
-  const category = document.getElementById('filterCategory')?.value || 'all';
-  const priceRange = document.getElementById('filterPrice')?.value || 'all';
-  const sort = document.getElementById('filterSort')?.value || 'newest';
-  const hideSold = document.getElementById('hideSoldToggle')?.classList.contains('active');
-  
-  let filtered = [...products];
-  
-  if (search) {
-    filtered = filtered.filter(p =>
-      (p.name || '').toLowerCase().includes(search) ||
-      (p.description || '').toLowerCase().includes(search) ||
-      (p.category || '').toLowerCase().includes(search)
-    );
-  }
-  
-  if (category !== 'all') filtered = filtered.filter(p => p.category === category);
-  
-  if (priceRange !== 'all') {
-    const [min, max] = priceRange.includes('+') ? [parseInt(priceRange), Infinity] : priceRange.split('-').map(Number);
-    filtered = filtered.filter(p => p.price >= min && p.price <= max);
-  }
-  
-  switch(sort) {
-    case 'price-asc': filtered.sort((a,b) => (a.price||0) - (b.price||0)); break;
-    case 'price-desc': filtered.sort((a,b) => (b.price||0) - (a.price||0)); break;
-    case 'name-asc': filtered.sort((a,b) => (a.name||'').localeCompare(b.name||'')); break;
-    default: filtered.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
-  }
-  
-  const available = filtered.filter(p => p.status !== 'Vendido');
-  const sold = hideSold ? [] : filtered.filter(p => p.status === 'Vendido');
-  
-  const grid = document.getElementById('productsGrid');
-  const noProducts = document.getElementById('noProducts');
-  
-  if (!available.length && !sold.length) {
-    grid.innerHTML = '';
-    noProducts.classList.remove('hidden');
-  } else {
-    noProducts.classList.add('hidden');
-    grid.innerHTML = available.map(p => renderProductCard(p)).join('');
-  }
-  
-  const soldSection = document.getElementById('soldSection');
-  const soldGrid = document.getElementById('soldGrid');
-  if (sold.length) {
-    soldSection.classList.remove('hidden');
-    soldGrid.innerHTML = sold.map(p => renderProductCard(p)).join('');
-  } else {
-    soldSection.classList.add('hidden');
-  }
-}
-
-function renderProductCard(p) {
-  const d = isDark();
-  const isSold = p.status === 'Vendido';
-  const isApartado = p.status === 'Apartado';
-  const isNeg = p.price_type === 'Negociable';
-  const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-  const accent = config.accent_color || '#0A84FF';
-  const whatsapp = config.whatsapp || '525543777055';
-  const placeholder = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='400' height='400'/%3E%3Ctext fill='%23${d?'666':'999'}' font-size='64' x='50%25' y='54%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
-  
-  const waMsg = encodeURIComponent(`¡Hola! Me interesa: ${p.name} ($${(p.price||0).toLocaleString('es-MX')} MXN)`);
-  const waOffer = encodeURIComponent(`¡Hola! Quiero hacer una oferta por: ${p.name}`);
-  
-  return `
-    <div class="product-card rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'} transition-all hover:shadow-xl hover:-translate-y-1 ${isSold ? 'opacity-40' : ''} fade-in cursor-pointer" onclick="openDetail(${p.id})">
-      <div class="relative aspect-square overflow-hidden">
-        <img src="${p.image || placeholder}" alt="${escapeAttr(p.name)}" class="product-img w-full h-full object-cover">
-        ${isSold ? '<div class="sold-stamp">VENDIDO</div>' : ''}
-        ${isApartado ? '<div class="sold-stamp apartado-stamp">APARTADO</div>' : ''}
-        <div class="badge-bar absolute top-0 left-0 right-0 px-3 py-2.5 flex items-center gap-1.5 flex-wrap">
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white/20 text-white">${p.condition || 'N/A'}</span>
-          ${isNeg ? '<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-green-500/30 text-green-300">Negociable</span>' : ''}
-          ${discount > 0 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-red-500/30 text-red-300">-${discount}%</span>` : ''}
+          <div class="faq-answer">${f.answer}</div>
         </div>
-      </div>
-      <div class="p-4">
-        <p class="text-xs opacity-40 mb-1 font-medium">${p.category || 'Otro'}</p>
-        <h3 class="font-bold text-base mb-2 leading-snug line-clamp-2">${escapeHTML(p.name)}</h3>
-        <div class="flex items-baseline gap-2 mb-3">
-          <span class="text-xl font-extrabold" style="color:${accent}">$${(p.price||0).toLocaleString('es-MX')}</span>
-          <span class="text-xs opacity-30">MXN</span>
-          ${p.original_price > 0 ? `<span class="text-sm line-through opacity-30">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
-        </div>
-        ${!isSold && !isApartado ? `
-          <div class="space-y-2" onclick="event.stopPropagation()">
-            <a href="https://wa.me/${whatsapp}?text=${waMsg}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white hover:scale-[1.02] transition-transform" style="background:#25D366;">
-              <i class="fab fa-whatsapp"></i> Comprar
-            </a>
-            ${isNeg ? `
-              <a href="https://wa.me/${whatsapp}?text=${waOffer}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold hover:scale-[1.02] transition-transform" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
-                <i class="fas fa-comments-dollar"></i> Hacer Oferta
-              </a>
-            ` : ''}
-          </div>
-        ` : `
-          <div class="py-2.5 rounded-xl text-sm font-bold text-center" style="background:${isSold ? 'rgba(255,59,48,0.1)' : 'rgba(255,149,0,0.1)'};color:${isSold ? '#FF3B30' : '#FF9500'};">
-            <i class="fas fa-${isSold ? 'ban' : 'clock'} mr-1"></i> ${isSold ? 'Vendido' : 'Apartado'}
-          </div>
-        `}
-      </div>
-    </div>
-  `;
-}
+      `).join('');
+    }
 
-function openDetail(id) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  
-  const d = isDark();
-  const isSold = p.status === 'Vendido';
-  const isApartado = p.status === 'Apartado';
-  const isNeg = p.price_type === 'Negociable';
-  const discount = p.original_price > 0 ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-  const accent = config.accent_color || '#0A84FF';
-  const whatsapp = config.whatsapp || '525543777055';
-  const placeholder = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%23${d?'2A2A2E':'E5E5EA'}' width='600' height='400'/%3E%3Ctext fill='%23${d?'666':'999'}' font-size='64' x='50%25' y='54%25' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E`;
-  
-  const waMsg = encodeURIComponent(`¡Hola! Me interesa: ${p.name} ($${(p.price||0).toLocaleString('es-MX')} MXN)`);
-  const waOffer = encodeURIComponent(`¡Hola! Quiero hacer una oferta por: ${p.name}`);
-  
-  document.getElementById('detailContent').innerHTML = `
-    <div class="relative">
-      <img src="${p.image || placeholder}" alt="${escapeAttr(p.name)}" class="w-full aspect-video object-cover">
-      ${isSold ? '<div class="sold-stamp" style="font-size:2.5rem;">VENDIDO</div>' : ''}
-      ${isApartado ? '<div class="sold-stamp apartado-stamp" style="font-size:2.5rem;">APARTADO</div>' : ''}
-      <button onclick="closeDetailModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/70 cursor-pointer">
-        <i class="fas fa-xmark"></i>
-      </button>
-    </div>
-    <div class="p-6">
-      <div class="flex items-center gap-2 mb-2 flex-wrap">
-        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.category || 'Otro'}</span>
-        <span class="text-xs px-2 py-1 rounded-lg font-medium" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}">${p.condition || 'N/A'}</span>
-        ${isNeg ? '<span class="text-xs px-2 py-1 rounded-lg font-medium bg-green-500/15 text-green-400">Negociable</span>' : ''}
-      </div>
-      <h2 class="text-2xl font-extrabold mb-3">${escapeHTML(p.name)}</h2>
-      ${p.description ? `<p class="text-sm opacity-60 leading-relaxed mb-4">${escapeHTML(p.description)}</p>` : ''}
-      <div class="flex items-baseline gap-3 mb-6 flex-wrap">
-        <span class="text-3xl font-extrabold" style="color:${accent}">$${(p.price||0).toLocaleString('es-MX')}</span>
-        <span class="text-sm opacity-30">MXN</span>
-        ${p.original_price > 0 ? `<span class="text-lg line-through opacity-30">$${p.original_price.toLocaleString('es-MX')}</span>` : ''}
-        ${discount > 0 ? `<span class="text-sm font-bold text-red-400 px-2 py-1 rounded-lg bg-red-500/10">-${discount}%</span>` : ''}
-      </div>
-      ${!isSold && !isApartado ? `
-        <div class="space-y-3">
-          <a href="https://wa.me/${whatsapp}?text=${waMsg}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-bold text-white hover:scale-[1.02] transition-transform" style="background:#25D366;">
-            <i class="fab fa-whatsapp text-lg"></i> Comprar por WhatsApp
-          </a>
-          ${isNeg ? `
-            <a href="https://wa.me/${whatsapp}?text=${waOffer}" target="_blank" class="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-base font-semibold hover:scale-[1.02] transition-transform" style="background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'#fff':'#1D1D1F'};">
-              <i class="fas fa-comments-dollar"></i> Hacer una Oferta
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+    }
+
+    // ========== DETAIL MODAL ==========
+    function openDetailModal(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+
+      const modal = document.getElementById('detail-modal');
+      const status = p.status || 'disponible';
+      const badgeClass = status === 'vendido' ? 'badge-sold' : status === 'reservado' ? 'badge-reserved' : 'badge-available';
+      const badgeText = status.charAt(0).toUpperCase() + status.slice(1);
+      const conditionMap = { nuevo: 'Nuevo', como_nuevo: 'Como nuevo', buen_estado: 'Buen estado', uso_visible: 'Uso visible' };
+      const conditionText = conditionMap[p.condition] || p.condition || '';
+      const currency = getCurrency();
+      const hasDiscount = p.original_price && p.original_price > p.price;
+      const discountPct = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+      const whatsapp = config.whatsapp || '';
+
+      const imgSrc = p.image || '';
+
+      document.getElementById('detail-badge').innerHTML = `<span class="badge ${badgeClass}">${badgeText}</span>`;
+
+      let html = `<div class="flex flex-col sm:flex-row gap-6">`;
+
+      if (imgSrc) {
+        html += `
+          <div class="sm:w-1/2 flex-shrink-0">
+            <img src="${imgSrc}" alt="${p.name}" class="w-full rounded-xl cursor-zoom-in" style="max-height:350px;object-fit:cover;" onclick="event.stopPropagation();openLightbox('${imgSrc.replace(/'/g, "\\'")}')"
+              onerror="this.style.display='none'">
+          </div>`;
+      }
+
+      html += `
+        <div class="flex-1">
+          <p class="text-sm font-medium mb-1" style="color:var(--color-muted);">${p.category || 'Sin categoría'}${conditionText ? ' · ' + conditionText : ''}</p>
+          <h2 class="font-display text-2xl font-bold mb-3">${p.name || 'Sin nombre'}</h2>
+
+          <div class="flex items-baseline gap-3 mb-4">
+            ${p.price_type === 'gratis'
+              ? '<span class="price-tag text-3xl">¡Gratis!</span>'
+              : `<span class="price-tag text-3xl">${currency}${formatNumber(p.price)}</span>
+                 ${hasDiscount ? `<span class="price-original text-lg">${currency}${formatNumber(p.original_price)}</span><span class="badge" style="background:#c45050;color:white;">-${discountPct}%</span>` : ''}`
+            }
+          </div>
+
+          ${p.price_type === 'negociable' ? '<p class="text-sm mb-3" style="color:var(--color-accent);font-weight:600;">💬 Precio negociable</p>' : ''}
+
+          ${p.description ? `<p class="text-sm leading-relaxed mb-4" style="color:var(--color-dark);">${p.description}</p>` : ''}
+
+          ${whatsapp && status === 'disponible' ? `
+            <a href="https://wa.me/${whatsapp}?text=${encodeURIComponent('Hola, me interesa: ' + (p.name || 'artículo') + ' (' + currency + formatNumber(p.price) + ')')}" target="_blank" class="wa-btn inline-flex">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Preguntar por WhatsApp
             </a>
           ` : ''}
         </div>
-      ` : ''}
-    </div>
-  `;
-  
-  document.getElementById('detailModal').classList.add('active');
-  document.getElementById('detailModalCard').className = `w-full max-w-2xl rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto slide-up ${d ? 'card-dark' : 'card-light'}`;
-}
+      </div>`;
 
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('active');
-}
+      document.getElementById('detail-content').innerHTML = html;
+      modal.classList.add('active');
+    }
 
-// ========================== FAQs RENDER ==========================
-function renderFAQEditor() {
-  const container = document.getElementById('faqEditor');
-  const d = isDark();
-  
-  if (!faqs.length) {
-    container.innerHTML = '<p class="text-center py-4 opacity-30 text-sm">No hay preguntas</p>';
-    return;
-  }
-  
-  container.innerHTML = faqs.map(faq => `
-    <div class="rounded-xl p-4 ${d ? 'card-dark' : 'card-light'}">
-      <div class="flex items-start gap-3">
-        <div class="flex-1 space-y-2">
-          <input type="text" value="${escapeAttr(faq.question)}" onchange="updateFAQ(${faq.id}, 'question', this.value)" 
-            class="w-full px-3 py-2 rounded-lg text-sm font-semibold ${d ? 'input-dark' : 'input-light'}" placeholder="Pregunta...">
-          <textarea onchange="updateFAQ(${faq.id}, 'answer', this.value)" rows="2"
-            class="w-full px-3 py-2 rounded-lg text-sm ${d ? 'input-dark' : 'input-light'} resize-none" placeholder="Respuesta...">${escapeHTML(faq.answer)}</textarea>
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.remove('active');
+    }
+
+    // ========== LIGHTBOX ==========
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+
+    // ========== VIEWS ==========
+    function showAdmin() {
+      currentView = 'admin';
+      document.getElementById('view-catalog').style.display = 'none';
+      document.getElementById('view-admin').style.display = 'block';
+      document.getElementById('btn-back-catalog').style.display = 'inline-flex';
+      renderAdminDashboard();
+      renderAdminTable();
+      renderAdminFaqs();
+      loadConfigForm();
+    }
+
+    function showCatalog() {
+      currentView = 'catalog';
+      isAdmin = false;
+      document.getElementById('view-admin').style.display = 'none';
+      document.getElementById('view-catalog').style.display = 'block';
+      document.getElementById('btn-back-catalog').style.display = 'none';
+      renderCatalog();
+      renderFaqs();
+    }
+
+    // ========== ADMIN: DASHBOARD ==========
+    function renderAdminDashboard() {
+      const total = products.length;
+      const available = products.filter(p => (p.status || 'disponible') === 'disponible').length;
+      const sold = products.filter(p => p.status === 'vendido').length;
+      const income = products.filter(p => p.status === 'vendido').reduce((sum, p) => sum + (p.price || 0), 0);
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-available').textContent = available;
+      document.getElementById('stat-sold').textContent = sold;
+      document.getElementById('stat-income').textContent = getCurrency() + formatNumber(income);
+
+      renderChart();
+    }
+
+    function renderChart() {
+      const ctx = document.getElementById('chart-categories').getContext('2d');
+
+      if (chartInstance) chartInstance.destroy();
+
+      const categories = [...new Set(products.map(p => p.category || 'Sin categoría'))].sort();
+      const data = categories.map(cat => products.filter(p => (p.category || 'Sin categoría') === cat).length);
+      const soldData = categories.map(cat => products.filter(p => (p.category || 'Sin categoría') === cat && p.status === 'vendido').length);
+
+      const isDark = document.body.classList.contains('dark-mode');
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: categories,
+          datasets: [
+            {
+              label: 'Total',
+              data: data,
+              backgroundColor: 'rgba(51, 122, 103, 0.7)',
+              borderColor: '#337a67',
+              borderWidth: 1,
+              borderRadius: 6,
+            },
+            {
+              label: 'Vendidos',
+              data: soldData,
+              backgroundColor: 'rgba(196, 80, 80, 0.7)',
+              borderColor: '#c45050',
+              borderWidth: 1,
+              borderRadius: 6,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              labels: { color: isDark ? '#ccc' : '#666', font: { family: 'Inter' } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: isDark ? '#999' : '#888', font: { family: 'Inter' } },
+              grid: { color: isDark ? '#333' : '#eee' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, color: isDark ? '#999' : '#888', font: { family: 'Inter' } },
+              grid: { color: isDark ? '#333' : '#eee' }
+            }
+          }
+        }
+      });
+    }
+
+    // ========== ADMIN: PRODUCTS TABLE ==========
+    function renderAdminTable() {
+      const search = (document.getElementById('admin-search').value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('admin-status-filter').value;
+      const tbody = document.getElementById('admin-table-body');
+      const noProducts = document.getElementById('admin-no-products');
+      const currency = getCurrency();
+
+      let filtered = [...products];
+      if (search) {
+        filtered = filtered.filter(p =>
+          (p.name || '').toLowerCase().includes(search) ||
+          (p.category || '').toLowerCase().includes(search)
+        );
+      }
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(p => (p.status || 'disponible') === statusFilter);
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        noProducts.style.display = 'block';
+        return;
+      }
+
+      noProducts.style.display = 'none';
+
+      tbody.innerHTML = filtered.map(p => {
+        const status = p.status || 'disponible';
+        const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+        const dotClass = status === 'vendido' ? 'sold' : status === 'reservado' ? 'reserved' : 'available';
+        const imgSrc = p.image || '';
+
+        return `
+          <tr>
+            <td>
+              ${imgSrc
+                ? `<img src="${imgSrc}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.style.display='none'">`
+                : `<div style="width:44px;height:44px;border-radius:8px;background:var(--color-blush);display:flex;align-items:center;justify-content:center;">
+                    <svg width="20" height="20" fill="none" stroke="var(--color-muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                   </div>`
+              }
+            </td>
+            <td>
+              <div class="font-semibold text-sm">${p.name || 'Sin nombre'}</div>
+              ${p.notes ? `<div class="text-xs mt-0.5" style="color:var(--color-muted);">📝 ${truncate(p.notes, 40)}</div>` : ''}
+            </td>
+            <td class="text-sm">${p.category || '—'}</td>
+            <td class="text-sm font-semibold" style="color:var(--color-accent);">${p.price_type === 'gratis' ? 'Gratis' : currency + formatNumber(p.price)}</td>
+            <td><span class="status-dot ${dotClass}"></span><span class="text-sm">${statusLabel}</span></td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn-icon" title="Editar" onclick="editProduct(${p.id})">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn-icon" title="Cambiar estado" onclick="cycleStatus(${p.id})">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                </button>
+                <button class="btn-icon" title="Eliminar" onclick="deleteProduct(${p.id})" style="border-color:#e8a0a0;color:#c45050;">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ========== ADMIN: PRODUCT MODAL ==========
+    function openProductModal(product = null) {
+      const modal = document.getElementById('product-modal');
+      const title = document.getElementById('product-modal-title');
+      const form = document.getElementById('product-form');
+
+      // Populate datalist with existing categories
+      const cats = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+      document.getElementById('categories-list').innerHTML = cats.map(c => `<option value="${c}">`).join('');
+
+      if (product) {
+        title.textContent = 'Editar Producto';
+        document.getElementById('prod-id').value = product.id;
+        document.getElementById('prod-name').value = product.name || '';
+        document.getElementById('prod-category').value = product.category || '';
+        document.getElementById('prod-description').value = product.description || '';
+        document.getElementById('prod-price').value = product.price || '';
+        document.getElementById('prod-original-price').value = product.original_price || '';
+        document.getElementById('prod-price-type').value = product.price_type || 'fijo';
+        document.getElementById('prod-condition').value = product.condition || 'buen_estado';
+        document.getElementById('prod-status').value = product.status || 'disponible';
+        document.getElementById('prod-notes').value = product.notes || '';
+
+        if (product.image) {
+          document.getElementById('prod-image-preview').src = product.image;
+          document.getElementById('prod-image-preview').style.display = 'block';
+          document.getElementById('prod-image-placeholder').style.display = 'none';
+        } else {
+          resetImagePreview();
+        }
+      } else {
+        title.textContent = 'Nuevo Producto';
+        form.reset();
+        document.getElementById('prod-id').value = '';
+        document.getElementById('prod-price-type').value = 'fijo';
+        document.getElementById('prod-condition').value = 'buen_estado';
+        document.getElementById('prod-status').value = 'disponible';
+        resetImagePreview();
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.remove('active');
+    }
+
+    function resetImagePreview() {
+      document.getElementById('prod-image-preview').src = '';
+      document.getElementById('prod-image-preview').style.display = 'none';
+      document.getElementById('prod-image-placeholder').style.display = 'block';
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Check size (max 1MB for base64 storage)
+      if (file.size > 1048576) {
+        showToast('La imagen no debe superar 1MB', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('prod-image-preview').src = e.target.result;
+        document.getElementById('prod-image-preview').style.display = 'block';
+        document.getElementById('prod-image-placeholder').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleProductSubmit(event) {
+      event.preventDefault();
+
+      const id = document.getElementById('prod-id').value;
+      const imageEl = document.getElementById('prod-image-preview');
+      const imageSrc = imageEl.style.display !== 'none' ? imageEl.src : '';
+
+      const productData = {
+        name: document.getElementById('prod-name').value.trim(),
+        category: document.getElementById('prod-category').value.trim(),
+        description: document.getElementById('prod-description').value.trim(),
+        price: parseFloat(document.getElementById('prod-price').value) || 0,
+        original_price: parseFloat(document.getElementById('prod-original-price').value) || null,
+        price_type: document.getElementById('prod-price-type').value,
+        condition: document.getElementById('prod-condition').value,
+        status: document.getElementById('prod-status').value,
+        notes: document.getElementById('prod-notes').value.trim(),
+        image: imageSrc || null,
+      };
+
+      try {
+        let error;
+        if (id) {
+          // Update
+          const result = await supabaseClient.from('products').update(productData).eq('id', parseInt(id));
+          error = result.error;
+        } else {
+          // Insert
+          const result = await supabaseClient.from('products').insert([productData]);
+          error = result.error;
+        }
+
+        if (error) throw error;
+
+        showToast(id ? 'Producto actualizado' : 'Producto creado', 'success');
+        closeProductModal();
+        await fetchProducts();
+        renderAdminDashboard();
+        renderAdminTable();
+        renderCategoryFilters();
+      } catch (err) {
+        console.error('Error saving product:', err);
+        showToast('Error al guardar: ' + (err.message || 'desconocido'), 'error');
+      }
+    }
+
+    function editProduct(id) {
+      const product = products.find(p => p.id === id);
+      if (product) openProductModal(product);
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+
+      try {
+        const { error } = await supabaseClient.from('products').delete().eq('id', id);
+        if (error) throw error;
+
+        showToast('Producto eliminado', 'info');
+        await fetchProducts();
+        renderAdminDashboard();
+        renderAdminTable();
+        renderCategoryFilters();
+      } catch (err) {
+        console.error('Error deleting product:', err);
+        showToast('Error al eliminar', 'error');
+      }
+    }
+
+    async function cycleStatus(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      const statusCycle = { disponible: 'reservado', reservado: 'vendido', vendido: 'disponible' };
+      const newStatus = statusCycle[product.status || 'disponible'];
+
+      try {
+        const { error } = await supabaseClient.from('products').update({ status: newStatus }).eq('id', id);
+        if (error) throw error;
+
+        showToast(`Estado cambiado a: ${newStatus}`, 'success');
+        await fetchProducts();
+        renderAdminDashboard();
+        renderAdminTable();
+      } catch (err) {
+        console.error('Error updating status:', err);
+        showToast('Error al actualizar estado', 'error');
+      }
+    }
+
+    // ========== ADMIN: FAQs ==========
+    function renderAdminFaqs() {
+      const list = document.getElementById('admin-faq-list');
+      const noFaqs = document.getElementById('admin-no-faqs');
+
+      if (faqs.length === 0) {
+        list.innerHTML = '';
+        noFaqs.style.display = 'block';
+        return;
+      }
+
+      noFaqs.style.display = 'none';
+
+      list.innerHTML = faqs.map(f => `
+        <div class="stat-card mb-3">
+          <div class="flex justify-between items-start gap-4">
+            <div class="flex-1">
+              <p class="font-semibold text-sm">${f.question}</p>
+              <p class="text-sm mt-1" style="color:var(--color-muted);">${truncate(f.answer, 100)}</p>
+              <p class="text-xs mt-1" style="color:var(--color-muted);">Orden: ${f.sort_order || 0}</p>
+            </div>
+            <div class="flex gap-1 flex-shrink-0">
+              <button class="btn-icon" title="Editar" onclick="editFaq(${f.id})">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="btn-icon" title="Eliminar" onclick="deleteFaq(${f.id})" style="border-color:#e8a0a0;color:#c45050;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <button onclick="deleteFAQ(${faq.id})" class="w-9 h-9 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 cursor-pointer flex-shrink-0 mt-1">
-          <i class="fas fa-trash-can"></i>
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
+      `).join('');
+    }
 
-function renderFAQs() {
-  const container = document.getElementById('faqContainer');
-  const section = document.getElementById('faqSection');
-  const d = isDark();
-  
-  if (!faqs.length) { section.classList.add('hidden'); return; }
-  section.classList.remove('hidden');
-  
-  container.innerHTML = faqs.map(faq => `
-    <div class="rounded-2xl overflow-hidden ${d ? 'card-dark' : 'card-light'}">
-      <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer hover:opacity-80">
-        <span class="text-sm font-semibold pr-4">${escapeHTML(faq.question)}</span>
-        <i class="fas fa-chevron-down text-xs opacity-40 transition-transform duration-300 flex-shrink-0"></i>
-      </button>
-      <div class="faq-answer px-5">
-        <p class="text-sm opacity-60 leading-relaxed pb-4">${escapeHTML(faq.answer)}</p>
-      </div>
-    </div>
-  `).join('');
-}
+    function openFaqModal(faq = null) {
+      const modal = document.getElementById('faq-modal');
+      const title = document.getElementById('faq-modal-title');
 
-function toggleFAQ(btn) {
-  const answer = btn.nextElementSibling;
-  const icon = btn.querySelector('i');
-  answer.classList.toggle('open');
-  icon.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : '';
-}
+      if (faq) {
+        title.textContent = 'Editar Pregunta';
+        document.getElementById('faq-id').value = faq.id;
+        document.getElementById('faq-question').value = faq.question || '';
+        document.getElementById('faq-answer').value = faq.answer || '';
+        document.getElementById('faq-order').value = faq.sort_order || 0;
+      } else {
+        title.textContent = 'Nueva Pregunta';
+        document.getElementById('faq-form').reset();
+        document.getElementById('faq-id').value = '';
+        document.getElementById('faq-order').value = faqs.length;
+      }
 
-// ========================== VIEW SWITCHING ==========================
-function handleClientSearch(value) {
-  if (value === config.password) {
-    document.getElementById('clientSearch').value = '';
-    switchToAdmin();
-    return;
-  }
-  renderClientView();
-}
+      modal.classList.add('active');
+    }
 
-function switchToAdmin() {
-  document.getElementById('clientView').classList.add('hidden');
-  document.getElementById('adminView').classList.remove('hidden');
-  document.getElementById('adminSearch').value = '';
-  switchAdminTab('dashboard');
-  applyAllStyles();
-  showToast('Bienvenido, Admin 🔑');
-}
+    function closeFaqModal() {
+      document.getElementById('faq-modal').classList.remove('active');
+    }
 
-function switchToClient() {
-  document.getElementById('adminView').classList.add('hidden');
-  document.getElementById('clientView').classList.remove('hidden');
-  document.getElementById('clientSearch').value = '';
-  document.getElementById('filterCategory').value = 'all';
-  document.getElementById('filterPrice').value = 'all';
-  document.getElementById('filterSort').value = 'newest';
-  document.getElementById('hideSoldToggle').classList.remove('active');
-  renderClientView();
-  applyAllStyles();
-}
+    function editFaq(id) {
+      const faq = faqs.find(f => f.id === id);
+      if (faq) openFaqModal(faq);
+    }
 
-function switchAdminTab(tab) {
-  document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.admin-tab').forEach(t => {
-    t.style.opacity = '0.6';
-    t.style.borderBottom = '2px solid transparent';
-  });
-  
-  document.getElementById('tab-' + tab).classList.remove('hidden');
-  const activeTab = document.querySelector(`.admin-tab[data-tab="${tab}"]`);
-  if (activeTab) {
-    activeTab.style.opacity = '1';
-    activeTab.style.borderBottom = `2px solid ${config.accent_color || '#0A84FF'}`;
-  }
-  
-  if (tab === 'settings') { applyConfig(); renderFAQEditor(); }
-  if (tab === 'dashboard') { updateMetrics(); renderChart(); }
-  if (tab === 'products') { renderAdminTable(); }
-  applyAllStyles();
-}
+    async function handleFaqSubmit(event) {
+      event.preventDefault();
 
-// ========================== UTILITIES ==========================
-function escapeHTML(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
+      const id = document.getElementById('faq-id').value;
+      const faqData = {
+        question: document.getElementById('faq-question').value.trim(),
+        answer: document.getElementById('faq-answer').value.trim(),
+        sort_order: parseInt(document.getElementById('faq-order').value) || 0,
+      };
 
-function escapeAttr(str) {
-  if (!str) return '';
-  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+      try {
+        let error;
+        if (id) {
+          const result = await supabaseClient.from('faqs').update(faqData).eq('id', parseInt(id));
+          error = result.error;
+        } else {
+          const result = await supabaseClient.from('faqs').insert([faqData]);
+          error = result.error;
+        }
 
-function getContrastColor(hex) {
-  if (!hex) return '#FFFFFF';
-  const r = parseInt(hex.slice(1,3), 16);
-  const g = parseInt(hex.slice(3,5), 16);
-  const b = parseInt(hex.slice(5,7), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? '#000' : '#FFF';
-}
+        if (error) throw error;
 
-function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  toast.style.background = type === 'error' ? '#FF3B30' : '#30D158';
-  toast.style.transform = 'translateX(-50%) translateY(0)';
-  toast.style.opacity = '1';
-  setTimeout(() => {
-    toast.style.transform = 'translateX(-50%) translateY(20px)';
-    toast.style.opacity = '0';
-  }, 2500);
-}
+        showToast(id ? 'FAQ actualizada' : 'FAQ creada', 'success');
+        closeFaqModal();
+        await fetchFaqs();
+        renderAdminFaqs();
+        renderFaqs();
+      } catch (err) {
+        console.error('Error saving FAQ:', err);
+        showToast('Error al guardar FAQ', 'error');
+      }
+    }
 
-// ========================== KEYBOARD ==========================
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeProductModal();
-    closeDetailModal();
-  }
-});
+    async function deleteFaq(id) {
+      if (!confirm('¿Eliminar esta pregunta frecuente?')) return;
 
-// ========================== INIT ==========================
-async function init() {
-  const connected = await initSupabase();
-  if (!connected) return;
-  
-  await Promise.all([fetchProducts(), fetchConfig(), fetchFAQs()]);
-  
-  document.getElementById('loadingOverlay').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  
-  applyTheme();
-  applyConfig();
-  renderAll();
-}
+      try {
+        const { error } = await supabaseClient.from('faqs').delete().eq('id', id);
+        if (error) throw error;
 
-document.addEventListener('DOMContentLoaded', init);
-</script>
+        showToast('FAQ eliminada', 'info');
+        await fetchFaqs();
+        renderAdminFaqs();
+        renderFaqs();
+      } catch (err) {
+        console.error('Error deleting FAQ:', err);
+        showToast('Error al eliminar FAQ', 'error');
+      }
+    }
+
+    // ========== ADMIN: CONFIG ==========
+    function loadConfigForm() {
+      document.getElementById('cfg-title').value = config.title || '';
+      document.getElementById('cfg-subtitle').value = config.subtitle || '';
+      document.getElementById('cfg-hero-title').value = config.hero_title || '';
+      document.getElementById('cfg-hero-subtitle').value = config.hero_subtitle || '';
+      document.getElementById('cfg-whatsapp').value = config.whatsapp || '';
+      document.getElementById('cfg-currency').value = config.currency || '$';
+      document.getElementById('cfg-password').value = config.admin_password || '';
+      document.getElementById('cfg-footer').value = config.footer_text || '';
+    }
+
+    async function saveConfig() {
+      const newConfig = {
+        title: document.getElementById('cfg-title').value.trim() || 'Garage Sale',
+        subtitle: document.getElementById('cfg-subtitle').value.trim() || 'Catálogo',
+        hero_title: document.getElementById('cfg-hero-title').value.trim() || 'Encuentra tu próximo tesoro',
+        hero_subtitle: document.getElementById('cfg-hero-subtitle').value.trim() || 'Artículos únicos a precios increíbles',
+        whatsapp: document.getElementById('cfg-whatsapp').value.trim(),
+        currency: document.getElementById('cfg-currency').value.trim() || '$',
+        admin_password: document.getElementById('cfg-password').value.trim(),
+        footer_text: document.getElementById('cfg-footer').value.trim() || 'Garage Sale © 2025',
+      };
+
+      try {
+        let error;
+        if (config.id) {
+          const result = await supabaseClient.from('config').update(newConfig).eq('id', config.id);
+          error = result.error;
+        } else {
+          const result = await supabaseClient.from('config').insert([newConfig]);
+          error = result.error;
+        }
+
+        if (error) throw error;
+
+        showToast('Configuración guardada', 'success');
+        await fetchConfig();
+        applyConfig();
+      } catch (err) {
+        console.error('Error saving config:', err);
+        showToast('Error al guardar configuración', 'error');
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('cfg-password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // ========== ADMIN TABS ==========
+    function switchAdminTab(tabName, btn) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById('tab-' + tabName).style.display = 'block';
+      btn.classList.add('active');
+
+      if (tabName === 'dashboard') renderAdminDashboard();
+      if (tabName === 'products') renderAdminTable();
+      if (tabName === 'faqs') renderAdminFaqs();
+      if (tabName === 'config') loadConfigForm();
+    }
+
+    // ========== DARK MODE ==========
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('icon-sun').style.display = isDark ? 'none' : 'block';
+      document.getElementById('icon-moon').style.display = isDark ? 'block' : 'none';
+      localStorage.setItem('garagesale-dark', isDark ? '1' : '0');
+
+      // Update nav background
+      const nav = document.querySelector('.nav-glass');
+      if (isDark) {
+        nav.style.background = 'rgba(26, 30, 26, 0.92)';
+        nav.style.borderColor = '#333';
+      } else {
+        nav.style.background = 'rgba(247, 243, 232, 0.92)';
+        nav.style.borderColor = 'var(--color-blush)';
+      }
+
+      // Update dark mode text colors
+      const heroTitle = document.getElementById('hero-title');
+      if (isDark) {
+        heroTitle.style.color = '#e8e4da';
+      } else {
+        heroTitle.style.color = '#2d2d2d';
+      }
+
+      // Re-render chart with new colors
+      if (chartInstance) renderChart();
+    }
+
+    function loadDarkMode() {
+      const saved = localStorage.getItem('garagesale-dark');
+      if (saved === '1') {
+        toggleDarkMode();
+      }
+    }
+
+    // ========== UTILITIES ==========
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '0';
+      return Number(num).toLocaleString('es-MX', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    function truncate(str, max) {
+      if (!str) return '';
+      return str.length > max ? str.substring(0, max) + '...' : str;
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast toast-${type} show`;
+      setTimeout(() => { toast.classList.remove('show'); }, 3500);
+    }
+
+    // ========== ESC KEY ==========
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeProductModal();
+        closeFaqModal();
+        closeDetailModal();
+        closeLightbox();
+      }
+    });
+
+    // ========== START ==========
+    loadDarkMode();
+    initApp().then(() => {
+      renderFaqs();
+    });
+  </script>
+
+  <!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║          📦 SQL SCRIPT — EJECUTAR EN SUPABASE SQL EDITOR       ║
+  ║                                                                ║
+  ║  Copia y pega el siguiente script en el SQL Editor de          ║
+  ║  Supabase (https://supabase.com/dashboard > SQL Editor)        ║
+  ║  para crear las tablas necesarias con RLS habilitado y         ║
+  ║  políticas abiertas para desarrollo.                           ║
+  ╚══════════════════════════════════════════════════════════════════╝
+
+  -- ============================================================
+  -- 1. TABLA: products
+  -- ============================================================
+  CREATE TABLE IF NOT EXISTS public.products (
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name          TEXT NOT NULL,
+    description   TEXT,
+    category      TEXT,
+    price         NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    original_price NUMERIC(10, 2),
+    price_type    TEXT NOT NULL DEFAULT 'fijo'
+                    CHECK (price_type IN ('fijo', 'negociable', 'gratis')),
+    condition     TEXT DEFAULT 'buen_estado'
+                    CHECK (condition IN ('nuevo', 'como_nuevo', 'buen_estado', 'uso_visible')),
+    status        TEXT NOT NULL DEFAULT 'disponible'
+                    CHECK (status IN ('disponible', 'reservado', 'vendido')),
+    notes         TEXT,
+    image         TEXT,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+
+  -- Trigger para updated_at automático
+  CREATE OR REPLACE FUNCTION public.set_updated_at()
+  RETURNS TRIGGER AS $$
+  BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+  END;
+  $$ LANGUAGE plpgsql;
+
+  DROP TRIGGER IF EXISTS trg_products_updated_at ON public.products;
+  CREATE TRIGGER trg_products_updated_at
+    BEFORE UPDATE ON public.products
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+  -- RLS
+  ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+
+  DROP POLICY IF EXISTS "Allow public read products"  ON public.products;
+  DROP POLICY IF EXISTS "Allow public insert products" ON public.products;
+  DROP POLICY IF EXISTS "Allow public update products" ON public.products;
+  DROP POLICY IF EXISTS "Allow public delete products" ON public.products;
+
+  CREATE POLICY "Allow public read products"
+    ON public.products FOR SELECT
+    USING (true);
+
+  CREATE POLICY "Allow public insert products"
+    ON public.products FOR INSERT
+    WITH CHECK (true);
+
+  CREATE POLICY "Allow public update products"
+    ON public.products FOR UPDATE
+    USING (true)
+    WITH CHECK (true);
+
+  CREATE POLICY "Allow public delete products"
+    ON public.products FOR DELETE
+    USING (true);
+
+  -- ============================================================
+  -- 2. TABLA: config
+  -- ============================================================
+  CREATE TABLE IF NOT EXISTS public.config (
+    id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title           TEXT DEFAULT 'Garage Sale',
+    subtitle        TEXT DEFAULT 'Catálogo',
+    hero_title      TEXT DEFAULT 'Encuentra tu próximo tesoro',
+    hero_subtitle   TEXT DEFAULT 'Artículos únicos a precios increíbles',
+    whatsapp        TEXT,
+    currency        TEXT DEFAULT '$',
+    admin_password  TEXT DEFAULT 'admin123',
+    footer_text     TEXT DEFAULT 'Garage Sale © 2025 — Hecho con ❤️',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+
+  -- RLS
+  ALTER TABLE public.config ENABLE ROW LEVEL SECURITY;
+
+  DROP POLICY IF EXISTS "Allow public read config"  ON public.config;
+  DROP POLICY IF EXISTS "Allow public insert config" ON public.config;
+  DROP POLICY IF EXISTS "Allow public update config" ON public.config;
+
+  CREATE POLICY "Allow public read config"
+    ON public.config FOR SELECT
+    USING (true);
+
+  CREATE POLICY "Allow public insert config"
+    ON public.config FOR INSERT
+    WITH CHECK (true);
+
+  CREATE POLICY "Allow public update config"
+    ON public.config FOR UPDATE
+    USING (true)
+    WITH CHECK (true);
+
+  -- Insertar configuración por defecto (solo si la tabla está vacía)
+  INSERT INTO public.config (title, subtitle, hero_title, hero_subtitle, currency, admin_password, footer_text)
+  SELECT 'Garage Sale', 'Catálogo', 'Encuentra tu próximo tesoro',
+         'Artículos únicos a precios increíbles', '$', 'admin123',
+         'Garage Sale © 2025 — Hecho con ❤️'
+  WHERE NOT EXISTS (SELECT 1 FROM public.config LIMIT 1);
+
+  -- ============================================================
+  -- 3. TABLA: faqs
+  -- ============================================================
+  CREATE TABLE IF NOT EXISTS public.faqs (
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    question    TEXT NOT NULL,
+    answer      TEXT NOT NULL,
+    sort_order  INT DEFAULT 0,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+
+  -- RLS
+  ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
+
+  DROP POLICY IF EXISTS "Allow public read faqs"  ON public.faqs;
+  DROP POLICY IF EXISTS "Allow public insert faqs" ON public.faqs;
+  DROP POLICY IF EXISTS "Allow public update faqs" ON public.faqs;
+  DROP POLICY IF EXISTS "Allow public delete faqs" ON public.faqs;
+
+  CREATE POLICY "Allow public read faqs"
+    ON public.faqs FOR SELECT
+    USING (true);
+
+  CREATE POLICY "Allow public insert faqs"
+    ON public.faqs FOR INSERT
+    WITH CHECK (true);
+
+  CREATE POLICY "Allow public update faqs"
+    ON public.faqs FOR UPDATE
+    USING (true)
+    WITH CHECK (true);
+
+  CREATE POLICY "Allow public delete faqs"
+    ON public.faqs FOR DELETE
+    USING (true);
+
+  -- ============================================================
+  -- ✅ ¡LISTO! Las tablas están creadas con políticas RLS
+  --    abiertas para desarrollo. Recuerda restringir las
+  --    políticas antes de pasar a producción.
+  -- ============================================================
+  -->
+
 </body>
 </html>
-
-<!--
-╔══════════════════════════════════════════════════════════════════════════════╗
-║   📦 SQL PARA SUPABASE - Copia y pega en SQL Editor                          ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-
--- TABLA: products
-CREATE TABLE IF NOT EXISTS products (
-  id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT,
-  category TEXT DEFAULT 'Otro',
-  price NUMERIC DEFAULT 0,
-  original_price NUMERIC DEFAULT 0,
-  condition TEXT DEFAULT 'Como nuevo',
-  price_type TEXT DEFAULT 'Fijo',
-  notes TEXT,
-  image TEXT,
-  status TEXT DEFAULT 'Disponible',
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public access" ON products FOR ALL USING (true) WITH CHECK (true);
-
--- TABLA: config
-CREATE TABLE IF NOT EXISTS config (
-  id BIGSERIAL PRIMARY KEY,
-  key TEXT UNIQUE NOT NULL,
-  value TEXT
-);
-
-ALTER TABLE config ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public access" ON config FOR ALL USING (true) WITH CHECK (true);
-
-INSERT INTO config (key, value) VALUES
-  ('password', 'admin123'),
-  ('whatsapp', '525543777055'),
-  ('accent_color', '#0A84FF'),
-  ('banner_color', '#FF9500'),
-  ('banner_enabled', 'false'),
-  ('banner_text', '¡Todo se va este fin de semana!')
-ON CONFLICT (key) DO NOTHING;
-
--- TABLA: faqs
-CREATE TABLE IF NOT EXISTS faqs (
-  id BIGSERIAL PRIMARY KEY,
-  question TEXT NOT NULL,
-  answer TEXT NOT NULL,
-  sort_order INTEGER DEFAULT 0
-);
-
-ALTER TABLE faqs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public access" ON faqs FOR ALL USING (true) WITH CHECK (true);
-
-INSERT INTO faqs (question, answer, sort_order) VALUES
-  ('¿Cómo puedo comprar?', 'Haz click en "Comprar" y te contactamos por WhatsApp.', 0),
-  ('¿Hacen envíos?', 'Preferimos entrega en persona, pero podemos negociar envío.', 1),
-  ('¿Los precios son negociables?', 'Algunos artículos son negociables, lo verás marcado.', 2);
-
--->
