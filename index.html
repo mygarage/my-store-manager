@@ -1,1230 +1,1282 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garage Sale — Catálogo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CONECTA Consultores | Asuntos Públicos & Elecciones</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --cream: #f7f3e8;
-      --blush: #dec2af;
-      --accent: #337a67;
-      --accent-hover: #2a6655;
-      --muted: #a0a088;
-      --dark: #747c70;
-      --text: #2c2c2a;
-      --text2: #5a5a52;
-      --card: #ffffff;
-      --card-border: #e4d5c7;
-      --input-bg: #ffffff;
-      --red: #b35555;
-      --amber: #b38b2d;
+      --navy: #0d1b3e;
+      --blue-corp: #1a3a6b;
+      --blue-mid: #2563eb;
+      --violet: #7c3aed;
+      --violet-light: #a78bfa;
+      --bg-light: #f0f4f8;
+    }
+    html, body { font-family: 'Inter', sans-serif; }
+    body { background: var(--bg-light); overflow-x: hidden; }
+
+    /* High Contrast */
+    body.hc { background: #000 !important; color: #fff !important; font-size: 1.1em; }
+    body.hc .gc { background: #111 !important; border-color: #444 !important; }
+    body.hc h1,body.hc h2,body.hc h3,body.hc h4,body.hc p,body.hc span,body.hc label { color: #fff !important; }
+    body.hc .dock-nav { background: #1a1a1a !important; border-color: #333 !important; }
+    body.hc .ticker-bar { background: #111 !important; }
+    body.hc input,body.hc textarea,body.hc select { background: #222 !important; color: #fff !important; border-color: #555 !important; }
+
+    /* Glass Card */
+    .gc {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
     }
 
-    html.dark {
-      --cream: #1a1e1a;
-      --blush: #333833;
-      --text: #e8e4da;
-      --text2: #aaa89a;
-      --card: #252a25;
-      --card-border: #3a3f3a;
-      --input-bg: #2a2f2a;
-      --muted: #8a8a78;
+    /* Section BG */
+    .sect { background: linear-gradient(160deg,#f0f4f8 0%,#eaeff7 50%,#f3f0ff 100%); }
+
+    /* Gradient texts */
+    .gt-navy { background: linear-gradient(135deg,#0d1b3e,#1a3a6b,#2563eb); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .gt-violet { background: linear-gradient(135deg,#7c3aed,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* Animations */
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes floatDock { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+    @keyframes pulseGlow { 0%,100%{box-shadow:0 0 12px rgba(124,58,237,0.4)} 50%{box-shadow:0 0 28px rgba(124,58,237,0.8)} }
+    @keyframes slideInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideInLeft { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes scaleIn { from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)} }
+    @keyframes barFill { from{width:0%} to{width:var(--bar-w)} }
+    @keyframes countUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes shapeFloat { 0%,100%{transform:translateY(0) rotate(var(--r))} 50%{transform:translateY(-18px) rotate(var(--r))} }
+    @keyframes heroEntry { from{opacity:0;transform:translateY(-80px) rotate(calc(var(--r) - 12deg))} to{opacity:1;transform:translateY(0) rotate(var(--r))} }
+
+    .float-anim { animation: floatY 3.5s ease-in-out infinite; }
+    .dock-float { animation: floatDock 4s ease-in-out infinite; }
+    .pulse-glow { animation: pulseGlow 2.2s ease-in-out infinite; }
+    .spin-anim { animation: spin 1s linear infinite; }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+    .slide-up { animation: slideInUp 0.5s ease forwards; }
+    .scale-in { animation: scaleIn 0.35s cubic-bezier(0.25,0.4,0.25,1) forwards; }
+
+    /* Hero shapes */
+    .hero-shape {
+      position: absolute; border-radius: 9999px;
+      border: 2px solid rgba(255,255,255,0.15);
+      box-shadow: 0 8px 32px rgba(255,255,255,0.08);
+      animation: heroEntry var(--dur,2s) var(--delay,0s) cubic-bezier(0.23,0.86,0.39,0.96) both,
+                 shapeFloat 12s var(--delay2,0s) ease-in-out infinite;
     }
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--cream);
-      color: var(--text);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      transition: background .3s, color .3s;
-    }
+    /* Ticker */
+    .ticker-wrap { overflow:hidden; white-space:nowrap; }
+    .ticker-inner { display:inline-flex; animation: marquee 35s linear infinite; width:max-content; }
 
-    .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+    /* Input */
+    .inp {
+      width:100%; padding:0.75rem 1rem; border-radius:0.75rem; font-size:0.875rem;
+      border:1px solid rgba(37,99,235,0.18); background:#fff; outline:none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .inp:focus { border-color:rgba(99,102,241,0.55); box-shadow:0 0 0 3px rgba(99,102,241,0.1); }
 
-    /* ── Layout ── */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
+    /* Progress bars */
+    .bar-track { background:#e5e7eb; border-radius:9999px; overflow:hidden; height:8px; }
+    .bar-fill {
+      height:100%; border-radius:9999px;
+      width:0%;
+      transition: width 1.6s cubic-bezier(0.34,1.56,0.64,1);
     }
+    .bar-fill.animate { width: var(--bar-w); }
 
-    /* ── Nav ── */
-    .navbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-      background: rgba(247, 243, 232, 0.92);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--card-border);
-      transition: background .3s, border-color .3s;
-    }
-    html.dark .navbar {
-      background: rgba(26, 30, 26, 0.92);
-    }
-    .navbar-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .nav-logo {
-      width: 40px; height: 40px;
-      background: var(--accent);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .nav-title { font-size: 1.15rem; font-weight: 700; color: var(--accent); line-height: 1.2; }
-    .nav-sub { font-size: 0.72rem; color: var(--muted); }
-    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    /* Card hover */
+    .card-h { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor:pointer; }
+    .card-h:hover { transform:translateY(-5px); box-shadow:0 25px 60px rgba(0,0,0,0.1), 0 0 35px rgba(99,102,241,0.12); }
 
-    /* ── Buttons ── */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 10px 22px; border-radius: 10px;
-      font-family: inherit; font-size: 0.88rem; font-weight: 600;
-      cursor: pointer; border: none; transition: all .2s;
-      text-decoration: none; white-space: nowrap;
-    }
-    .btn-accent { background: var(--accent); color: #fff; }
-    .btn-accent:hover { background: var(--accent-hover); box-shadow: 0 4px 16px rgba(51,122,103,.25); }
-    .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
-    .btn-outline:hover { background: rgba(51,122,103,.06); }
-    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
-    .btn-icon {
-      width: 36px; height: 36px; padding: 0;
-      border-radius: 8px; border: 1.5px solid var(--card-border);
-      background: var(--card); color: var(--dark);
-      display: inline-flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .2s; flex-shrink: 0;
-    }
-    .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-icon.danger { color: var(--red); border-color: #e0baba; }
-    .btn-icon.danger:hover { border-color: var(--red); }
+    /* Scrollbar hide */
+    .sb-hide::-webkit-scrollbar{display:none;} .sb-hide{-ms-overflow-style:none;scrollbar-width:none;}
 
-    /* ── Inputs ── */
-    .field-label { display: block; margin-bottom: 5px; font-size: 0.76rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-    .input {
-      width: 100%; padding: 10px 14px;
-      border: 1.5px solid var(--card-border); border-radius: 10px;
-      background: var(--input-bg); color: var(--text);
-      font-family: inherit; font-size: 0.88rem;
-      outline: none; transition: border-color .2s, box-shadow .2s;
-    }
-    .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(51,122,103,.1); }
-    .input::placeholder { color: var(--muted); }
-    select.input {
-      cursor: pointer; appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a0a088' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
-    }
-    textarea.input { resize: vertical; min-height: 70px; }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      overflow: hidden;
-      transition: transform .25s, box-shadow .25s;
-    }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(51,122,103,.1); }
-    .card-body { padding: 14px 16px 16px; }
-    .card-img-wrap { position: relative; height: 210px; overflow: hidden; }
-    .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
-    .card:hover .card-img { transform: scale(1.04); }
-    .card-static { border-radius: 14px; background: var(--card); border: 1px solid var(--card-border); padding: 22px; }
-
-    /* ── Badges ── */
-    .badge {
-      display: inline-block; padding: 3px 10px; border-radius: 20px;
-      font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-    }
-    .badge-green { background: #e6f4ef; color: var(--accent); }
-    .badge-red { background: #f3e8e8; color: var(--red); }
-    .badge-amber { background: #fef3e2; color: var(--amber); }
-    .badge-discount { background: var(--red); color: #fff; }
-    html.dark .badge-green { background: #1a3a2e; }
-    html.dark .badge-red { background: #3a1a1a; }
-    html.dark .badge-amber { background: #3a3018; }
-
-    /* ── Status Dot ── */
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-    .dot-green { background: var(--accent); }
-    .dot-red { background: var(--red); }
-    .dot-amber { background: var(--amber); }
-
-    /* ── Grid System ── */
-    .grid-products {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
-    }
-    .grid-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-    }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-    @media (max-width: 640px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .grid-products { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-    }
-
-    /* ── Flex helpers ── */
-    .flex-between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    .flex-center { display: flex; align-items: center; justify-content: center; }
-    .flex-wrap-center { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
-    .flex-col { display: flex; flex-direction: column; }
-    .flex-gap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-    /* ── Price ── */
-    .price { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--accent); }
-    .price-old { text-decoration: line-through; color: var(--muted); font-size: 0.82rem; }
-
-    /* ── Sold overlay ── */
-    .sold-overlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,.4);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .sold-overlay span {
-      background: rgba(179,85,85,.9); color: #fff;
-      padding: 4px 14px; border-radius: 6px;
-      font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-    }
-
-    /* ── Filter chips ── */
-    .chip {
-      padding: 6px 16px; border-radius: 20px;
-      font-size: 0.78rem; font-weight: 600; font-family: inherit;
-      cursor: pointer; border: 1.5px solid var(--card-border);
-      background: var(--card); color: var(--text2);
-      transition: all .2s; white-space: nowrap;
-    }
-    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .chip:not(.active):hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ── Tabs ── */
-    .tabs {
-      display: inline-flex; gap: 4px; padding: 4px;
-      background: rgba(51,122,103,.07); border-radius: 12px;
-    }
-    .tab {
-      padding: 9px 18px; border-radius: 9px;
-      font-size: .82rem; font-weight: 600; font-family: inherit;
-      cursor: pointer; border: none; background: transparent;
-      color: var(--muted); transition: all .2s; white-space: nowrap;
-    }
-    .tab.active { background: var(--accent); color: #fff; }
-    .tab:not(.active):hover { color: var(--accent); }
-
-    /* ── Table ── */
-    .tbl { width: 100%; border-collapse: collapse; }
-    .tbl th {
-      padding: 10px 14px; text-align: left; font-size: .7rem;
-      font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-      color: var(--muted); border-bottom: 2px solid var(--card-border);
-      background: rgba(51,122,103,.04);
-    }
-    .tbl td { padding: 10px 14px; font-size: .84rem; border-bottom: 1px solid var(--card-border); vertical-align: middle; }
-    .tbl tr:hover td { background: rgba(51,122,103,.03); }
-    .tbl tr:last-child td { border-bottom: none; }
-
-    /* ── Modal ── */
+    /* Modal overlay */
     .modal-bg {
-      position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity .3s;
-      padding: 20px;
+      position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:1rem;
+      background:rgba(3,3,3,0.82);backdrop-filter:blur(10px);
+      animation: fadeIn 0.25s ease forwards;
     }
-    .modal-bg.open { opacity: 1; pointer-events: all; }
-    .modal-box {
-      background: var(--card); border-radius: 18px; border: 1px solid var(--card-border);
-      width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
-      padding: 28px; transform: translateY(16px) scale(.98);
-      transition: transform .3s;
-    }
-    .modal-bg.open .modal-box { transform: translateY(0) scale(1); }
-    .modal-box.wide { max-width: 720px; }
+    .modal-box { animation: scaleIn 0.35s cubic-bezier(0.25,0.4,0.25,1) forwards; }
 
-    /* ── Toast ── */
-    .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 250; }
-    .toast {
-      padding: 12px 20px; border-radius: 12px;
-      font-size: .88rem; font-weight: 500;
-      display: flex; align-items: center; gap: 8px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.12);
-      transform: translateX(140%); opacity: 0; transition: all .4s cubic-bezier(.16,1,.3,1);
-      max-width: 360px; color: #fff;
-    }
-    .toast.show { transform: translateX(0); opacity: 1; }
-    .toast-success { background: var(--accent); }
-    .toast-error { background: var(--red); }
-    .toast-info { background: var(--dark); }
+    /* Team card overlay */
+    .team-ovl { opacity:0; transition:opacity 0.3s; }
+    .team-c:hover .team-ovl { opacity:1; }
 
-    /* ── Lightbox ── */
-    .lightbox {
-      position: fixed; inset: 0; z-index: 150;
-      background: rgba(0,0,0,.92);
-      display: flex; align-items: center; justify-content: center;
-      cursor: zoom-out;
-      opacity: 0; pointer-events: none; transition: opacity .3s;
-    }
-    .lightbox.open { opacity: 1; pointer-events: all; }
-    .lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; border-radius: 10px; }
+    /* Slider */
+    .slider { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:9999px; outline:none; cursor:pointer; }
+    .slider::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#7c3aed,#2563eb); cursor:pointer; box-shadow:0 2px 8px rgba(124,58,237,0.5); }
 
-    /* ── Skeleton ── */
-    .skel {
-      background: linear-gradient(90deg, var(--blush) 25%, var(--card) 50%, var(--blush) 75%);
-      background-size: 200% 100%; animation: shimmer 1.5s ease infinite; border-radius: 8px;
-    }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    /* Dock */
+    .dock-nav { animation: floatDock 4s ease-in-out infinite; }
+    .dock-btn { transition: transform 0.2s ease, background 0.2s; border-radius:0.75rem; padding:0.6rem 0.9rem; display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; border:none; }
+    .dock-btn:hover { transform: translateY(-5px) scale(1.1); }
+    .dock-btn.active { background:linear-gradient(135deg,rgba(37,99,235,0.12),rgba(124,58,237,0.12)); }
 
-    /* ── Animations ── */
-    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-    .anim { animation: fadeUp .4s ease forwards; opacity: 0; }
+    /* Wizard steps */
+    .wiz-step { animation: slideInUp 0.3s ease forwards; }
 
-    /* ── FAQ ── */
-    .faq-item { border-bottom: 1px solid var(--card-border); }
-    .faq-q { padding: 16px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: .95rem; transition: color .2s; }
-    .faq-q:hover { color: var(--accent); }
-    .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease; color: var(--text2); font-size: .9rem; line-height: 1.6; }
-    .faq-item.open .faq-a { max-height: 500px; padding-bottom: 14px; }
-    .faq-item.open .faq-arrow { transform: rotate(180deg); }
-    .faq-arrow { transition: transform .3s; color: var(--muted); flex-shrink: 0; margin-left: 12px; }
+    /* Bento large */
+    @media(min-width:1024px){ .bento-large { grid-column: span 2; } }
 
-    /* ── Image upload ── */
-    .img-upload {
-      width: 100%; height: 180px; border: 2px dashed var(--card-border); border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; overflow: hidden; transition: border-color .2s;
-      background: rgba(51,122,103,.03); position: relative;
-    }
-    .img-upload:hover { border-color: var(--accent); }
-    .img-upload img { width: 100%; height: 100%; object-fit: cover; }
+    /* Magnetic btn */
+    .mag-btn { transition: transform 0.15s ease; }
 
-    /* ── WhatsApp ── */
-    .wa-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #25D366; color: #fff; padding: 10px 20px; border-radius: 10px;
-      font-weight: 600; font-size: .84rem; font-family: inherit;
-      border: none; cursor: pointer; transition: background .2s; text-decoration: none;
-    }
-    .wa-btn:hover { background: #1fb855; }
+    /* Gradient btn */
+    .btn-navy { background:linear-gradient(135deg,#0d1b3e,#1a3a6b); color:#fff; border:none; cursor:pointer; border-radius:0.75rem; font-weight:600; transition:opacity 0.2s,transform 0.15s; }
+    .btn-navy:hover { opacity:0.9; transform:scale(1.02); }
+    .btn-violet { background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff; border:none; cursor:pointer; border-radius:0.75rem; font-weight:600; transition:opacity 0.2s,transform 0.15s; }
 
-    /* ── Spinner ── */
-    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
-    @keyframes spin { to{transform:rotate(360deg)} }
+    /* Tab button */
+    .tab-btn { padding:0.4rem 1.1rem; border-radius:0.6rem; font-size:0.75rem; font-weight:600; border:1px solid #e5e7eb; background:#fff; cursor:pointer; transition:all 0.2s; }
+    .tab-btn.on { background:#1e40af; color:#fff; border-color:#1e40af; }
+    .tab-btn:not(.on):hover { border-color:#93c5fd; }
 
-    /* ── Empty state ── */
-    .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+    /* Filter btn */
+    .flt-btn { padding:0.4rem 1rem; border-radius:0.7rem; font-size:0.75rem; font-weight:600; border:1px solid #e5e7eb; background:#fff; cursor:pointer; transition:all 0.2s; }
+    .flt-btn.on { background:linear-gradient(135deg,#1e40af,#2563eb); color:#fff; border-color:#2563eb; box-shadow:0 4px 12px rgba(37,99,235,0.3); }
 
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; }
+    /* Loading */
+    @keyframes loadFade { to{opacity:0;pointer-events:none} }
+    .loading-screen { position:fixed;inset:0;z-index:9999;background:#030303;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem; }
+    .loading-screen.hide { animation: loadFade 0.5s ease 0.5s forwards; }
 
-    /* ── Utility spacers ── */
-    .mb-sm { margin-bottom: 8px; }
-    .mb-md { margin-bottom: 16px; }
-    .mb-lg { margin-bottom: 24px; }
-    .mb-xl { margin-bottom: 32px; }
-    .mt-sm { margin-top: 8px; }
-    .mt-md { margin-top: 16px; }
-    .mt-lg { margin-top: 24px; }
-    .gap-stack > * + * { margin-top: 14px; }
-    .text-center { text-align: center; }
-    .text-sm { font-size: 0.85rem; }
-    .text-xs { font-size: 0.76rem; }
-    .text-muted { color: var(--muted); }
-    .text-accent { color: var(--accent); }
-    .fw-600 { font-weight: 600; }
-    .fw-700 { font-weight: 700; }
-    .w-full { width: 100%; }
-    .hidden { display: none !important; }
-    .line-through { text-decoration: line-through; }
-    .truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; }
+    /* Line clamp */
+    .lc3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .lc2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+    /* Glow effects */
+    .glow-ev:hover { box-shadow:0 0 35px rgba(99,102,241,0.2), 0 20px 40px rgba(0,0,0,0.08); }
+    transition: box-shadow 0.3s;
+
+    /* Badge cert hover tooltip */
+    .cert-badge { position:relative; }
+    .cert-badge .cert-tip { position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-4px);background:#1e293b;color:#fff;font-size:0.65rem;padding:4px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+    .cert-badge:hover .cert-tip { opacity:1; }
   </style>
 </head>
 <body>
+<div id="root"></div>
+<div class="loading-screen" id="loader">
+  <div style="width:44px;height:44px;border:2px solid #7c3aed;border-top-color:transparent;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+  <p style="color:rgba(255,255,255,0.4);font-size:0.75rem;letter-spacing:0.15em;font-family:Inter,sans-serif;">CARGANDO CONECTA...</p>
+</div>
 
-  <!-- Toast -->
-  <div class="toast-wrap"><div id="toast" class="toast"></div></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
 
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""></div>
+// ── Supabase ───────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://viwaaxialmrybwibawykf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo";
+let sbClient = null;
+try { sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e){}
 
-  <!-- ════════════ NAVBAR ════════════ -->
-  <nav class="navbar">
-    <div class="navbar-inner">
-      <a class="nav-brand" onclick="showCatalog()">
-        <div class="nav-logo">
-          <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M20 8h-3V6c0-1.1-.9-2-2-2H9C7.9 4 7 4.9 7 6v2H4c-1.1 0-2 .9-2 2v10h20V10c0-1.1-.9-2-2-2zM9 6h6v2H9V6zm11 12H4v-6h16v6z"/></svg>
-        </div>
-        <div>
-          <div class="nav-title font-serif" id="nav-title">Garage Sale</div>
-          <div class="nav-sub" id="nav-subtitle">Catálogo</div>
-        </div>
-      </a>
-      <div class="nav-actions">
-        <button class="btn-icon" onclick="toggleDarkMode()" title="Tema">
-          <svg id="icon-theme" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-3a1 1 0 01-1-1V1a1 1 0 112 0v2a1 1 0 01-1 1zm0 18a1 1 0 01-1-1v-2a1 1 0 112 0v2a1 1 0 01-1 1zm9-9a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM5 12a1 1 0 01-1 1H2a1 1 0 110-2h2a1 1 0 011 1zm13.07-5.07a1 1 0 01-.71-.29l-1.41-1.41a1 1 0 111.41-1.41l1.41 1.41a1 1 0 01-.7 1.7zM7.05 19.36a1 1 0 01-.7-.29l-1.42-1.42a1 1 0 111.42-1.41l1.41 1.41a1 1 0 01-.71 1.71zm11.31 0a1 1 0 01-.71-1.71l1.42-1.41a1 1 0 111.41 1.41l-1.41 1.42a1 1 0 01-.71.29zM7.05 4.64a1 1 0 01-.71-1.7l1.42-1.42a1 1 0 011.41 1.41L7.76 4.35a1 1 0 01-.71.29z"/></svg>
-        </button>
-        <button id="btn-back" class="btn btn-outline btn-sm hidden" onclick="showCatalog()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          Catálogo
-        </button>
-      </div>
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function cn(...a) { return a.filter(Boolean).join(" "); }
+
+// ── Data ───────────────────────────────────────────────────────────────────────
+const SERVICES = [
+  { id:1, title:"Perspectiva de Género e Igualdad Sustantiva", icon:"venus", color:"violet", description:"Diagnósticos, políticas y capacitación con perspectiva de género. Coordinación de protocolos de violencia, diseño de Mecanismos de Adelanto de la Mujer y capacitación a servidores públicos bajo la NMX-R-025-SCFI-2015.", tags:["Políticas Públicas","Género","SEP/CONOCER"], filterKey:"Género" },
+  { id:2, title:"Comunicación y Gestión de Redes", icon:"radio", color:"blue", description:"Estrategias integrales de comunicación 360°, posicionamiento digital, manejo de crisis, construcción de imagen pública y ecosistemas de redes sociales para gobiernos y candidatos.", tags:["Digital","Imagen Pública","Crisis"], filterKey:"Comunicación" },
+  { id:3, title:"Estrategia Electoral y Operación Territorial (Día D)", icon:"map-pin", color:"indigo", description:"Campañas ganadoras desde el análisis de territorio hasta la operación del Día D. Estructura territorial, movilización ciudadana, análisis de competencia y simulacros operativos.", tags:["Campañas","Territorio","Elecciones"], filterKey:"Electoral" },
+  { id:4, title:"Inteligencia Parlamentaria y Agendas Legislativas", icon:"landmark", color:"navy", description:"Gestión de agendas legislativas, monitoreo parlamentario, cabildeo estratégico y construcción de alianzas para impulsar iniciativas de ley con alto impacto político.", tags:["Legislativo","Cabildeo","Congreso"], filterKey:"Legislativo" },
+  { id:5, title:"Políticas Públicas y Cumplimiento Agenda 2030", icon:"globe", color:"teal", description:"Diseño, evaluación e implementación de políticas públicas alineadas a los ODS de la Agenda 2030. Elaboración de planes municipales, estatales y federales con metodología probada.", tags:["ODS","Agenda 2030","Planeación"], filterKey:"ODS" },
+  { id:6, title:"Soluciones Educativas y Virtualización LMS", icon:"book-open", color:"amber", description:"Desarrollo de competencias certificadas por la Red CONOCER y SEP. Diseño instruccional de cursos en línea, plataformas LMS a medida, e-learning para organismos públicos y privados.", tags:["CONOCER","LMS","Capacitación"], filterKey:"Educativo" },
+];
+
+const EVENTS = [
+  { id:1, title:"Estrategia Electoral para Gobiernos Municipales 2025", date:"2025-08-15", time:"10:00", type:"Webinar", speaker:"Rodrigo Falcón Pérez", desc:"Análisis de escenarios electorales y herramientas de campaña para municipios." },
+  { id:2, title:"Perspectiva de Género en la Gestión Pública", date:"2025-09-03", time:"11:00", type:"Conferencia", speaker:"Laura Isabel Hernández Pichardo", desc:"Implementación de protocolos de igualdad en administraciones locales." },
+  { id:3, title:"Certificación CONOCER: Diseño de Competencias", date:"2025-09-20", time:"09:00", type:"Taller", speaker:"Ma. Margarita E. Ontiveros", desc:"Proceso de certificación y diseño curricular bajo estándares SEP." },
+  { id:4, title:"Agenda 2030 y Presupuesto Público Municipal", date:"2025-10-08", time:"10:00", type:"Webinar", speaker:"Mario Pérez Ponce", desc:"Alineación de programas municipales a los ODS y gestión presupuestal." },
+  { id:5, title:"Comunicación de Crisis en Campaña Electoral", date:"2025-10-22", time:"11:00", type:"Masterclass", speaker:"Viviana Mondragón Lazo", desc:"Manejo mediático ante crisis y narrativas adversas durante campañas." },
+];
+
+const TEAM = [
+  { name:"Laura Isabel Hernández Pichardo", role:"Socia Fundadora & Directora General", specialty:"Perspectiva de Género", av:"LH", color:"violet",
+    bio:"Especialista en perspectiva de género e igualdad sustantiva con más de 20 años de trayectoria en el sector público y privado. Ha diseñado e implementado políticas públicas de género en más de 15 municipios, coordinado protocolos de atención a violencia de género y capacitado a más de 3,000 servidores públicos. Certificadora oficial ante la Red CONOCER y SEP en competencias de igualdad laboral. Coordinadora de la NMX-R-025-SCFI-2015 en organismos gubernamentales de 5 estados de la República.",
+    skills:["Género e Igualdad","Políticas Públicas","CONOCER/SEP","Capacitación Gubernamental","Protocolos de Violencia"],
+    achievements:["15+ Municipios asesorados","3,000+ servidores capacitados","5 estados con NMX-R-025 implementada"] },
+  { name:"Rodrigo Falcón Pérez", role:"Socio Fundador & Director Electoral", specialty:"Estrategia Electoral", av:"RF", color:"blue",
+    bio:"Estratega electoral con 25 años de experiencia en campañas municipales, estatales y federales. Ha coordinado más de 40 campañas ganadoras en 12 estados de la República. Especialista en operación territorial Día D, análisis de datos electorales, construcción de estructuras ciudadanas y diseño de mensajes de campaña. Consultor de candidatos a presidencias municipales, diputaciones locales y federales, y senadurías.",
+    skills:["Campañas Electorales","Operación Territorial","Análisis de Datos","Comunicación Política","Estructura Ciudadana"],
+    achievements:["40+ Campañas ganadoras","12 estados de cobertura","25 años de experiencia electoral"] },
+  { name:"Viviana Mondragón Lazo", role:"Directora de Comunicación", specialty:"Comunicación 360°", av:"VM", color:"indigo",
+    bio:"Comunicóloga y estratega digital con especialización en manejo de imagen pública, comunicación de crisis y ecosistemas de redes sociales para actores políticos. Ha dirigido campañas de comunicación para gobiernos municipales, estatales y organismos internacionales. Productora de contenido político, conductora de medios y asesora para candidatos en múltiples procesos electorales.",
+    skills:["Comunicación Digital","Manejo de Crisis","Imagen Pública","Redes Sociales","Producción de Contenido"],
+    achievements:["50+ campañas comunicacionales","Cobertura en 8 estados","Asesora de organismos internacionales"] },
+  { name:"Mario Pérez Ponce", role:"Director de Políticas Públicas", specialty:"Agenda 2030 & ODS", av:"MP", color:"teal",
+    bio:"Experto en diseño, evaluación e implementación de políticas públicas con enfoque en la Agenda 2030. Coordinador de planes de desarrollo municipal y estatal en alineación con los ODS. Ha asesorado a más de 20 administraciones municipales en planeación estratégica, presupuesto basado en resultados y gestión por indicadores. Consultor certificado en evaluación de programas sociales.",
+    skills:["Agenda 2030","Políticas Públicas","Planeación Estratégica","Presupuesto por Resultados","ODS"],
+    achievements:["20+ administraciones asesoradas","Especialista ODS","Evaluador de programas sociales"] },
+  { name:"Ma. Margarita E. Ontiveros", role:"Directora Educativa & CONOCER", specialty:"Certificación y LMS", av:"MO", color:"amber",
+    bio:"Especialista en diseño instruccional, plataformas LMS y certificación de competencias ante la Red CONOCER y la SEP. Ha desarrollado más de 80 programas de formación en línea para instituciones públicas y privadas. Diseñadora de estándares de competencia y evaluadora certificada. Pionera en virtualización de procesos educativos para organismos gubernamentales.",
+    skills:["Diseño Instruccional","LMS","Red CONOCER","SEP","E-learning Gubernamental"],
+    achievements:["80+ programas desarrollados","Evaluadora CONOCER certificada","Pionera en e-learning gubernamental"] },
+  { name:"Rosario Rogel Salazar", role:"Directora de Inteligencia Parlamentaria", specialty:"Agenda Legislativa", av:"RR", color:"rose",
+    bio:"Especialista en inteligencia parlamentaria, cabildeo legislativo y construcción de agendas legislativas estratégicas. Con más de 18 años de experiencia en el Poder Legislativo federal y local, ha impulsado más de 30 iniciativas de ley en materia de género, educación, salud y municipios. Asesora de grupos parlamentarios y coordinadora de mesas técnicas legislativas.",
+    skills:["Inteligencia Parlamentaria","Cabildeo","Iniciativas de Ley","Reglamentación","Alianzas Legislativas"],
+    achievements:["18 años en Poder Legislativo","30+ iniciativas impulsadas","Asesora de grupos parlamentarios"] },
+];
+
+const PILLARS = [
+  { icon:"🏆", title:"Campañas Ganadoras", desc:"Estrategia electoral comprobada con 40+ campañas exitosas en 12 estados de la República.", color:"blue" },
+  { icon:"📋", title:"Políticas Públicas de Élite", desc:"Diseño e implementación de políticas que generan impacto real, medible y sostenible.", color:"navy" },
+  { icon:"📡", title:"Comunicación 360°", desc:"Estrategas de comunicación política, digital y manejo de crisis avanzado.", color:"indigo" },
+  { icon:"🎓", title:"Capacitación Avanzada", desc:"Programas certificados por CONOCER y SEP para el desarrollo institucional.", color:"violet" },
+  { icon:"🎤", title:"Speakers de Primer Nivel", desc:"Conferencias y masterclasses de alto impacto para organismos públicos.", color:"rose" },
+  { icon:"⚖️", title:"Perspectiva de Género Senior", desc:"Especialización profunda en igualdad sustantiva e inclusión institucional.", color:"amber" },
+];
+
+const TESTIMONIALS = [
+  { quote:"El momento de actuar no es cuando la amenaza se vuelve inmanejable, sino cuando aún tienes la capacidad de transformarla en oportunidad.", author:"CONECTA Consultores", role:"Dossier Corporativo 2024" },
+  { quote:"La diferencia entre un gobierno que trasciende y uno que simplemente administra radica en la calidad de sus asesores estratégicos.", author:"Rodrigo Falcón Pérez", role:"Director Electoral" },
+  { quote:"La perspectiva de género no es una agenda ideológica, es una metodología de gestión pública que eleva la efectividad institucional.", author:"Laura I. Hernández Pichardo", role:"Directora General" },
+  { quote:"Cada campaña es un ecosistema único: entenderlo antes que tu adversario es la ventaja que separa al ganador del participante.", author:"Viviana Mondragón Lazo", role:"Directora de Comunicación" },
+];
+
+const CONOCER_STDS = [
+  { code:"EC0217", name:"Impartición de cursos de formación del capital humano de manera presencial grupal", org:"SEP/CONOCER" },
+  { code:"EC0301", name:"Diseño de cursos de formación del capital humano de manera presencial y/o virtual", org:"CONOCER" },
+  { code:"EC0366", name:"Evaluación de la competencia de candidatos con base en estándares de competencia", org:"CONOCER" },
+  { code:"EC1217", name:"Gestión de perspectiva de género e igualdad en organizaciones", org:"SEP/CONOCER" },
+  { code:"NMX-R-025", name:"Igualdad Laboral y No Discriminación en organizaciones públicas y privadas", org:"SCFI/INMUJERES" },
+  { code:"EC0391", name:"Diseño e impartición de programas de educación en línea", org:"CONOCER" },
+  { code:"EC0076", name:"Evaluación de competencias de candidatos a la certificación", org:"SEP/CONOCER" },
+  { code:"EC0146", name:"Diseño de planes y programas de estudio basados en competencias", org:"CONOCER" },
+];
+
+const CASES = [
+  { tab:"Municipal", title:"Plan de Desarrollo Municipal 2022-2025", loc:"Municipio de Ecatepec, EDOMEX", desc:"Diseño completo del PDM con alineación a los 17 ODS. Implementación de 32 programas sociales y sistema de indicadores.", impact:"32 programas, 850K beneficiarios" },
+  { tab:"Municipal", title:"Mecanismo de Adelanto de la Mujer", loc:"Ayuntamiento de Naucalpan", desc:"Creación e institucionalización del Mecanismo Municipal para la Igualdad entre Mujeres y Hombres.", impact:"1,200 mujeres atendidas" },
+  { tab:"Electoral", title:"Campaña Municipal Ganadora 2021", loc:"Municipio de Tlalnepantla", desc:"Estrategia integral: 800 líderes territoriales, comunicación 360° y operación Día D. Victoria con 58% de votos.", impact:"+58% votos, 800 líderes" },
+  { tab:"Electoral", title:"Consultoría Electoral Estatal 2024", loc:"Proceso Electoral CDMX", desc:"Asesoría estratégica para 5 candidaturas a diputaciones locales con posicionamiento y operación territorial.", impact:"4 de 5 candidaturas ganadoras" },
+  { tab:"Legislativo", title:"Iniciativa Ley de Paridad Municipal", loc:"Congreso del Estado de México", desc:"Diseño técnico-legislativo de iniciativa de paridad en presidencias municipales. Cabildeo con 4 grupos parlamentarios.", impact:"Aprobada por unanimidad" },
+  { tab:"Legislativo", title:"Agenda Legislativa en Materia Educativa", loc:"Senado de la República", desc:"Monitoreo y cabildeo para 3 reformas a la Ley General de Educación vinculadas a e-learning.", impact:"3 reformas impulsadas" },
+];
+
+const PARL_ALERTS = "🏛️ Nueva iniciativa de ley sobre participación política paritaria en proceso de dictaminación  •  ⚡ Modificación al Presupuesto de Egresos 2026 en Comisión de Hacienda  •  📋 Dictamen sobre Ley de Transparencia Municipal en segunda lectura  •  🔔 CONOCER publica nuevos estándares de competencia EC0217 actualización 2025  •  🗳️ INE emite acuerdo sobre plazos de campaña electoral para procesos 2025-2026  •  🌐 Agenda 2030: México presenta informe voluntario ante Naciones Unidas  •  ⚖️ Senado aprueba reformas a la Ley General de Acceso de las Mujeres a una Vida Libre de Violencia  •  ";
+
+const COLOR = {
+  violet:{ bg:"#f5f3ff", text:"#6d28d9", border:"#ddd6fe", icon:"#7c3aed", badgeBg:"#ede9fe", badgeText:"#5b21b6" },
+  blue:  { bg:"#eff6ff", text:"#1d4ed8", border:"#bfdbfe", icon:"#2563eb", badgeBg:"#dbeafe", badgeText:"#1e40af" },
+  indigo:{ bg:"#eef2ff", text:"#4338ca", border:"#c7d2fe", icon:"#4f46e5", badgeBg:"#e0e7ff", badgeText:"#3730a3" },
+  teal:  { bg:"#f0fdfa", text:"#0f766e", border:"#99f6e4", icon:"#0d9488", badgeBg:"#ccfbf1", badgeText:"#115e59" },
+  amber: { bg:"#fffbeb", text:"#b45309", border:"#fde68a", icon:"#d97706", badgeBg:"#fef3c7", badgeText:"#92400e" },
+  navy:  { bg:"#f1f5f9", text:"#334155", border:"#cbd5e1", icon:"#475569", badgeBg:"#e2e8f0", badgeText:"#1e293b" },
+  rose:  { bg:"#fff1f2", text:"#be123c", border:"#fecdd3", icon:"#e11d48", badgeBg:"#ffe4e6", badgeText:"#9f1239" },
+};
+
+const TYPE_COLOR = { Webinar:"blue", Conferencia:"violet", Taller:"teal", Masterclass:"rose" };
+
+// ── SVG Icon Library ───────────────────────────────────────────────────────────
+const Ico = {
+  Home: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline strokeLinecap="round" strokeLinejoin="round" points="9 22 9 12 15 12 15 22"/></svg>,
+  Brief: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="2" y="7" width="20" height="14" rx="2"/><path strokeLinecap="round" strokeLinejoin="round" d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  Users: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  Cal: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+  Mail: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  Phone: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.39 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.29 6.29l.96-1.01a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  X: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  ChevR: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="9 18 15 12 9 6"/></svg>,
+  ChevL: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="15 18 9 12 15 6"/></svg>,
+  Check: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>,
+  Arrow: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  Search: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  Trend: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  Award: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>,
+  Map: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  Chat: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  Shield: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Sun: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+  Moon: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+  Zap: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  Book: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+  Mic: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>,
+  Bar: (p) => <svg {...p} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+};
+
+// ── Animated Counter ───────────────────────────────────────────────────────────
+function Counter({ target, suffix="", prefix="" }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  const done = useRef(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !done.current) {
+        done.current = true;
+        const end = parseInt(target);
+        const steps = 60;
+        let i = 0;
+        const t = setInterval(() => {
+          i++;
+          setVal(Math.round((end * i) / steps));
+          if (i >= steps) clearInterval(t);
+        }, 30);
+      }
+    }, { threshold: 0.4 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [target]);
+  return <span ref={ref}>{prefix}{val}{suffix}</span>;
+}
+
+// ── Progress Bar ───────────────────────────────────────────────────────────────
+function ProgressBar({ value, color, delay=0 }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && ref.current) {
+        setTimeout(() => {
+          if (ref.current) ref.current.style.width = value + "%";
+        }, delay);
+      }
+    }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [value, delay]);
+  return (
+    <div className="bar-track">
+      <div ref={ref} className="bar-fill" style={{ background: color, "--bar-w": value+"%" }} />
     </div>
-  </nav>
+  );
+}
 
-  <!-- ════════════ CATALOG VIEW ════════════ -->
-  <main id="view-catalog" style="padding-top: 72px;">
+// ── Hero Shapes ────────────────────────────────────────────────────────────────
+function HeroShape({ w, h, rotate, gradient, style, delay }) {
+  return (
+    <div className="hero-shape" style={{
+      width:w, height:h,
+      background:`linear-gradient(to right, ${gradient}, transparent)`,
+      "--r": rotate+"deg",
+      "--dur": "2.4s",
+      "--delay": delay+"s",
+      "--delay2": (delay+0.5)+"s",
+      ...style
+    }} />
+  );
+}
 
-    <!-- Hero -->
-    <section class="container" style="padding-top: 32px; padding-bottom: 16px;">
-      <div class="text-center mb-lg">
-        <h2 class="font-serif fw-700 mb-sm" id="hero-title" style="font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.15;">Encuentra tu próximo tesoro</h2>
-        <p class="text-muted" id="hero-subtitle" style="font-size: 1.05rem; max-width: 500px; margin: 0 auto;">Artículos únicos a precios increíbles. ¡Todo debe irse!</p>
-      </div>
-
-      <!-- Search -->
-      <div style="max-width: 560px; margin: 0 auto 24px; position: relative;">
-        <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="18" height="18" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="search-input" class="input" style="padding-left: 44px; padding-top: 12px; padding-bottom: 12px; font-size: 0.95rem;" placeholder="Buscar artículos..." oninput="handleSearch()">
-      </div>
-
-      <!-- Category chips -->
-      <div class="flex-wrap-center mb-md" id="category-filters"></div>
-
-      <!-- Filters row -->
-      <div class="flex-wrap-center" style="gap: 10px;">
-        <select id="sort-select" class="input" style="width: auto; min-width: 155px;" onchange="applyFilters()">
-          <option value="recent">Más recientes</option>
-          <option value="price-asc">Precio: menor → mayor</option>
-          <option value="price-desc">Precio: mayor → menor</option>
-          <option value="name-asc">Nombre: A → Z</option>
-          <option value="name-desc">Nombre: Z → A</option>
-        </select>
-        <div class="flex-gap">
-          <span class="text-xs fw-600 text-muted">Precio:</span>
-          <input type="number" id="price-min" class="input" style="width:80px;" placeholder="Min" oninput="applyFilters()" min="0">
-          <span class="text-muted">—</span>
-          <input type="number" id="price-max" class="input" style="width:80px;" placeholder="Max" oninput="applyFilters()" min="0">
+// ── Hero Section ───────────────────────────────────────────────────────────────
+function Hero({ onExplore }) {
+  return (
+    <div style={{background:"#030303", minHeight:"100vh", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden"}}>
+      {/* Ambient */}
+      <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 70%, rgba(124,58,237,0.05) 0%, transparent 60%)"}} />
+      {/* Shapes */}
+      <HeroShape w="600px" h="140px" rotate={12} gradient="rgba(99,102,241,0.18)" style={{left:"-8%",top:"18%"}} delay={0.3} />
+      <HeroShape w="480px" h="110px" rotate={-15} gradient="rgba(124,58,237,0.18)" style={{right:"-4%",top:"72%"}} delay={0.5} />
+      <HeroShape w="300px" h="75px" rotate={-8} gradient="rgba(59,130,246,0.18)" style={{left:"8%",bottom:"8%"}} delay={0.4} />
+      <HeroShape w="200px" h="55px" rotate={20} gradient="rgba(167,139,250,0.18)" style={{right:"18%",top:"10%"}} delay={0.6} />
+      <HeroShape w="140px" h="38px" rotate={-25} gradient="rgba(96,165,250,0.18)" style={{left:"22%",top:"7%"}} delay={0.7} />
+      {/* Content */}
+      <div style={{position:"relative",zIndex:10,textAlign:"center",padding:"1.5rem",maxWidth:"900px",width:"100%",animation:"slideInUp 0.8s 0.5s ease both"}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:"8px",padding:"6px 16px",borderRadius:"9999px",border:"1px solid rgba(255,255,255,0.08)",background:"rgba(255,255,255,0.03)",marginBottom:"2.5rem",animation:"fadeIn 1s 0.8s ease both"}}>
+          <span style={{width:"8px",height:"8px",borderRadius:"50%",background:"#a78bfa",display:"inline-block",animation:"pulseGlow 2s ease-in-out infinite"}} />
+          <span style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.55)",letterSpacing:"0.2em",textTransform:"uppercase"}}>CONECTA Consultores</span>
         </div>
-        <select id="status-filter" class="input" style="width: auto; min-width: 125px;" onchange="applyFilters()">
-          <option value="all">Todos</option>
-          <option value="disponible">Disponible</option>
-          <option value="reservado">Reservado</option>
-          <option value="vendido">Vendido</option>
-        </select>
-      </div>
-
-      <!-- Count -->
-      <div class="text-center mt-md mb-sm">
-        <span id="results-count" class="text-sm text-muted"></span>
-      </div>
-    </section>
-
-    <!-- Product Grid -->
-    <section class="container" style="padding-bottom: 40px;">
-      <div id="products-grid" class="grid-products"></div>
-      <div id="no-results" class="empty hidden">
-        <svg style="margin:0 auto 12px;display:block;opacity:.5;" width="52" height="52" fill="none" stroke="var(--muted)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <p class="fw-600" style="font-size:1.05rem;">No se encontraron artículos</p>
-        <p class="text-sm">Intenta con otros filtros o términos de búsqueda</p>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq-section" class="hidden" style="max-width:700px;margin:0 auto;padding:40px 20px 48px;">
-      <h3 class="font-serif fw-700 text-center text-accent mb-lg" style="font-size:1.6rem;">Preguntas Frecuentes</h3>
-      <div id="faq-list" class="card-static" style="padding: 0 24px;"></div>
-    </section>
-
-    <!-- Footer -->
-    <footer style="border-top:1px solid var(--card-border);padding:28px 20px;text-align:center;">
-      <p class="text-sm text-muted" id="footer-text">Garage Sale © 2025 — Hecho con ❤️</p>
-    </footer>
-  </main>
-
-  <!-- ════════════ ADMIN VIEW ════════════ -->
-  <main id="view-admin" class="hidden" style="padding-top: 72px;">
-    <div class="container" style="padding-top: 24px; padding-bottom: 40px;">
-
-      <!-- Header -->
-      <div class="flex-between mb-lg">
-        <div>
-          <h2 class="font-serif fw-700 text-accent" style="font-size:1.7rem;">Panel de Administración</h2>
-          <p class="text-sm text-muted mt-sm">Gestiona tu catálogo de Garage Sale</p>
-        </div>
-        <button class="btn btn-accent" onclick="openProductModal()">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nuevo Producto
-        </button>
-      </div>
-
-      <!-- Tabs -->
-      <div class="mb-lg">
-        <div class="tabs">
-          <button class="tab active" onclick="switchTab('dashboard',this)">Dashboard</button>
-          <button class="tab" onclick="switchTab('products',this)">Productos</button>
-          <button class="tab" onclick="switchTab('faqs',this)">FAQs</button>
-          <button class="tab" onclick="switchTab('config',this)">Configuración</button>
-        </div>
-      </div>
-
-      <!-- TAB: Dashboard -->
-      <div id="tab-dashboard" class="atab">
-        <div class="grid-stats mb-lg" id="stats-grid">
-          <div class="card-static">
-            <p class="text-xs fw-600 text-muted" style="text-transform:uppercase;letter-spacing:.4px;">Total</p>
-            <p class="font-serif fw-700" id="stat-total" style="font-size:2rem;color:var(--accent);margin-top:4px;">0</p>
-          </div>
-          <div class="card-static">
-            <p class="text-xs fw-600 text-muted" style="text-transform:uppercase;letter-spacing:.4px;">Disponibles</p>
-            <p class="font-serif fw-700" id="stat-available" style="font-size:2rem;color:var(--accent);margin-top:4px;">0</p>
-          </div>
-          <div class="card-static">
-            <p class="text-xs fw-600 text-muted" style="text-transform:uppercase;letter-spacing:.4px;">Vendidos</p>
-            <p class="font-serif fw-700" id="stat-sold" style="font-size:2rem;color:var(--red);margin-top:4px;">0</p>
-          </div>
-          <div class="card-static">
-            <p class="text-xs fw-600 text-muted" style="text-transform:uppercase;letter-spacing:.4px;">Ingresos</p>
-            <p class="font-serif fw-700" id="stat-income" style="font-size:2rem;color:var(--accent);margin-top:4px;">$0</p>
-          </div>
-        </div>
-        <div class="card-static">
-          <p class="fw-600 text-sm text-muted mb-md">Productos por Categoría</p>
-          <div style="position:relative;max-height:300px;"><canvas id="chart-categories"></canvas></div>
-        </div>
-      </div>
-
-      <!-- TAB: Products -->
-      <div id="tab-products" class="atab hidden">
-        <div class="flex-between mb-md">
-          <input type="text" id="admin-search" class="input" style="max-width:280px;" placeholder="Buscar..." oninput="renderAdminTable()">
-          <select id="admin-status-filter" class="input" style="width:auto;min-width:140px;" onchange="renderAdminTable()">
-            <option value="all">Todos los estados</option>
-            <option value="disponible">Disponible</option>
-            <option value="reservado">Reservado</option>
-            <option value="vendido">Vendido</option>
-          </select>
-        </div>
-        <div class="card-static" style="padding:0;overflow-x:auto;">
-          <table class="tbl">
-            <thead><tr><th style="width:60px"></th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th style="width:120px">Acciones</th></tr></thead>
-            <tbody id="admin-table-body"></tbody>
-          </table>
-        </div>
-        <div id="admin-no-products" class="empty hidden">
-          <p class="fw-600" style="font-size:1rem;">No hay productos aún</p>
-          <p class="text-sm">¡Agrega el primero!</p>
-        </div>
-      </div>
-
-      <!-- TAB: FAQs -->
-      <div id="tab-faqs" class="atab hidden">
-        <div class="flex-between mb-md">
-          <p class="fw-600 text-sm" style="color:var(--text2);">Preguntas Frecuentes</p>
-          <button class="btn btn-accent btn-sm" onclick="openFaqModal()">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nueva FAQ
+        <h1 style={{fontWeight:900,fontSize:"clamp(2.5rem,6vw,5rem)",lineHeight:1.05,marginBottom:"1.5rem",letterSpacing:"-0.02em"}}>
+          <span style={{background:"linear-gradient(to bottom,#fff,rgba(255,255,255,0.8))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block"}}>El Éxito se Construye Hoy</span>
+          <span style={{background:"linear-gradient(to right,#a5b4fc,rgba(255,255,255,0.9),#c4b5fd)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block"}}>Asuntos Públicos & Elecciones</span>
+        </h1>
+        <p style={{fontSize:"clamp(0.95rem,2vw,1.15rem)",color:"rgba(255,255,255,0.38)",maxWidth:"620px",margin:"0 auto 2.5rem",lineHeight:1.75,fontWeight:300,letterSpacing:"0.01em"}}>
+          Grupo multidisciplinario de profesionales con más de 25 años de experiencia dedicados a construir proyectos públicos exitosos en diversas áreas de los asuntos públicos.
+        </p>
+        <div style={{display:"flex",gap:"1rem",justifyContent:"center",flexWrap:"wrap"}}>
+          <button onClick={onExplore} className="btn-navy" style={{padding:"0.85rem 2rem",fontSize:"0.9rem",boxShadow:"0 0 30px rgba(37,99,235,0.35)"}}>
+            Explorar Servicios
+          </button>
+          <button onClick={onExplore} style={{padding:"0.85rem 2rem",fontSize:"0.9rem",fontWeight:600,color:"rgba(255,255,255,0.6)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"0.75rem",background:"transparent",cursor:"pointer",transition:"all 0.25s"}}
+            onMouseOver={e=>{e.target.style.color="rgba(255,255,255,0.95)";e.target.style.borderColor="rgba(255,255,255,0.3)"}}
+            onMouseOut={e=>{e.target.style.color="rgba(255,255,255,0.6)";e.target.style.borderColor="rgba(255,255,255,0.1)"}}>
+            Conocer el Equipo
           </button>
         </div>
-        <div id="admin-faq-list" class="gap-stack"></div>
-        <div id="admin-no-faqs" class="empty hidden">
-          <p class="fw-600" style="font-size:1rem;">No hay FAQs</p>
-          <p class="text-sm">¡Agrega la primera!</p>
+        {/* Stats */}
+        <div style={{display:"flex",justifyContent:"center",gap:"clamp(1.5rem,4vw,3.5rem)",marginTop:"3.5rem",paddingTop:"2rem",borderTop:"1px solid rgba(255,255,255,0.06)"}}>
+          {[{n:"25+",l:"Años de Exp."},{n:"40+",l:"Campañas"},{n:"12",l:"Estados"},{n:"3K+",l:"Capacitados"}].map((s,i) => (
+            <div key={i} style={{textAlign:"center"}}>
+              <div style={{fontSize:"1.6rem",fontWeight:800,color:"#fff",lineHeight:1}}>{s.n}</div>
+              <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.35)",textTransform:"uppercase",letterSpacing:"0.1em",marginTop:"4px"}}>{s.l}</div>
+            </div>
+          ))}
         </div>
       </div>
+      {/* Fade overlay */}
+      <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,#030303 0%,transparent 30%,#030303 100%,transparent 70%)",pointerEvents:"none"}} />
+    </div>
+  );
+}
 
-      <!-- TAB: Config -->
-      <div id="tab-config" class="atab hidden">
-        <div style="max-width:520px;">
-          <div class="card-static">
-            <p class="fw-600 text-sm mb-lg" style="color:var(--text2);">Configuración General</p>
-            <div class="gap-stack">
-              <div><label class="field-label">Título de la tienda</label><input type="text" id="cfg-title" class="input" placeholder="Garage Sale"></div>
-              <div><label class="field-label">Subtítulo</label><input type="text" id="cfg-subtitle" class="input" placeholder="Catálogo"></div>
-              <div><label class="field-label">Título del Hero</label><input type="text" id="cfg-hero-title" class="input" placeholder="Encuentra tu próximo tesoro"></div>
-              <div><label class="field-label">Subtítulo del Hero</label><input type="text" id="cfg-hero-subtitle" class="input" placeholder="Artículos únicos a precios increíbles"></div>
-              <div><label class="field-label">WhatsApp (con código de país)</label><input type="text" id="cfg-whatsapp" class="input" placeholder="521234567890"></div>
-              <div><label class="field-label">Moneda</label><input type="text" id="cfg-currency" class="input" placeholder="$" maxlength="5" style="max-width:90px;"></div>
+// ── Ticker ─────────────────────────────────────────────────────────────────────
+function Ticker() {
+  const txt = PARL_ALERTS.repeat(3);
+  return (
+    <div className="ticker-wrap" style={{background:"linear-gradient(90deg,#0d1b3e,#1a3a6b)",padding:"7px 0"}}>
+      <div className="ticker-inner">
+        <span style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)",letterSpacing:"0.02em",paddingRight:"2rem",fontWeight:500}}>{txt}</span>
+        <span style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)",letterSpacing:"0.02em",paddingRight:"2rem",fontWeight:500}}>{txt}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Dock Navigation ────────────────────────────────────────────────────────────
+function Dock({ active, setActive }) {
+  const items = [
+    { id:"home", label:"Inicio", Ic:Ico.Home },
+    { id:"servicios", label:"Servicios", Ic:Ico.Brief },
+    { id:"equipo", label:"Talento", Ic:Ico.Users },
+    { id:"eventos", label:"Eventos", Ic:Ico.Cal },
+    { id:"contacto", label:"Contacto", Ic:Ico.Mail },
+  ];
+  return (
+    <div style={{position:"fixed",bottom:"1.5rem",left:0,right:0,zIndex:500,display:"flex",justifyContent:"center",padding:"0 1rem"}}>
+      <div className="dock-nav gc" style={{display:"flex",gap:"2px",padding:"8px",borderRadius:"1.25rem",boxShadow:"0 25px 50px rgba(0,0,0,0.18)"}}>
+        {items.map(({id, label, Ic}) => (
+          <button key={id} onClick={() => setActive(id)}
+            className={cn("dock-btn", active===id && "active")}
+            style={{color: active===id ? "#1d4ed8" : "#64748b", minWidth:"56px"}}>
+            <Ic style={{width:"20px",height:"20px"}} />
+            <span style={{fontSize:"0.6rem",fontWeight:600,letterSpacing:"0.02em"}}>{label}</span>
+            {active===id && <div style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",width:"4px",height:"4px",borderRadius:"50%",background:"#2563eb"}} />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────────
+function Modal({ member, onClose }) {
+  const c = COLOR[member.color] || COLOR.blue;
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal-box gc" onClick={e=>e.stopPropagation()}
+        style={{maxWidth:"640px",width:"100%",borderRadius:"1.5rem",maxHeight:"90vh",overflowY:"auto",background:"rgba(255,255,255,0.97)"}}>
+        <div style={{padding:"2rem"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1.5rem"}}>
+            <div style={{display:"flex",gap:"1rem",alignItems:"center"}}>
+              <div style={{width:"72px",height:"72px",borderRadius:"1rem",background:"linear-gradient(135deg,#0d1b3e,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:"1.25rem",flexShrink:0}}>{member.av}</div>
               <div>
-                <label class="field-label">Contraseña de Admin</label>
-                <div style="position:relative;">
-                  <input type="password" id="cfg-password" class="input" style="padding-right:40px;" placeholder="••••••••">
-                  <button type="button" onclick="togglePwdVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);">
-                    <svg id="eye-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
+                <h3 style={{fontSize:"1.25rem",fontWeight:800,color:"#0f172a"}}>{member.name}</h3>
+                <p style={{fontSize:"0.8rem",fontWeight:600,color:c.text,marginTop:"2px"}}>{member.role}</p>
+                <span style={{display:"inline-block",marginTop:"4px",padding:"2px 10px",borderRadius:"9999px",background:c.badgeBg,color:c.badgeText,fontSize:"0.7rem",fontWeight:600,border:`1px solid ${c.border}`}}>{member.specialty}</span>
+              </div>
+            </div>
+            <button onClick={onClose} style={{padding:"6px",borderRadius:"10px",border:"1px solid #e2e8f0",background:"#f8fafc",cursor:"pointer",color:"#64748b",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <Ico.X style={{width:"18px",height:"18px"}} />
+            </button>
+          </div>
+          <p style={{fontSize:"0.875rem",color:"#374151",lineHeight:1.75,marginBottom:"1.5rem"}}>{member.bio}</p>
+          <div style={{marginBottom:"1.25rem"}}>
+            <p style={{fontSize:"0.68rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#94a3b8",marginBottom:"0.6rem"}}>Áreas de Especialización</p>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
+              {member.skills.map(s => (
+                <span key={s} style={{padding:"3px 12px",borderRadius:"9999px",background:c.badgeBg,color:c.badgeText,fontSize:"0.72rem",fontWeight:600,border:`1px solid ${c.border}`}}>{s}</span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p style={{fontSize:"0.68rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",color:"#94a3b8",marginBottom:"0.6rem"}}>Logros Destacados</p>
+            <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+              {member.achievements.map(a => (
+                <div key={a} style={{display:"flex",alignItems:"center",gap:"10px",fontSize:"0.85rem",color:"#374151"}}>
+                  <div style={{width:"20px",height:"20px",borderRadius:"50%",background:c.badgeBg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <Ico.Check style={{width:"12px",height:"12px",color:"#16a34a"}} />
+                  </div>
+                  {a}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Diagnostic Wizard ──────────────────────────────────────────────────────────
+const WIZ = [
+  { q:"¿Cuál es tu ámbito de actuación?", opts:["Gobierno Municipal","Poder Legislativo","Campaña Electoral","Sector Educativo"] },
+  { q:"¿Cuál es tu mayor reto actual?", opts:["Comunicación y posicionamiento","Planeación y políticas públicas","Operación y territorio","Capacitación y certificación"] },
+  { q:"¿En qué plazo necesitas resultados?", opts:["Inmediato (0-3 meses)","Corto plazo (3-6 meses)","Mediano plazo (6-12 meses)","Largo plazo (+1 año)"] },
+];
+const WIZ_RESULTS = {
+  "Gobierno Municipal|Comunicación y posicionamiento|Inmediato (0-3 meses)":"Plan de Comunicación Municipal de Alto Impacto: auditoría de imagen, rediseño de mensajes clave y activación de redes en 30 días.",
+  "Campaña Electoral|Operación y territorio|Inmediato (0-3 meses)":"Estrategia Territorial Intensiva Día D: estructura de líderes, rutas operativas y protocolos de movilización ciudadana.",
+  "Sector Educativo|Capacitación y certificación|Corto plazo (3-6 meses)":"Programa de Certificación CONOCER/SEP: diagnóstico de competencias, diseño de estándares y proceso de certificación completo.",
+  default:"Diagnóstico Estratégico Integral CONECTA: combinamos análisis de territorio, comunicación 360°, políticas públicas y perspectiva de género para tu contexto específico. Agenda tu sesión gratuita hoy."
+};
+
+function Wizard() {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [done, setDone] = useState(false);
+  const pick = (opt) => {
+    const na = [...answers, opt];
+    setAnswers(na);
+    if (step < WIZ.length - 1) setStep(step+1);
+    else setDone(true);
+  };
+  const reset = () => { setStep(0); setAnswers([]); setDone(false); };
+  const result = WIZ_RESULTS[answers.join("|")] || WIZ_RESULTS.default;
+  return (
+    <div className="gc" style={{borderRadius:"1.25rem",padding:"1.5rem"}}>
+      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"1rem"}}>
+        <div style={{width:"32px",height:"32px",borderRadius:"8px",background:"#ede9fe",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Ico.Zap style={{width:"16px",height:"16px",color:"#7c3aed"}} />
+        </div>
+        <div>
+          <span style={{fontWeight:700,color:"#1e293b",fontSize:"0.85rem"}}>Simulador de Diagnóstico Estratégico</span>
+          <p style={{fontSize:"0.7rem",color:"#94a3b8"}}>3 preguntas · Resultado personalizado</p>
+        </div>
+      </div>
+      {!done ? (
+        <>
+          <div style={{display:"flex",gap:"4px",marginBottom:"1rem"}}>
+            {WIZ.map((_,i) => (
+              <div key={i} style={{height:"3px",flex:1,borderRadius:"9999px",background:i<step?"#2563eb":i===step?"#7c3aed":"#e2e8f0",transition:"background 0.3s"}} />
+            ))}
+          </div>
+          <p style={{fontSize:"0.85rem",fontWeight:600,color:"#334155",marginBottom:"0.75rem",lineHeight:1.5}}>{WIZ[step].q}</p>
+          <div style={{display:"flex",flexDirection:"column",gap:"6px"}} key={step} className="wiz-step">
+            {WIZ[step].opts.map(o => (
+              <button key={o} onClick={() => pick(o)}
+                style={{textAlign:"left",padding:"10px 14px",borderRadius:"10px",border:"1px solid #e0e7ff",background:"#f5f7ff",fontSize:"0.82rem",color:"#374151",fontWeight:500,cursor:"pointer",transition:"all 0.2s"}}
+                onMouseOver={e=>{e.currentTarget.style.background="#dbeafe";e.currentTarget.style.borderColor="#93c5fd"}}
+                onMouseOut={e=>{e.currentTarget.style.background="#f5f7ff";e.currentTarget.style.borderColor="#e0e7ff"}}>
+                {o}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="fade-in" style={{textAlign:"center"}}>
+          <div style={{width:"48px",height:"48px",borderRadius:"50%",background:"#dcfce7",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1rem"}}>
+            <Ico.Check style={{width:"24px",height:"24px",color:"#16a34a"}} />
+          </div>
+          <h4 style={{fontWeight:800,color:"#0f172a",marginBottom:"0.5rem",fontSize:"0.9rem"}}>Tu Recomendación Estratégica</h4>
+          <p style={{fontSize:"0.8rem",color:"#475569",lineHeight:1.65,marginBottom:"1rem"}}>{result}</p>
+          <div style={{display:"flex",gap:"8px"}}>
+            <button onClick={reset} style={{flex:1,padding:"0.6rem",borderRadius:"10px",border:"1px solid #e2e8f0",background:"#f8fafc",fontSize:"0.8rem",fontWeight:600,color:"#64748b",cursor:"pointer"}}>Reiniciar</button>
+            <button className="btn-navy" style={{flex:1,padding:"0.6rem",fontSize:"0.8rem"}}>Contactar</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Testimonials ───────────────────────────────────────────────────────────────
+function Testimonials() {
+  const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState(1);
+  const go = (d) => { setDir(d); setIdx(i => (i+d+TESTIMONIALS.length) % TESTIMONIALS.length); };
+  useEffect(() => {
+    const t = setInterval(() => go(1), 5500);
+    return () => clearInterval(t);
+  }, []);
+  const t = TESTIMONIALS[idx];
+  return (
+    <div className="gc" style={{borderRadius:"1.25rem",padding:"2rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:0,left:0,right:0,height:"3px",background:"linear-gradient(90deg,#0d1b3e,#7c3aed)"}} />
+      <div style={{fontSize:"3rem",color:"#ddd6fe",fontFamily:"Georgia,serif",lineHeight:1,marginBottom:"0.5rem"}}>"</div>
+      <div key={idx} className="fade-in">
+        <p style={{fontSize:"0.9rem",fontWeight:500,color:"#374151",lineHeight:1.75,fontStyle:"italic",marginBottom:"1.25rem"}}>"{t.quote}"</p>
+        <div>
+          <p style={{fontWeight:800,color:"#0f172a",fontSize:"0.85rem"}}>{t.author}</p>
+          <p style={{fontSize:"0.72rem",color:"#94a3b8",marginTop:"2px"}}>{t.role}</p>
+        </div>
+      </div>
+      <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:"12px",marginTop:"1.5rem"}}>
+        <button onClick={() => go(-1)} style={{width:"28px",height:"28px",borderRadius:"8px",border:"1px solid #e2e8f0",background:"#f8fafc",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Ico.ChevL style={{width:"14px",height:"14px",color:"#64748b"}} />
+        </button>
+        <div style={{display:"flex",gap:"5px"}}>
+          {TESTIMONIALS.map((_,i) => (
+            <button key={i} onClick={() => setIdx(i)} style={{width: i===idx?"18px":"6px",height:"6px",borderRadius:"9999px",background:i===idx?"#7c3aed":"#cbd5e1",border:"none",cursor:"pointer",transition:"all 0.3s"}} />
+          ))}
+        </div>
+        <button onClick={() => go(1)} style={{width:"28px",height:"28px",borderRadius:"8px",border:"1px solid #e2e8f0",background:"#f8fafc",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Ico.ChevR style={{width:"14px",height:"14px",color:"#64748b"}} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Campaign Dashboard ─────────────────────────────────────────────────────────
+function Dashboard() {
+  const [ready, setReady] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setReady(true); });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  const bars = [
+    { label:"Penetración Territorial", v:78, color:"#2563eb" },
+    { label:"Conocimiento de Candidato", v:63, color:"#7c3aed" },
+    { label:"Intención de Voto", v:54, color:"#0891b2" },
+    { label:"Movilización Día D", v:89, color:"#16a34a" },
+  ];
+  const cards = [
+    { l:"Líderes Territoriales", v:"847", bg:"#eff6ff", tc:"#1d4ed8" },
+    { l:"Colonias Cubiertas", v:"132/180", bg:"#f5f3ff", tc:"#6d28d9" },
+    { l:"Eventos Realizados", v:"48", bg:"#f0fdfa", tc:"#0f766e" },
+    { l:"Impacto Mediático", v:"94%", bg:"#fef3c7", tc:"#92400e" },
+  ];
+  return (
+    <div ref={ref} className="gc" style={{borderRadius:"1.25rem",padding:"1.5rem"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.25rem"}}>
+        <div>
+          <h4 style={{fontWeight:800,color:"#0f172a",fontSize:"0.9rem"}}>Tablero de Campaña Electoral</h4>
+          <p style={{fontSize:"0.7rem",color:"#94a3b8"}}>Indicadores críticos simulados</p>
+        </div>
+        <span style={{display:"flex",alignItems:"center",gap:"5px",padding:"3px 10px",borderRadius:"9999px",background:"#dcfce7",color:"#16a34a",fontSize:"0.7rem",fontWeight:700}}>
+          <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#22c55e",display:"inline-block",animation:"pulseGlow 1.5s ease-in-out infinite"}} />ACTIVO
+        </span>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"1.25rem"}}>
+        {cards.map(c => (
+          <div key={c.l} style={{borderRadius:"10px",padding:"12px",background:c.bg,border:`1px solid ${c.bg}`}}>
+            <div style={{fontSize:"1.4rem",fontWeight:800,color:c.tc}}>{c.v}</div>
+            <div style={{fontSize:"0.68rem",color:"#64748b",marginTop:"2px"}}>{c.l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
+        {bars.map((b,i) => (
+          <div key={b.label}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.75rem",marginBottom:"5px"}}>
+              <span style={{color:"#475569",fontWeight:500}}>{b.label}</span>
+              <span style={{fontWeight:700,color:"#1e293b"}}>{b.v}%</span>
+            </div>
+            <ProgressBar value={ready ? b.v : 0} color={b.color} delay={i*150} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── LMS Slider ─────────────────────────────────────────────────────────────────
+function LMSQuote() {
+  const [users, setUsers] = useState(100);
+  const [courses, setCourses] = useState(10);
+  const perUser = users > 500 ? 8 : users > 200 ? 12 : 18;
+  const perCourse = courses > 20 ? 1500 : courses > 10 ? 2000 : 2800;
+  const total = 5000 + (users * perUser) + (courses * perCourse);
+  const fmt = n => new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(n);
+  return (
+    <div className="gc" style={{borderRadius:"1.25rem",padding:"1.5rem"}}>
+      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"1.25rem"}}>
+        <div style={{width:"32px",height:"32px",borderRadius:"8px",background:"#fef3c7",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Ico.Book style={{width:"16px",height:"16px",color:"#d97706"}} />
+        </div>
+        <div>
+          <span style={{fontWeight:700,color:"#1e293b",fontSize:"0.85rem"}}>Cotizador LMS Educativo</span>
+          <p style={{fontSize:"0.7rem",color:"#94a3b8"}}>Calcula tu inversión en tiempo real</p>
+        </div>
+      </div>
+      <div style={{marginBottom:"1.25rem"}}>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.78rem",marginBottom:"8px"}}>
+          <span style={{color:"#475569",fontWeight:500}}>Número de Usuarios</span>
+          <span style={{fontWeight:700,color:"#1d4ed8"}}>{users} usuarios</span>
+        </div>
+        <input type="range" min="10" max="2000" value={users} onChange={e=>setUsers(+e.target.value)} className="slider"
+          style={{background:`linear-gradient(to right,#7c3aed ${users/20}%,#e5e7eb ${users/20}%)`}} />
+      </div>
+      <div style={{marginBottom:"1.5rem"}}>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.78rem",marginBottom:"8px"}}>
+          <span style={{color:"#475569",fontWeight:500}}>Cursos a Virtualizar</span>
+          <span style={{fontWeight:700,color:"#6d28d9"}}>{courses} cursos</span>
+        </div>
+        <input type="range" min="1" max="50" value={courses} onChange={e=>setCourses(+e.target.value)} className="slider"
+          style={{background:`linear-gradient(to right,#2563eb ${courses*2}%,#e5e7eb ${courses*2}%)`}} />
+      </div>
+      <div style={{borderRadius:"12px",padding:"1.25rem",textAlign:"center",background:"linear-gradient(135deg,#0d1b3e,#1a3a6b)"}}>
+        <p style={{color:"rgba(255,255,255,0.5)",fontSize:"0.72rem",marginBottom:"6px"}}>Estimado Mensual de Inversión</p>
+        <p style={{fontSize:"1.9rem",fontWeight:900,color:"#fff",lineHeight:1}} key={total}>{fmt(total)}</p>
+        <p style={{color:"rgba(255,255,255,0.3)",fontSize:"0.65rem",marginTop:"4px"}}>*Precio referencial, sujeto a diagnóstico técnico</p>
+      </div>
+    </div>
+  );
+}
+
+// ── CONOCER Search ─────────────────────────────────────────────────────────────
+function KNOWERSearch() {
+  const [q, setQ] = useState("");
+  const res = CONOCER_STDS.filter(s =>
+    s.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.code.toLowerCase().includes(q.toLowerCase()) ||
+    s.org.toLowerCase().includes(q.toLowerCase())
+  );
+  return (
+    <div className="gc" style={{borderRadius:"1.25rem",padding:"1.5rem",border:"1px solid #fde68a"}}>
+      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"1rem"}}>
+        <div style={{width:"32px",height:"32px",borderRadius:"8px",background:"#fef3c7",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Ico.Search style={{width:"16px",height:"16px",color:"#d97706"}} />
+        </div>
+        <div>
+          <span style={{fontWeight:700,color:"#1e293b",fontSize:"0.85rem"}}>Buscador Normas CONOCER / SEP</span>
+          <p style={{fontSize:"0.7rem",color:"#94a3b8"}}>Certificaciones oficiales disponibles</p>
+        </div>
+      </div>
+      <div style={{position:"relative",marginBottom:"1rem"}}>
+        <Ico.Search style={{position:"absolute",left:"12px",top:"50%",transform:"translateY(-50%)",width:"15px",height:"15px",color:"#94a3b8"}} />
+        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por código o nombre de norma..."
+          className="inp" style={{paddingLeft:"36px"}} />
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:"6px",maxHeight:"220px",overflowY:"auto"}} className="sb-hide">
+        {res.map(s => (
+          <div key={s.code} style={{display:"flex",alignItems:"center",gap:"10px",padding:"10px 12px",borderRadius:"10px",background:"#fffbeb",border:"1px solid #fde68a",transition:"border-color 0.2s"}}
+            onMouseOver={e=>e.currentTarget.style.borderColor="#f59e0b"}
+            onMouseOut={e=>e.currentTarget.style.borderColor="#fde68a"}>
+            <span style={{padding:"2px 8px",borderRadius:"6px",background:"#fef3c7",color:"#92400e",fontSize:"0.68rem",fontFamily:"monospace",fontWeight:700,flexShrink:0}}>{s.code}</span>
+            <span style={{fontSize:"0.78rem",color:"#374151",flex:1,lineHeight:1.4}}>{s.name}</span>
+            <span style={{padding:"2px 8px",borderRadius:"9999px",background:"#fff",border:"1px solid #fde68a",color:"#92400e",fontSize:"0.65rem",fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>{s.org}</span>
+          </div>
+        ))}
+        {res.length===0 && <p style={{textAlign:"center",color:"#94a3b8",fontSize:"0.8rem",padding:"1rem"}}>Sin resultados</p>}
+      </div>
+    </div>
+  );
+}
+
+// ── HOME ───────────────────────────────────────────────────────────────────────
+function Home({ onNav }) {
+  return (
+    <div>
+      <Hero onExplore={() => onNav("servicios")} />
+      <div className="sect" style={{padding:"5rem 1.5rem 4rem"}}>
+        <div style={{maxWidth:"1100px",margin:"0 auto"}}>
+          {/* Intro */}
+          <div style={{textAlign:"center",marginBottom:"3.5rem"}} className="slide-up">
+            <span style={{display:"inline-block",padding:"5px 16px",borderRadius:"9999px",border:"1px solid #ddd6fe",background:"#f5f3ff",color:"#6d28d9",fontSize:"0.72rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"1rem"}}>Quiénes Somos</span>
+            <h2 className="gt-navy" style={{fontSize:"clamp(2rem,4vw,3rem)",fontWeight:900,marginBottom:"1rem"}}>El Grupo Consultor de Élite</h2>
+            <p style={{color:"#475569",maxWidth:"680px",margin:"0 auto",lineHeight:1.8,fontSize:"1rem"}}>
+              CONECTA Consultores es un grupo multidisciplinario fundado por expertos con más de 25 años de trayectoria en asuntos públicos, elecciones, perspectiva de género, legislación y educación. Construimos el éxito de nuestros clientes desde la estrategia hasta la operación.
+            </p>
+          </div>
+          {/* Stats */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:"1rem",marginBottom:"4rem"}}>
+            {[{t:"25",s:"+",l:"Años de Experiencia",c:"blue"},{t:"40",s:"+",l:"Campañas Ganadoras",c:"violet"},{t:"12",s:"",l:"Estados de Alcance",c:"indigo"},{t:"3000",s:"+",l:"Servidores Capacitados",c:"teal"}].map((s,i) => {
+              const c = COLOR[s.c];
+              return (
+                <div key={i} className="gc card-h" style={{borderRadius:"1rem",padding:"1.5rem",textAlign:"center",border:`1px solid ${c.border}`}}>
+                  <div style={{fontSize:"2.5rem",fontWeight:900,color:c.text,lineHeight:1}}>
+                    <Counter target={s.t} suffix={s.s} />
+                  </div>
+                  <div style={{fontSize:"0.72rem",color:"#64748b",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",marginTop:"6px"}}>{s.l}</div>
+                </div>
+              );
+            })}
+          </div>
+          {/* 6 Pillars */}
+          <div style={{textAlign:"center",marginBottom:"2rem"}}>
+            <h3 className="gt-navy" style={{fontSize:"2rem",fontWeight:900,marginBottom:"6px"}}>6 Pilares de Valor</h3>
+            <p style={{color:"#64748b",fontSize:"0.875rem"}}>Nuestras ventajas competitivas diferenciadoras</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:"1rem",marginBottom:"3rem"}}>
+            {PILLARS.map((p,i) => {
+              const c = COLOR[p.color];
+              return (
+                <div key={i} className="gc card-h" style={{borderRadius:"1.25rem",padding:"1.5rem",border:`1px solid ${c.border}`,animationDelay:`${i*0.08}s`}}>
+                  <div style={{fontSize:"2rem",marginBottom:"0.75rem"}}>{p.icon}</div>
+                  <h4 style={{fontWeight:700,color:"#1e293b",marginBottom:"0.4rem",fontSize:"0.95rem"}}>{p.title}</h4>
+                  <p style={{fontSize:"0.82rem",color:"#64748b",lineHeight:1.6}}>{p.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+          {/* Wizard + Testimonials */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:"1.5rem"}}>
+            <Wizard />
+            <Testimonials />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SERVICES ───────────────────────────────────────────────────────────────────
+function Services({ services }) {
+  const [filter, setFilter] = useState("Todos");
+  const [caseTab, setCaseTab] = useState("Municipal");
+  const FILTERS = ["Todos","Género","Electoral","Legislativo","Educativo","ODS","Comunicación"];
+  const shown = filter === "Todos" ? services : services.filter(s => s.filterKey === filter);
+  const caseTabs = [...new Set(CASES.map(c=>c.tab))];
+  const cases = CASES.filter(c => c.tab === caseTab);
+  return (
+    <div className="sect" style={{padding:"3rem 1.5rem 5rem"}}>
+      <div style={{maxWidth:"1100px",margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
+          <span style={{display:"inline-block",padding:"5px 16px",borderRadius:"9999px",border:"1px solid #bfdbfe",background:"#eff6ff",color:"#1d4ed8",fontSize:"0.72rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"1rem"}}>Divisiones Estructurales</span>
+          <h2 className="gt-navy" style={{fontSize:"clamp(2rem,4vw,3rem)",fontWeight:900,marginBottom:"0.75rem"}}>Servicios Corporativos</h2>
+          <p style={{color:"#64748b",fontSize:"0.9rem",maxWidth:"520px",margin:"0 auto"}}>Soluciones especializadas para cada dimensión del poder público</p>
+        </div>
+        {/* Filters */}
+        <div style={{display:"flex",flexWrap:"wrap",gap:"8px",justifyContent:"center",marginBottom:"2rem"}}>
+          {FILTERS.map(f => (
+            <button key={f} onClick={() => setFilter(f)} className={cn("flt-btn", filter===f && "on")}>{f}</button>
+          ))}
+        </div>
+        {/* Bento Grid */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:"1rem",marginBottom:"3.5rem"}}>
+          {shown.map((s,i) => {
+            const c = COLOR[s.color] || COLOR.blue;
+            return (
+              <div key={s.id} className={cn("gc card-h", i===0 && "bento-large")}
+                style={{borderRadius:"1.25rem",padding:"1.5rem",border:`1px solid ${c.border}`,animation:"slideInUp 0.4s ease both",animationDelay:`${i*0.06}s`}}>
+                <div style={{width:"44px",height:"44px",borderRadius:"10px",background:c.bg,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"1rem"}}>
+                  <span style={{fontSize:"1.3rem"}}>{
+                    {venus:"♀",radio:"📡","map-pin":"📍",landmark:"🏛️",globe:"🌐","book-open":"📖"}[s.icon] || "⚙️"
+                  }</span>
+                </div>
+                <h3 style={{fontWeight:700,color:"#0f172a",fontSize:"0.95rem",marginBottom:"0.5rem",lineHeight:1.4}}>{s.title}</h3>
+                <p style={{fontSize:"0.82rem",color:"#475569",lineHeight:1.65,marginBottom:"1rem"}}>{s.description}</p>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
+                  {(s.tags||[]).map(t => (
+                    <span key={t} style={{padding:"2px 10px",borderRadius:"9999px",background:c.badgeBg,color:c.badgeText,fontSize:"0.68rem",fontWeight:600,border:`1px solid ${c.border}`}}>{t}</span>
+                  ))}
                 </div>
               </div>
-              <div><label class="field-label">Texto del Footer</label><input type="text" id="cfg-footer" class="input" placeholder="Garage Sale © 2025"></div>
-              <button id="btn-save-config" class="btn btn-accent w-full" style="margin-top:8px;" onclick="saveConfig()">Guardar Configuración</button>
+            );
+          })}
+        </div>
+        {/* Cases */}
+        <div style={{marginBottom:"3rem"}}>
+          <h3 className="gt-navy" style={{fontSize:"1.75rem",fontWeight:900,textAlign:"center",marginBottom:"1.5rem"}}>Casos de Éxito e Insignias de Política</h3>
+          <div style={{display:"flex",justifyContent:"center",gap:"8px",marginBottom:"1.5rem"}}>
+            {caseTabs.map(t => (
+              <button key={t} onClick={() => setCaseTab(t)} className={cn("tab-btn", caseTab===t && "on")}>{t}</button>
+            ))}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:"1rem"}}>
+            {cases.map((c,i) => (
+              <div key={c.title} className="gc card-h" style={{borderRadius:"1.25rem",padding:"1.25rem",border:"1px solid #bfdbfe",animation:"slideInUp 0.35s ease both",animationDelay:`${i*0.07}s`}}>
+                <div style={{display:"flex",gap:"12px",alignItems:"flex-start"}}>
+                  <div style={{width:"38px",height:"38px",borderRadius:"10px",background:"#eff6ff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <Ico.Award style={{width:"18px",height:"18px",color:"#1d4ed8"}} />
+                  </div>
+                  <div>
+                    <h4 style={{fontWeight:700,color:"#0f172a",fontSize:"0.85rem",lineHeight:1.35}}>{c.title}</h4>
+                    <p style={{fontSize:"0.72rem",color:"#7c3aed",fontWeight:600,marginTop:"2px",marginBottom:"6px"}}>{c.loc}</p>
+                    <p style={{fontSize:"0.78rem",color:"#475569",lineHeight:1.55,marginBottom:"8px"}}>{c.desc}</p>
+                    <span style={{display:"inline-block",padding:"2px 10px",borderRadius:"9999px",background:"#dcfce7",color:"#15803d",fontSize:"0.68rem",fontWeight:700,border:"1px solid #bbf7d0"}}>✓ {c.impact}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <KNOWERSearch />
+      </div>
+    </div>
+  );
+}
+
+// ── TEAM ───────────────────────────────────────────────────────────────────────
+function Team() {
+  const [sel, setSel] = useState(null);
+  return (
+    <div className="sect" style={{padding:"3rem 1.5rem 5rem"}}>
+      <div style={{maxWidth:"1100px",margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
+          <span style={{display:"inline-block",padding:"5px 16px",borderRadius:"9999px",border:"1px solid #ddd6fe",background:"#f5f3ff",color:"#6d28d9",fontSize:"0.72rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"1rem"}}>Nuestro Talento</span>
+          <h2 className="gt-navy" style={{fontSize:"clamp(2rem,4vw,3rem)",fontWeight:900,marginBottom:"0.75rem"}}>Equipo de Élite</h2>
+          <p style={{color:"#64748b",fontSize:"0.9rem",maxWidth:"520px",margin:"0 auto"}}>Socios fundadores y directivos con trayectorias excepcionales en el sector público mexicano</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(290px,1fr))",gap:"1rem",marginBottom:"3rem"}}>
+          {TEAM.map((m,i) => {
+            const c = COLOR[m.color] || COLOR.blue;
+            return (
+              <div key={m.name} onClick={() => setSel(m)} className="gc card-h team-c"
+                style={{borderRadius:"1.25rem",padding:"1.5rem",cursor:"pointer",position:"relative",overflow:"hidden",animation:"slideInUp 0.4s ease both",animationDelay:`${i*0.07}s`}}>
+                <div className="team-ovl" style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(13,27,62,0.07),transparent)",borderRadius:"1.25rem",pointerEvents:"none"}} />
+                <div style={{display:"flex",gap:"14px",alignItems:"center",marginBottom:"1rem"}}>
+                  <div style={{width:"60px",height:"60px",borderRadius:"14px",background:"linear-gradient(135deg,#0d1b3e,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:"1.1rem",flexShrink:0}}>{m.av}</div>
+                  <div>
+                    <h3 style={{fontWeight:700,color:"#0f172a",fontSize:"0.9rem",lineHeight:1.3}}>{m.name}</h3>
+                    <p style={{fontSize:"0.72rem",fontWeight:600,color:c.text,marginTop:"2px"}}>{m.role}</p>
+                  </div>
+                </div>
+                <span style={{display:"inline-block",marginBottom:"0.75rem",padding:"2px 10px",borderRadius:"9999px",background:c.badgeBg,color:c.badgeText,fontSize:"0.68rem",fontWeight:700,border:`1px solid ${c.border}`}}>{m.specialty}</span>
+                <p className="lc3" style={{fontSize:"0.78rem",color:"#64748b",lineHeight:1.6}}>{m.bio}</p>
+                <div style={{display:"flex",alignItems:"center",gap:"4px",marginTop:"0.75rem",fontSize:"0.75rem",color:"#2563eb",fontWeight:700}}>
+                  Ver Perfil Completo <Ico.ChevR style={{width:"13px",height:"13px"}} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:"1.5rem"}}>
+          <Dashboard />
+          <LMSQuote />
+        </div>
+      </div>
+      {sel && <Modal member={sel} onClose={() => setSel(null)} />}
+    </div>
+  );
+}
+
+// ── EVENTS ─────────────────────────────────────────────────────────────────────
+function Events({ events }) {
+  const [month, setMonth] = useState("Todos");
+  const monthMap = { Agosto:"08", Septiembre:"09", Octubre:"10", Noviembre:"11" };
+  const MONTHS = ["Todos","Agosto","Septiembre","Octubre","Noviembre"];
+  const shown = month==="Todos" ? events : events.filter(e => e.date && e.date.includes(`-${monthMap[month]}-`));
+  return (
+    <div className="sect" style={{padding:"3rem 1.5rem 5rem"}}>
+      <div style={{maxWidth:"900px",margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
+          <span style={{display:"inline-block",padding:"5px 16px",borderRadius:"9999px",border:"1px solid #bfdbfe",background:"#eff6ff",color:"#1d4ed8",fontSize:"0.72rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"1rem"}}>Agenda 2025</span>
+          <h2 className="gt-navy" style={{fontSize:"clamp(2rem,4vw,3rem)",fontWeight:900,marginBottom:"0.75rem"}}>Speakers & Eventos</h2>
+          <p style={{color:"#64748b",fontSize:"0.9rem"}}>Conferencias, webinars y masterclasses de alto impacto</p>
+        </div>
+        {/* Calendar Filter */}
+        <div className="gc" style={{borderRadius:"1.25rem",padding:"1.25rem",marginBottom:"1.5rem",border:"1px solid #bfdbfe"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"0.75rem"}}>
+            <Ico.Cal style={{width:"16px",height:"16px",color:"#2563eb"}} />
+            <span style={{fontSize:"0.72rem",fontWeight:700,color:"#334155",textTransform:"uppercase",letterSpacing:"0.08em"}}>Filtrar por mes</span>
+          </div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
+            {MONTHS.map(m => (
+              <button key={m} onClick={() => setMonth(m)} className={cn("tab-btn", month===m && "on")}>{m}</button>
+            ))}
+          </div>
+        </div>
+        {/* Events List */}
+        <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
+          {shown.map((ev,i) => {
+            const tc = COLOR[TYPE_COLOR[ev.type] || "blue"];
+            const d = ev.date ? new Date(ev.date+"T12:00:00").toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"}) : ev.date;
+            return (
+              <div key={ev.id} className="gc glow-ev card-h" style={{borderRadius:"1.25rem",padding:"1.25rem",transition:"all 0.3s",animation:"slideInUp 0.35s ease both",animationDelay:`${i*0.06}s`}}>
+                <div style={{display:"flex",gap:"1rem",alignItems:"flex-start",flexWrap:"wrap"}}>
+                  <div style={{width:"60px",height:"60px",borderRadius:"12px",background:tc.bg,border:`1px solid ${tc.border}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <Ico.Cal style={{width:"18px",height:"18px",color:tc.icon,marginBottom:"2px"}} />
+                    <span style={{fontSize:"0.65rem",fontWeight:700,color:tc.text}}>{ev.time||"10:00"}</span>
+                  </div>
+                  <div style={{flex:1,minWidth:"200px"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"8px",flexWrap:"wrap",marginBottom:"4px"}}>
+                      <h3 style={{fontWeight:700,color:"#0f172a",fontSize:"0.95rem",lineHeight:1.35}}>{ev.title}</h3>
+                      <span style={{padding:"2px 10px",borderRadius:"9999px",background:tc.badgeBg,color:tc.badgeText,fontSize:"0.68rem",fontWeight:700,border:`1px solid ${tc.border}`,flexShrink:0,whiteSpace:"nowrap"}}>{ev.type}</span>
+                    </div>
+                    <p style={{fontSize:"0.8rem",color:"#64748b",marginBottom:"8px",lineHeight:1.5}}>{ev.desc}</p>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"12px",fontSize:"0.72rem",color:"#94a3b8"}}>
+                      <span style={{display:"flex",alignItems:"center",gap:"5px"}}><Ico.Cal style={{width:"12px",height:"12px"}} />{d}</span>
+                      <span style={{display:"flex",alignItems:"center",gap:"5px"}}><Ico.Mic style={{width:"12px",height:"12px"}} />{ev.speaker}</span>
+                    </div>
+                  </div>
+                  <button className="btn-navy" style={{padding:"8px 18px",fontSize:"0.75rem",flexShrink:0}}>Registrarse</button>
+                </div>
+              </div>
+            );
+          })}
+          {shown.length===0 && <div style={{textAlign:"center",color:"#94a3b8",fontSize:"0.85rem",padding:"3rem"}}>No hay eventos para este mes.</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── CONTACT ────────────────────────────────────────────────────────────────────
+const SECTOR_FIELDS = {
+  "Gobierno Municipal":     { label:"Nombre del Municipio",    ph:"Ej: Municipio de Naucalpan, EDOMEX" },
+  "Campaña Electoral":      { label:"Cargo en Disputa",        ph:"Ej: Candidatura a Diputado Local Distrito 5" },
+  "Sector Educativo":       { label:"Nombre de la Institución",ph:"Ej: Instituto de Capacitación Municipal" },
+  "Iniciativa Legislativa": { label:"Órgano Legislativo",      ph:"Ej: Senado de la República, Comisión de Educación" },
+};
+
+function Contact() {
+  const [sector, setSector] = useState("Gobierno Municipal");
+  const [form, setForm] = useState({ spec:"", nombre:"", email:"", tel:"", mensaje:"" });
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const sf = SECTOR_FIELDS[sector];
+
+  const handle = (e) => {
+    e.preventDefault();
+    setSending(true);
+    setTimeout(() => { setSending(false); setSent(true); }, 1000);
+  };
+
+  return (
+    <div className="sect" style={{padding:"3rem 1.5rem 5rem"}}>
+      <div style={{maxWidth:"1000px",margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:"3rem"}}>
+          <span style={{display:"inline-block",padding:"5px 16px",borderRadius:"9999px",border:"1px solid #bfdbfe",background:"#eff6ff",color:"#1d4ed8",fontSize:"0.72rem",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"1rem"}}>Portal de Contacto</span>
+          <h2 className="gt-navy" style={{fontSize:"clamp(2rem,4vw,3rem)",fontWeight:900,marginBottom:"0.75rem"}}>Agenda Tu Consultoría</h2>
+          <p style={{color:"#64748b",fontSize:"0.9rem",maxWidth:"520px",margin:"0 auto"}}>Cuéntanos tu desafío. Nuestro equipo diseñará una solución estratégica a tu medida.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:"2rem"}}>
+          {/* Info */}
+          <div style={{display:"flex",flexDirection:"column",gap:"1rem"}}>
+            {[
+              { Ic:Ico.Mail, color:"blue", label:"Correo Oficial", val:"conectaconsultoressc@gmail.com", href:"mailto:conectaconsultoressc@gmail.com" },
+              { Ic:Ico.Phone, color:"violet", label:"Teléfono Directo", val:"55 4762 2143", href:"tel:5547622143", big:true },
+              { Ic:Ico.Map, color:"teal", label:"Cobertura", val:"República Mexicana", sub:"12 estados activos" },
+            ].map(({Ic,color,label,val,href,sub,big}) => {
+              const c = COLOR[color];
+              return (
+                <div key={label} className="gc card-h" style={{borderRadius:"1.25rem",padding:"1.25rem",border:`1px solid ${c.border}`}}>
+                  <div style={{width:"38px",height:"38px",borderRadius:"10px",background:c.bg,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"0.75rem"}} className="float-anim">
+                    <Ic style={{width:"18px",height:"18px",color:c.icon}} />
+                  </div>
+                  <p style={{fontSize:"0.68rem",color:"#94a3b8",fontWeight:600,marginBottom:"4px",textTransform:"uppercase",letterSpacing:"0.06em"}}>{label}</p>
+                  {href ? <a href={href} style={{color:c.text,fontWeight:700,fontSize:big?"1.1rem":"0.82rem",wordBreak:"break-all",textDecoration:"none"}}>{val}</a> : <p style={{color:c.text,fontWeight:700,fontSize:"0.9rem"}}>{val}</p>}
+                  {sub && <p style={{fontSize:"0.7rem",color:"#94a3b8",marginTop:"3px"}}>{sub}</p>}
+                </div>
+              );
+            })}
+            {/* Cert Badges */}
+            <div className="gc" style={{borderRadius:"1.25rem",padding:"1.25rem",border:"1px solid #fde68a"}}>
+              <p style={{fontSize:"0.68rem",fontWeight:700,color:"#334155",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.75rem"}}>Certificaciones Oficiales</p>
+              {[
+                {label:"Red CONOCER",sub:"Sistema Nacional de Competencias",c:"amber"},
+                {label:"SEP México",sub:"Secretaría de Educación Pública",c:"blue"},
+                {label:"NMX-R-025 SCFI",sub:"Igualdad Laboral · INMUJERES",c:"violet"},
+              ].map(b => {
+                const bc = COLOR[b.c];
+                return (
+                  <div key={b.label} className="cert-badge" style={{display:"flex",alignItems:"center",gap:"8px",padding:"8px 10px",borderRadius:"10px",background:bc.badgeBg,border:`1px solid ${bc.border}`,marginBottom:"6px",cursor:"default"}}>
+                    <Ico.Shield style={{width:"14px",height:"14px",color:bc.icon,flexShrink:0}} />
+                    <div>
+                      <p style={{fontSize:"0.75rem",fontWeight:700,color:bc.badgeText}}>{b.label}</p>
+                      <p style={{fontSize:"0.65rem",color:bc.text,opacity:0.8}}>{b.sub}</p>
+                    </div>
+                    <div className="cert-tip">{b.label} — Certificación Oficial Validada</div>
+                  </div>
+                );
+              })}
             </div>
+          </div>
+          {/* Form */}
+          <div>
+            {!sent ? (
+              <form onSubmit={handle} className="gc" style={{borderRadius:"1.5rem",padding:"2rem",border:"1px solid #bfdbfe"}}>
+                {/* Sector Select */}
+                <div style={{marginBottom:"1.25rem"}}>
+                  <label style={{display:"block",fontSize:"0.72rem",fontWeight:700,color:"#334155",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.6rem"}}>Tipo de Consulta</label>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px"}}>
+                    {Object.keys(SECTOR_FIELDS).map(s => (
+                      <button type="button" key={s} onClick={() => setSector(s)}
+                        style={{padding:"10px 14px",borderRadius:"10px",border:`1px solid ${sector===s?"#2563eb":"#e5e7eb"}`,background:sector===s?"#2563eb":"#fff",color:sector===s?"#fff":"#374151",fontSize:"0.78rem",fontWeight:600,cursor:"pointer",textAlign:"left",transition:"all 0.2s"}}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Dynamic field */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
+                  <div>
+                    <label style={{display:"block",fontSize:"0.72rem",fontWeight:700,color:"#334155",marginBottom:"5px"}}>{sf.label}</label>
+                    <input required type="text" placeholder={sf.ph} value={form.spec} onChange={e=>setForm({...form,spec:e.target.value})} className="inp" />
+                  </div>
+                  <div>
+                    <label style={{display:"block",fontSize:"0.72rem",fontWeight:700,color:"#334155",marginBottom:"5px"}}>Nombre Completo</label>
+                    <input required type="text" placeholder="Tu nombre completo" value={form.nombre} onChange={e=>setForm({...form,nombre:e.target.value})} className="inp" />
+                  </div>
+                  <div>
+                    <label style={{display:"block",fontSize:"0.72rem",fontWeight:700,color:"#334155",marginBottom:"5px"}}>Correo Electrónico</label>
+                    <input required type="email" placeholder="tu@correo.gob.mx" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} className="inp" />
+                  </div>
+                  <div>
+                    <label style={{display:"block",fontSize:"0.72rem",fontWeight:700,color:"#334155",marginBottom:"5px"}}>Teléfono</label>
+                    <input type="tel" placeholder="55 XXXX XXXX" value={form.tel} onChange={e=>setForm({...form,tel:e.target.value})} className="inp" />
+                  </div>
+                </div>
+                <div style={{marginBottom:"1.5rem"}}>
+                  <label style={{display:"block",fontSize:"0.72rem",fontWeight:700,color:"#334155",marginBottom:"5px"}}>Descripción del Proyecto</label>
+                  <textarea required rows={4} placeholder={`Describe brevemente el reto de tu ${sector.toLowerCase()}...`} value={form.mensaje} onChange={e=>setForm({...form,mensaje:e.target.value})} className="inp" style={{resize:"none"}} />
+                </div>
+                <button type="submit" className="btn-navy" disabled={sending}
+                  style={{width:"100%",padding:"0.9rem",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",boxShadow:"0 10px 30px rgba(13,27,62,0.3)",opacity:sending?0.7:1}}>
+                  {sending ? <span style={{width:"18px",height:"18px",border:"2px solid rgba(255,255,255,0.4)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin 0.8s linear infinite"}} /> : <Ico.Arrow style={{width:"16px",height:"16px"}} />}
+                  {sending ? "Enviando..." : "Enviar Solicitud Estratégica"}
+                </button>
+              </form>
+            ) : (
+              <div className="gc scale-in" style={{borderRadius:"1.5rem",padding:"3rem",border:"1px solid #bbf7d0",textAlign:"center"}}>
+                <div style={{width:"60px",height:"60px",borderRadius:"50%",background:"#dcfce7",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1.25rem"}}>
+                  <Ico.Check style={{width:"30px",height:"30px",color:"#16a34a"}} />
+                </div>
+                <h3 style={{fontSize:"1.5rem",fontWeight:800,color:"#0f172a",marginBottom:"0.5rem"}}>¡Solicitud Enviada!</h3>
+                <p style={{color:"#475569",fontSize:"0.875rem",lineHeight:1.7,marginBottom:"1.5rem",maxWidth:"380px",margin:"0 auto 1.5rem"}}>
+                  Nuestro equipo se pondrá en contacto contigo en las próximas 24 horas hábiles para agendar tu sesión estratégica gratuita.
+                </p>
+                <button onClick={() => setSent(false)} style={{padding:"10px 24px",borderRadius:"10px",border:"1px solid #e2e8f0",background:"#f8fafc",fontSize:"0.85rem",fontWeight:600,color:"#475569",cursor:"pointer"}}>
+                  Enviar otra solicitud
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
-  </main>
+  );
+}
 
-  <!-- ════════════ PRODUCT MODAL ════════════ -->
-  <div id="product-modal" class="modal-bg" onclick="if(event.target===this)closeProductModal()">
-    <div class="modal-box">
-      <div class="flex-between mb-lg">
-        <h3 class="font-serif fw-700 text-accent" style="font-size:1.25rem;" id="product-modal-title">Nuevo Producto</h3>
-        <button class="btn-icon" onclick="closeProductModal()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <form id="product-form" onsubmit="handleProductSubmit(event)">
-        <input type="hidden" id="prod-id">
-        <!-- Image -->
-        <div class="mb-md">
-          <label class="field-label">Imagen del producto</label>
-          <div class="img-upload" onclick="document.getElementById('prod-image-input').click()">
-            <img id="prod-image-preview" src="" alt="" style="display:none;">
-            <div id="prod-image-placeholder" class="text-center" style="pointer-events:none;">
-              <svg style="margin:0 auto 6px;display:block;" width="32" height="32" fill="none" stroke="var(--muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-              <p class="text-xs text-muted">Clic para subir imagen (máx 1 MB)</p>
-            </div>
+// ── Footer ─────────────────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer style={{background:"linear-gradient(135deg,#0d1b3e,#1a3a6b)",padding:"2.5rem 1.5rem"}}>
+      <div style={{maxWidth:"1100px",margin:"0 auto",display:"flex",flexWrap:"wrap",alignItems:"center",justifyContent:"space-between",gap:"1rem"}}>
+        <div>
+          <div style={{fontSize:"1.4rem",fontWeight:900,color:"#fff",letterSpacing:"-0.01em",marginBottom:"3px"}}>
+            CONECTA <span style={{color:"#c4b5fd"}}>Consultores</span>
           </div>
-          <input type="file" id="prod-image-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+          <p style={{color:"rgba(255,255,255,0.35)",fontSize:"0.72rem"}}>Asuntos Públicos & Elecciones · México</p>
         </div>
-        <div class="grid-2 mb-md">
-          <div><label class="field-label">Nombre *</label><input type="text" id="prod-name" class="input" required placeholder="Nombre del artículo"></div>
-          <div><label class="field-label">Categoría *</label><input type="text" id="prod-category" class="input" required list="cat-list" placeholder="Ej: Ropa, Electrónica"><datalist id="cat-list"></datalist></div>
+        <div style={{textAlign:"center"}}>
+          <a href="mailto:conectaconsultoressc@gmail.com" style={{color:"rgba(255,255,255,0.5)",fontSize:"0.78rem",display:"block",textDecoration:"none",transition:"color 0.2s"}}
+            onMouseOver={e=>e.target.style.color="rgba(255,255,255,0.9)"}
+            onMouseOut={e=>e.target.style.color="rgba(255,255,255,0.5)"}>
+            conectaconsultoressc@gmail.com
+          </a>
+          <a href="tel:5547622143" style={{color:"rgba(255,255,255,0.5)",fontSize:"0.78rem",display:"block",textDecoration:"none",transition:"color 0.2s"}}
+            onMouseOver={e=>e.target.style.color="rgba(255,255,255,0.9)"}
+            onMouseOut={e=>e.target.style.color="rgba(255,255,255,0.5)"}>
+            55 4762 2143
+          </a>
         </div>
-        <div class="mb-md"><label class="field-label">Descripción</label><textarea id="prod-description" class="input" rows="3" placeholder="Describe el artículo..."></textarea></div>
-        <div class="grid-3 mb-md">
-          <div><label class="field-label">Precio *</label><input type="number" id="prod-price" class="input" step="0.01" min="0" required placeholder="0.00"></div>
-          <div><label class="field-label">Precio Original</label><input type="number" id="prod-original-price" class="input" step="0.01" min="0" placeholder="Opcional"></div>
-          <div><label class="field-label">Tipo de precio</label><select id="prod-price-type" class="input"><option value="fijo">Fijo</option><option value="negociable">Negociable</option><option value="gratis">Gratis</option></select></div>
-        </div>
-        <div class="grid-2 mb-md">
-          <div><label class="field-label">Condición</label><select id="prod-condition" class="input"><option value="nuevo">Nuevo</option><option value="como_nuevo">Como nuevo</option><option value="buen_estado">Buen estado</option><option value="uso_visible">Uso visible</option></select></div>
-          <div><label class="field-label">Estado</label><select id="prod-status" class="input"><option value="disponible">Disponible</option><option value="reservado">Reservado</option><option value="vendido">Vendido</option></select></div>
-        </div>
-        <div class="mb-md"><label class="field-label">Notas internas (solo admin)</label><textarea id="prod-notes" class="input" rows="2" placeholder="Notas privadas..."></textarea></div>
-        <div style="display:flex;gap:12px;">
-          <button type="submit" id="btn-save-product" class="btn btn-accent" style="flex:1;">Guardar</button>
-          <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeProductModal()">Cancelar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ════════════ FAQ MODAL ════════════ -->
-  <div id="faq-modal" class="modal-bg" onclick="if(event.target===this)closeFaqModal()">
-    <div class="modal-box" style="max-width:480px;">
-      <div class="flex-between mb-lg">
-        <h3 class="font-serif fw-700 text-accent" style="font-size:1.25rem;" id="faq-modal-title">Nueva Pregunta</h3>
-        <button class="btn-icon" onclick="closeFaqModal()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <p style={{color:"rgba(255,255,255,0.25)",fontSize:"0.7rem"}}>© 2025 CONECTA Consultores S.C.</p>
       </div>
-      <form id="faq-form" onsubmit="handleFaqSubmit(event)">
-        <input type="hidden" id="faq-id">
-        <div class="mb-md"><label class="field-label">Pregunta *</label><input type="text" id="faq-question" class="input" required placeholder="¿Cuál es la pregunta?"></div>
-        <div class="mb-md"><label class="field-label">Respuesta *</label><textarea id="faq-answer" class="input" rows="4" required placeholder="Escribe la respuesta..."></textarea></div>
-        <div class="mb-md"><label class="field-label">Orden</label><input type="number" id="faq-order" class="input" min="0" value="0" style="max-width:90px;"></div>
-        <div style="display:flex;gap:12px;">
-          <button type="submit" id="btn-save-faq" class="btn btn-accent" style="flex:1;">Guardar</button>
-          <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeFaqModal()">Cancelar</button>
+    </footer>
+  );
+}
+
+// ── Magnetic Button ────────────────────────────────────────────────────────────
+function MagBtn({ onClick }) {
+  const ref = useRef(null);
+  const move = (e) => {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width/2);
+    const dy = e.clientY - (r.top + r.height/2);
+    ref.current.style.transform = `translate(${dx*0.25}px,${dy*0.25}px) scale(1.08)`;
+  };
+  const leave = () => { if (ref.current) ref.current.style.transform = "translate(0,0) scale(1)"; };
+  return (
+    <button ref={ref} onClick={onClick} onMouseMove={move} onMouseLeave={leave} className="mag-btn pulse-glow"
+      style={{position:"fixed",bottom:"6rem",right:"1.25rem",zIndex:400,width:"52px",height:"52px",borderRadius:"50%",border:"none",cursor:"pointer",background:"linear-gradient(135deg,#7c3aed,#2563eb)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 25px rgba(124,58,237,0.5)"}}>
+      <Ico.Chat style={{width:"22px",height:"22px",color:"#fff"}} />
+    </button>
+  );
+}
+
+// ── APP ────────────────────────────────────────────────────────────────────────
+function App() {
+  const [tab, setTab] = useState("home");
+  const [services, setServices] = useState(SERVICES);
+  const [events, setEvents] = useState(EVENTS);
+  const [hc, setHc] = useState(false);
+  const [key, setKey] = useState(0);
+
+  // Supabase fetch
+  useEffect(() => {
+    const load = async () => {
+      try {
+        if (!sbClient) return;
+        const [{ data: sd }, { data: ed }] = await Promise.all([
+          sbClient.from("servicios").select("*"),
+          sbClient.from("eventos").select("*"),
+        ]);
+        if (sd && sd.length > 0) setServices(sd);
+        if (ed && ed.length > 0) setEvents(ed);
+      } catch(_) {}
+      finally {
+        const loader = document.getElementById("loader");
+        if (loader) loader.classList.add("hide");
+        setTimeout(() => { if (loader) loader.style.display = "none"; }, 1000);
+      }
+    };
+    load();
+  }, []);
+
+  // High contrast
+  useEffect(() => {
+    document.body.classList.toggle("hc", hc);
+  }, [hc]);
+
+  const navigate = (t) => {
+    setTab(t);
+    setKey(k => k+1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const Section = () => {
+    switch(tab) {
+      case "home":     return <Home onNav={navigate} />;
+      case "servicios": return <Services services={services} />;
+      case "equipo":   return <Team />;
+      case "eventos":  return <Events events={events} />;
+      case "contacto": return <Contact />;
+      default:         return <Home onNav={navigate} />;
+    }
+  };
+
+  return (
+    <div>
+      <Ticker />
+      {/* Header */}
+      <header className="gc" style={{position:"sticky",top:0,zIndex:300,borderBottom:"1px solid rgba(255,255,255,0.35)"}}>
+        <div style={{maxWidth:"1200px",margin:"0 auto",padding:"0 1.5rem",height:"52px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <button onClick={() => navigate("home")} style={{display:"flex",alignItems:"center",gap:"8px",border:"none",background:"transparent",cursor:"pointer"}}>
+            <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"linear-gradient(135deg,#0d1b3e,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:"0.8rem"}}>C</div>
+            <span style={{fontWeight:900,color:"#0f172a",fontSize:"0.9rem",letterSpacing:"-0.01em"}}>
+              CONECTA <span style={{color:"#7c3aed"}}>Consultores</span>
+            </span>
+          </button>
+          <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+            <button onClick={() => setHc(!hc)}
+              style={{display:"flex",alignItems:"center",gap:"6px",padding:"5px 12px",borderRadius:"10px",border:`1px solid ${hc?"#fbbf24":"#e2e8f0"}`,background:hc?"#fef3c7":"#f8fafc",cursor:"pointer",fontSize:"0.72rem",fontWeight:700,color:hc?"#92400e":"#64748b",transition:"all 0.25s"}}>
+              {hc ? <Ico.Sun style={{width:"14px",height:"14px"}} /> : <Ico.Moon style={{width:"14px",height:"14px"}} />}
+              <span style={{display:"none"}} id="hc-label">{hc?"Normal":"Alto Contraste"}</span>
+              <span>{hc ? "Normal" : "Contraste"}</span>
+            </button>
+            <a href="tel:5547622143" className="btn-navy" style={{padding:"6px 14px",fontSize:"0.75rem",display:"flex",alignItems:"center",gap:"5px",textDecoration:"none"}}>
+              <Ico.Phone style={{width:"13px",height:"13px"}} />
+              <span>55 4762 2143</span>
+            </a>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
+      </header>
 
-  <!-- ════════════ DETAIL MODAL ════════════ -->
-  <div id="detail-modal" class="modal-bg" onclick="if(event.target===this)closeDetailModal()">
-    <div class="modal-box wide">
-      <div class="flex-between mb-md">
-        <div id="detail-badge"></div>
-        <button class="btn-icon" onclick="closeDetailModal()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      {/* Content */}
+      <div key={key} className="slide-up">
+        <Section />
       </div>
-      <div id="detail-content"></div>
+
+      <Footer />
+      <Dock active={tab} setActive={navigate} />
+      <MagBtn onClick={() => navigate("contacto")} />
     </div>
-  </div>
-
-  <!-- ════════════ JAVASCRIPT ════════════ -->
-  <script>
-    /* ══════ SUPABASE ══════ */
-    const SUPABASE_URL = 'https://viwaaxiamrybwibawykf.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpd2FheGlhbXJ5YndpYmF3eWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NDEyMjUsImV4cCI6MjA5NzMxNzIyNX0.FYI0pNqBAVKsD2AjeoAsETvy0mTBU91q94E9qARfufo';
-
-    let supabaseClient = null;
-
-    /* ══════ STATE ══════ */
-    let products = [];
-    let faqs = [];
-    let config = {};
-    let activeCategory = 'all';
-    let chartInstance = null;
-    let isAdmin = false;
-
-    /* ══════ INIT ══════ */
-    function initSupabase() {
-      const { createClient } = window.supabase;
-      supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
-
-    async function initApp() {
-      initSupabase();
-      showSkeletons();
-      try {
-        await Promise.all([fetchProducts(), fetchConfig(), fetchFaqs()]);
-      } catch (e) { console.error('Init error:', e); }
-      applyConfig();
-      renderCatalog();
-      renderCategoryFilters();
-      renderFaqs();
-    }
-
-    /* ══════ FETCH ══════ */
-    async function fetchProducts() {
-      try {
-        const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-        products = data || [];
-      } catch (e) { console.error('Fetch products:', e); showToast('Error al cargar productos', 'error'); products = []; }
-    }
-
-    async function fetchConfig() {
-      try {
-        const { data, error } = await supabaseClient.from('config').select('*').limit(1).single();
-        if (error && error.code !== 'PGRST116') throw error;
-        config = data || {};
-      } catch (e) { console.error('Fetch config:', e); config = {}; }
-    }
-
-    async function fetchFaqs() {
-      try {
-        const { data, error } = await supabaseClient.from('faqs').select('*').order('sort_order', { ascending: true });
-        if (error) throw error;
-        faqs = data || [];
-      } catch (e) { console.error('Fetch faqs:', e); faqs = []; }
-    }
-
-    /* ══════ CONFIG ══════ */
-    function applyConfig() {
-      if (config.title) { document.getElementById('nav-title').textContent = config.title; document.title = config.title + ' — Catálogo'; }
-      if (config.subtitle) document.getElementById('nav-subtitle').textContent = config.subtitle;
-      if (config.hero_title) document.getElementById('hero-title').textContent = config.hero_title;
-      if (config.hero_subtitle) document.getElementById('hero-subtitle').textContent = config.hero_subtitle;
-      if (config.footer_text) document.getElementById('footer-text').textContent = config.footer_text;
-    }
-    function cur() { return config.currency || '$'; }
-
-    /* ══════ SKELETONS ══════ */
-    function showSkeletons() {
-      const g = document.getElementById('products-grid');
-      let h = '';
-      for (let i = 0; i < 8; i++) {
-        h += '<div class="card anim" style="animation-delay:'+i*0.06+'s"><div class="skel" style="height:210px;border-radius:14px 14px 0 0;"></div><div style="padding:14px 16px;"><div class="skel" style="height:12px;width:50%;margin-bottom:10px;"></div><div class="skel" style="height:16px;width:85%;margin-bottom:10px;"></div><div class="skel" style="height:20px;width:35%;"></div></div></div>';
-      }
-      g.innerHTML = h;
-    }
-
-    /* ══════ CATALOG ══════ */
-    function getFiltered() {
-      let f = [...products];
-      const s = document.getElementById('search-input').value.toLowerCase().trim();
-      const sort = document.getElementById('sort-select').value;
-      const pMin = parseFloat(document.getElementById('price-min').value) || 0;
-      const pMax = parseFloat(document.getElementById('price-max').value) || Infinity;
-      const sf = document.getElementById('status-filter').value;
-      if (s) f = f.filter(p => (p.name||'').toLowerCase().includes(s)||(p.description||'').toLowerCase().includes(s)||(p.category||'').toLowerCase().includes(s));
-      if (activeCategory !== 'all') f = f.filter(p => (p.category||'').toLowerCase() === activeCategory.toLowerCase());
-      f = f.filter(p => (p.price||0) >= pMin && (p.price||0) <= pMax);
-      if (sf !== 'all') f = f.filter(p => (p.status||'disponible') === sf);
-      switch(sort){
-        case 'price-asc': f.sort((a,b)=>(a.price||0)-(b.price||0)); break;
-        case 'price-desc': f.sort((a,b)=>(b.price||0)-(a.price||0)); break;
-        case 'name-asc': f.sort((a,b)=>(a.name||'').localeCompare(b.name||'')); break;
-        case 'name-desc': f.sort((a,b)=>(b.name||'').localeCompare(a.name||'')); break;
-        default: f.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-      }
-      return f;
-    }
-
-    function renderCatalog() {
-      const f = getFiltered();
-      const g = document.getElementById('products-grid');
-      const nr = document.getElementById('no-results');
-      document.getElementById('results-count').textContent = f.length + ' artículo' + (f.length!==1?'s':'') + ' encontrado' + (f.length!==1?'s':'');
-      if (!f.length) { g.innerHTML = ''; nr.classList.remove('hidden'); return; }
-      nr.classList.add('hidden');
-      const c = cur();
-      const noImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e6ddd0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23a0a088' font-size='16' font-family='sans-serif'%3ESin imagen%3C/text%3E%3C/svg%3E";
-      g.innerHTML = f.map((p,i) => {
-        const st = p.status||'disponible';
-        const bc = st==='vendido'?'badge-red':st==='reservado'?'badge-amber':'badge-green';
-        const bl = st.charAt(0).toUpperCase()+st.slice(1);
-        const cm = {nuevo:'Nuevo',como_nuevo:'Como nuevo',buen_estado:'Buen estado',uso_visible:'Uso visible'};
-        const ct = cm[p.condition]||'';
-        const hd = p.original_price && p.original_price > p.price;
-        const dp = hd ? Math.round((1-p.price/p.original_price)*100) : 0;
-        const pe = p.price_type==='negociable'?' · Negociable':'';
-        const img = p.image || noImg;
-        return '<div class="card anim" style="cursor:pointer;animation-delay:'+i*0.04+'s" onclick="openDetail('+p.id+')">'
-          +'<div class="card-img-wrap">'
-          +'<img class="card-img" src="'+img+'" alt="'+esc(p.name||'')+'" loading="lazy" onerror="this.src=\''+noImg+'\'">'
-          +'<div style="position:absolute;top:10px;left:10px;"><span class="badge '+bc+'">'+bl+'</span></div>'
-          +(hd?'<div style="position:absolute;top:10px;right:10px;"><span class="badge badge-discount">-'+dp+'%</span></div>':'')
-          +(st==='vendido'?'<div class="sold-overlay"><span>Vendido</span></div>':'')
-          +'</div>'
-          +'<div class="card-body">'
-          +'<p class="text-xs text-muted" style="margin-bottom:4px;">'+esc(p.category||'Sin categoría')+(ct?' · '+ct:'')+'</p>'
-          +'<p class="fw-600 truncate-2" style="font-size:.92rem;margin-bottom:6px;">'+esc(p.name||'Sin nombre')+'</p>'
-          +'<div class="flex-gap">'
-          +(p.price_type==='gratis'
-            ?'<span class="price" style="font-size:1.2rem;">¡Gratis!</span>'
-            :'<span class="price" style="font-size:1.2rem;">'+c+fmtN(p.price)+'</span>'
-            +(hd?'<span class="price-old">'+c+fmtN(p.original_price)+'</span>':'')
-            +(pe?'<span class="text-xs text-muted">'+pe+'</span>':''))
-          +'</div></div></div>';
-      }).join('');
-    }
-
-    function renderCategoryFilters() {
-      const cats = [...new Set(products.map(p=>p.category||'Sin categoría'))].sort();
-      const el = document.getElementById('category-filters');
-      let h = '<button class="chip '+(activeCategory==='all'?'active':'')+'" onclick="setCat(\'all\')">Todos ('+products.length+')</button>';
-      cats.forEach(c => {
-        const n = products.filter(p=>(p.category||'Sin categoría')===c).length;
-        h += '<button class="chip '+(activeCategory.toLowerCase()===c.toLowerCase()?'active':'')+'" onclick="setCat(\''+escA(c)+'\')">'+esc(c)+' ('+n+')</button>';
-      });
-      el.innerHTML = h;
-    }
-
-    function setCat(c) { activeCategory = c; renderCategoryFilters(); renderCatalog(); }
-    function applyFilters() { renderCatalog(); }
-    function handleSearch() {
-      const v = document.getElementById('search-input').value.trim();
-      if (config.admin_password && v === config.admin_password) {
-        document.getElementById('search-input').value = '';
-        isAdmin = true; showAdmin(); showToast('¡Bienvenido, Administrador!','success'); return;
-      }
-      applyFilters();
-    }
-
-    /* ══════ FAQs (Client) ══════ */
-    function renderFaqs() {
-      const sec = document.getElementById('faq-section');
-      const list = document.getElementById('faq-list');
-      if (!faqs.length) { sec.classList.add('hidden'); return; }
-      sec.classList.remove('hidden');
-      list.innerHTML = faqs.map(f => '<div class="faq-item" onclick="this.classList.toggle(\'open\')">'
-        +'<div class="faq-q"><span>'+esc(f.question)+'</span><svg class="faq-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'
-        +'<div class="faq-a">'+esc(f.answer)+'</div></div>').join('');
-    }
-
-    /* ══════ DETAIL MODAL ══════ */
-    function openDetail(id) {
-      const p = products.find(x=>x.id===id);
-      if (!p) return;
-      const st = p.status||'disponible';
-      const bc = st==='vendido'?'badge-red':st==='reservado'?'badge-amber':'badge-green';
-      const bl = st.charAt(0).toUpperCase()+st.slice(1);
-      const cm = {nuevo:'Nuevo',como_nuevo:'Como nuevo',buen_estado:'Buen estado',uso_visible:'Uso visible'};
-      const ct = cm[p.condition]||'';
-      const c = cur();
-      const hd = p.original_price && p.original_price > p.price;
-      const dp = hd?Math.round((1-p.price/p.original_price)*100):0;
-      const wa = config.whatsapp||'';
-
-      document.getElementById('detail-badge').innerHTML = '<span class="badge '+bc+'">'+bl+'</span>';
-
-      let h = '<div style="display:flex;flex-direction:column;gap:20px;">';
-      if (typeof window.innerWidth !== 'undefined' && window.innerWidth >= 640) {
-        h = '<div style="display:flex;gap:24px;">';
-      }
-
-      if (p.image) {
-        h += '<div style="'+(window.innerWidth>=640?'width:50%;flex-shrink:0;':'')+'">'
-          +'<img src="'+p.image+'" alt="'+escA(p.name||'')+'" style="width:100%;max-height:360px;object-fit:cover;border-radius:12px;cursor:zoom-in;" onclick="event.stopPropagation();openLightbox(this.src)" onerror="this.style.display=\'none\'">'
-          +'</div>';
-      }
-
-      h += '<div style="flex:1;min-width:0;">'
-        +'<p class="text-sm text-muted" style="margin-bottom:4px;">'+esc(p.category||'Sin categoría')+(ct?' · '+ct:'')+'</p>'
-        +'<h2 class="font-serif fw-700" style="font-size:1.6rem;margin-bottom:12px;line-height:1.2;">'+esc(p.name||'Sin nombre')+'</h2>'
-        +'<div class="flex-gap" style="margin-bottom:14px;">'
-        +(p.price_type==='gratis'
-          ?'<span class="price" style="font-size:1.8rem;">¡Gratis!</span>'
-          :'<span class="price" style="font-size:1.8rem;">'+c+fmtN(p.price)+'</span>'
-          +(hd?'<span class="price-old" style="font-size:.95rem;">'+c+fmtN(p.original_price)+'</span><span class="badge badge-discount">-'+dp+'%</span>':''))
-        +'</div>'
-        +(p.price_type==='negociable'?'<p class="fw-600 text-sm text-accent" style="margin-bottom:10px;">💬 Precio negociable</p>':'')
-        +(p.description?'<p class="text-sm" style="color:var(--text2);line-height:1.65;margin-bottom:16px;">'+esc(p.description)+'</p>':'')
-        +(wa && st==='disponible'?'<a href="https://wa.me/'+wa+'?text='+encodeURIComponent('Hola, me interesa: '+(p.name||'artículo')+' ('+c+fmtN(p.price)+')')+'" target="_blank" rel="noopener" class="wa-btn"><svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Preguntar por WhatsApp</a>':'')
-        +'</div></div>';
-
-      document.getElementById('detail-content').innerHTML = h;
-      document.getElementById('detail-modal').classList.add('open');
-    }
-    function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
-
-    /* ══════ LIGHTBOX ══════ */
-    function openLightbox(src) { document.getElementById('lightbox-img').src=src; document.getElementById('lightbox').classList.add('open'); }
-    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
-
-    /* ══════ VIEWS ══════ */
-    function showAdmin() {
-      document.getElementById('view-catalog').classList.add('hidden');
-      document.getElementById('view-admin').classList.remove('hidden');
-      document.getElementById('btn-back').classList.remove('hidden');
-      renderDashboard(); renderAdminTable(); renderAdminFaqs(); loadCfgForm();
-    }
-    function showCatalog() {
-      isAdmin = false;
-      document.getElementById('view-admin').classList.add('hidden');
-      document.getElementById('view-catalog').classList.remove('hidden');
-      document.getElementById('btn-back').classList.add('hidden');
-      renderCatalog(); renderFaqs();
-    }
-
-    /* ══════ DASHBOARD ══════ */
-    function renderDashboard() {
-      const total = products.length;
-      const avail = products.filter(p=>(p.status||'disponible')==='disponible').length;
-      const sold = products.filter(p=>p.status==='vendido').length;
-      const income = products.filter(p=>p.status==='vendido').reduce((s,p)=>s+(p.price||0),0);
-      document.getElementById('stat-total').textContent = total;
-      document.getElementById('stat-available').textContent = avail;
-      document.getElementById('stat-sold').textContent = sold;
-      document.getElementById('stat-income').textContent = cur() + fmtN(income);
-      renderChart();
-    }
-
-    function renderChart() {
-      const ctx = document.getElementById('chart-categories');
-      if (!ctx) return;
-      if (chartInstance) chartInstance.destroy();
-      const cats = [...new Set(products.map(p=>p.category||'Sin categoría'))].sort();
-      const td = cats.map(c=>products.filter(p=>(p.category||'Sin categoría')===c).length);
-      const sd = cats.map(c=>products.filter(p=>(p.category||'Sin categoría')===c&&p.status==='vendido').length);
-      const dk = document.documentElement.classList.contains('dark');
-      const gc = dk?'#333':'rgba(222,194,175,.25)';
-      const tc = dk?'#8a8a78':'#a0a088';
-      chartInstance = new Chart(ctx, {
-        type:'bar',
-        data:{labels:cats,datasets:[
-          {label:'Total',data:td,backgroundColor:'rgba(51,122,103,.65)',borderColor:'#337a67',borderWidth:1,borderRadius:6},
-          {label:'Vendidos',data:sd,backgroundColor:'rgba(179,85,85,.6)',borderColor:'#b35555',borderWidth:1,borderRadius:6}
-        ]},
-        options:{responsive:true,maintainAspectRatio:true,
-          plugins:{legend:{labels:{color:tc,font:{family:'Inter',size:12},usePointStyle:true}}},
-          scales:{x:{ticks:{color:tc,font:{family:'Inter',size:11}},grid:{color:gc}},y:{beginAtZero:true,ticks:{stepSize:1,color:tc,font:{family:'Inter',size:11}},grid:{color:gc}}}
-        }
-      });
-    }
-
-    /* ══════ ADMIN TABLE ══════ */
-    function renderAdminTable() {
-      const s = (document.getElementById('admin-search').value||'').toLowerCase().trim();
-      const sf = document.getElementById('admin-status-filter').value;
-      const tb = document.getElementById('admin-table-body');
-      const np = document.getElementById('admin-no-products');
-      const c = cur();
-      let f = [...products];
-      if (s) f = f.filter(p=>(p.name||'').toLowerCase().includes(s)||(p.category||'').toLowerCase().includes(s));
-      if (sf!=='all') f = f.filter(p=>(p.status||'disponible')===sf);
-      if (!f.length) { tb.innerHTML=''; np.classList.remove('hidden'); return; }
-      np.classList.add('hidden');
-      tb.innerHTML = f.map(p => {
-        const st = p.status||'disponible';
-        const sl = st.charAt(0).toUpperCase()+st.slice(1);
-        const dc = st==='vendido'?'dot-red':st==='reservado'?'dot-amber':'dot-green';
-        return '<tr><td>'
-          +(p.image?'<img src="'+p.image+'" alt="" style="width:42px;height:42px;border-radius:8px;object-fit:cover;" onerror="this.style.display=\'none\'">'
-          :'<div style="width:42px;height:42px;border-radius:8px;background:rgba(51,122,103,.06);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" fill="none" stroke="var(--muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>')
-          +'</td><td><div class="fw-600 text-sm">'+esc(p.name||'Sin nombre')+'</div>'
-          +(p.notes?'<div class="text-xs text-muted" style="margin-top:2px;">📝 '+esc(trunc(p.notes,40))+'</div>':'')
-          +'</td><td class="text-sm" style="color:var(--text2);">'+esc(p.category||'—')+'</td>'
-          +'<td class="text-sm fw-600 text-accent">'+(p.price_type==='gratis'?'Gratis':c+fmtN(p.price))+'</td>'
-          +'<td><div class="flex-gap"><span class="dot '+dc+'"></span><span class="text-sm">'+sl+'</span></div></td>'
-          +'<td><div style="display:flex;gap:4px;">'
-          +'<button class="btn-icon" title="Editar" onclick="editProduct('+p.id+')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
-          +'<button class="btn-icon" title="Cambiar estado" onclick="cycleStatus('+p.id+')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>'
-          +'<button class="btn-icon danger" title="Eliminar" onclick="deleteProduct('+p.id+')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>'
-          +'</div></td></tr>';
-      }).join('');
-    }
-
-    /* ══════ PRODUCT CRUD ══════ */
-    function openProductModal(p) {
-      const m = document.getElementById('product-modal');
-      const t = document.getElementById('product-modal-title');
-      const cats = [...new Set(products.map(x=>x.category).filter(Boolean))].sort();
-      document.getElementById('cat-list').innerHTML = cats.map(c=>'<option value="'+escA(c)+'">').join('');
-      if (p) {
-        t.textContent='Editar Producto';
-        document.getElementById('prod-id').value=p.id;
-        document.getElementById('prod-name').value=p.name||'';
-        document.getElementById('prod-category').value=p.category||'';
-        document.getElementById('prod-description').value=p.description||'';
-        document.getElementById('prod-price').value=p.price||'';
-        document.getElementById('prod-original-price').value=p.original_price||'';
-        document.getElementById('prod-price-type').value=p.price_type||'fijo';
-        document.getElementById('prod-condition').value=p.condition||'buen_estado';
-        document.getElementById('prod-status').value=p.status||'disponible';
-        document.getElementById('prod-notes').value=p.notes||'';
-        if (p.image) { document.getElementById('prod-image-preview').src=p.image; document.getElementById('prod-image-preview').style.display='block'; document.getElementById('prod-image-placeholder').style.display='none'; }
-        else resetImgPreview();
-      } else {
-        t.textContent='Nuevo Producto';
-        document.getElementById('product-form').reset();
-        document.getElementById('prod-id').value='';
-        document.getElementById('prod-price-type').value='fijo';
-        document.getElementById('prod-condition').value='buen_estado';
-        document.getElementById('prod-status').value='disponible';
-        resetImgPreview();
-      }
-      setBtnReady('btn-save-product','Guardar');
-      m.classList.add('open');
-    }
-    function closeProductModal() { document.getElementById('product-modal').classList.remove('open'); }
-    function resetImgPreview() { const i=document.getElementById('prod-image-preview'); i.src=''; i.style.display='none'; document.getElementById('prod-image-placeholder').style.display='block'; }
-    function handleImageUpload(e) {
-      const f=e.target.files[0]; if(!f)return;
-      if(f.size>1048576){showToast('La imagen no debe superar 1 MB','error');return;}
-      const r=new FileReader();
-      r.onload=function(ev){document.getElementById('prod-image-preview').src=ev.target.result;document.getElementById('prod-image-preview').style.display='block';document.getElementById('prod-image-placeholder').style.display='none';};
-      r.readAsDataURL(f);
-    }
-
-    async function handleProductSubmit(e) {
-      e.preventDefault();
-      const btn=document.getElementById('btn-save-product');
-      setBtnLoading(btn);
-      const id=document.getElementById('prod-id').value;
-      const imgEl=document.getElementById('prod-image-preview');
-      const imgSrc=imgEl.style.display!=='none'&&imgEl.src?imgEl.src:'';
-      const d={name:document.getElementById('prod-name').value.trim(),category:document.getElementById('prod-category').value.trim(),description:document.getElementById('prod-description').value.trim(),price:parseFloat(document.getElementById('prod-price').value)||0,original_price:parseFloat(document.getElementById('prod-original-price').value)||null,price_type:document.getElementById('prod-price-type').value,condition:document.getElementById('prod-condition').value,status:document.getElementById('prod-status').value,notes:document.getElementById('prod-notes').value.trim(),image:imgSrc||null};
-      try {
-        let error;
-        if(id){const r=await supabaseClient.from('products').update(d).eq('id',parseInt(id));error=r.error;}
-        else{const r=await supabaseClient.from('products').insert([d]);error=r.error;}
-        if(error)throw error;
-        showToast(id?'Producto actualizado':'Producto creado','success');
-        closeProductModal();
-        await fetchProducts(); renderDashboard(); renderAdminTable(); renderCategoryFilters();
-      } catch(err){ console.error('Save product:',err); showToast('Error: '+(err.message||'desconocido'),'error'); setBtnReady('btn-save-product','Guardar'); }
-    }
-    function editProduct(id){const p=products.find(x=>x.id===id);if(p)openProductModal(p);}
-    async function deleteProduct(id) {
-      if(!confirm('¿Eliminar este producto?'))return;
-      try{const{error}=await supabaseClient.from('products').delete().eq('id',id);if(error)throw error;showToast('Producto eliminado','info');await fetchProducts();renderDashboard();renderAdminTable();renderCategoryFilters();}
-      catch(e){console.error('Del product:',e);showToast('Error al eliminar','error');}
-    }
-    async function cycleStatus(id) {
-      const p=products.find(x=>x.id===id);if(!p)return;
-      const cy={disponible:'reservado',reservado:'vendido',vendido:'disponible'};
-      const ns=cy[p.status||'disponible'];
-      try{const{error}=await supabaseClient.from('products').update({status:ns}).eq('id',id);if(error)throw error;showToast('Estado → '+ns.charAt(0).toUpperCase()+ns.slice(1),'success');await fetchProducts();renderDashboard();renderAdminTable();}
-      catch(e){console.error('Cycle status:',e);showToast('Error al actualizar','error');}
-    }
-
-    /* ══════ FAQ CRUD ══════ */
-    function renderAdminFaqs() {
-      const list=document.getElementById('admin-faq-list');
-      const nf=document.getElementById('admin-no-faqs');
-      if(!faqs.length){list.innerHTML='';nf.classList.remove('hidden');return;}
-      nf.classList.add('hidden');
-      list.innerHTML=faqs.map(f=>'<div class="card-static"><div class="flex-between" style="align-items:flex-start;gap:12px;"><div style="flex:1;min-width:0;"><p class="fw-600 text-sm">'+esc(f.question)+'</p><p class="text-sm text-muted" style="margin-top:4px;">'+esc(trunc(f.answer,100))+'</p><p class="text-xs text-muted" style="margin-top:4px;">Orden: '+(f.sort_order||0)+'</p></div><div style="display:flex;gap:4px;flex-shrink:0;"><button class="btn-icon" title="Editar" onclick="editFaq('+f.id+')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon danger" title="Eliminar" onclick="deleteFaq('+f.id+')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></div></div></div>').join('');
-    }
-    function openFaqModal(f) {
-      const m=document.getElementById('faq-modal');
-      if(f){document.getElementById('faq-modal-title').textContent='Editar Pregunta';document.getElementById('faq-id').value=f.id;document.getElementById('faq-question').value=f.question||'';document.getElementById('faq-answer').value=f.answer||'';document.getElementById('faq-order').value=f.sort_order||0;}
-      else{document.getElementById('faq-modal-title').textContent='Nueva Pregunta';document.getElementById('faq-form').reset();document.getElementById('faq-id').value='';document.getElementById('faq-order').value=faqs.length;}
-      setBtnReady('btn-save-faq','Guardar');
-      m.classList.add('open');
-    }
-    function closeFaqModal(){document.getElementById('faq-modal').classList.remove('open');}
-    function editFaq(id){const f=faqs.find(x=>x.id===id);if(f)openFaqModal(f);}
-    async function handleFaqSubmit(e) {
-      e.preventDefault();
-      const btn=document.getElementById('btn-save-faq'); setBtnLoading(btn);
-      const id=document.getElementById('faq-id').value;
-      const d={question:document.getElementById('faq-question').value.trim(),answer:document.getElementById('faq-answer').value.trim(),sort_order:parseInt(document.getElementById('faq-order').value)||0};
-      try{let error;if(id){const r=await supabaseClient.from('faqs').update(d).eq('id',parseInt(id));error=r.error;}else{const r=await supabaseClient.from('faqs').insert([d]);error=r.error;}if(error)throw error;showToast(id?'FAQ actualizada':'FAQ creada','success');closeFaqModal();await fetchFaqs();renderAdminFaqs();renderFaqs();}
-      catch(err){console.error('Save faq:',err);showToast('Error al guardar FAQ','error');setBtnReady('btn-save-faq','Guardar');}
-    }
-    async function deleteFaq(id) {
-      if(!confirm('¿Eliminar esta FAQ?'))return;
-      try{const{error}=await supabaseClient.from('faqs').delete().eq('id',id);if(error)throw error;showToast('FAQ eliminada','info');await fetchFaqs();renderAdminFaqs();renderFaqs();}
-      catch(e){console.error('Del faq:',e);showToast('Error al eliminar','error');}
-    }
-
-    /* ══════ CONFIG ══════ */
-    function loadCfgForm() {
-      document.getElementById('cfg-title').value=config.title||'';
-      document.getElementById('cfg-subtitle').value=config.subtitle||'';
-      document.getElementById('cfg-hero-title').value=config.hero_title||'';
-      document.getElementById('cfg-hero-subtitle').value=config.hero_subtitle||'';
-      document.getElementById('cfg-whatsapp').value=config.whatsapp||'';
-      document.getElementById('cfg-currency').value=config.currency||'$';
-      document.getElementById('cfg-password').value=config.admin_password||'';
-      document.getElementById('cfg-footer').value=config.footer_text||'';
-    }
-    async function saveConfig() {
-      const btn=document.getElementById('btn-save-config'); setBtnLoading(btn);
-      const d={title:document.getElementById('cfg-title').value.trim()||'Garage Sale',subtitle:document.getElementById('cfg-subtitle').value.trim()||'Catálogo',hero_title:document.getElementById('cfg-hero-title').value.trim()||'Encuentra tu próximo tesoro',hero_subtitle:document.getElementById('cfg-hero-subtitle').value.trim()||'Artículos únicos a precios increíbles',whatsapp:document.getElementById('cfg-whatsapp').value.trim(),currency:document.getElementById('cfg-currency').value.trim()||'$',admin_password:document.getElementById('cfg-password').value.trim(),footer_text:document.getElementById('cfg-footer').value.trim()||'Garage Sale © 2025'};
-      try{let error;if(config.id){const r=await supabaseClient.from('config').update(d).eq('id',config.id);error=r.error;}else{const r=await supabaseClient.from('config').insert([d]);error=r.error;}if(error)throw error;showToast('Configuración guardada','success');await fetchConfig();applyConfig();}
-      catch(e){console.error('Save config:',e);showToast('Error al guardar','error');}
-      finally{setBtnReady('btn-save-config','Guardar Configuración');}
-    }
-    function togglePwdVis(){const i=document.getElementById('cfg-password');i.type=i.type==='password'?'text':'password';}
-
-    /* ══════ TABS ══════ */
-    function switchTab(name,btn) {
-      document.querySelectorAll('.atab').forEach(t=>t.classList.add('hidden'));
-      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-      document.getElementById('tab-'+name).classList.remove('hidden');
-      btn.classList.add('active');
-      if(name==='dashboard')renderDashboard();
-      if(name==='products')renderAdminTable();
-      if(name==='faqs')renderAdminFaqs();
-      if(name==='config')loadCfgForm();
-    }
-
-    /* ══════ DARK MODE ══════ */
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-      const dk=document.documentElement.classList.contains('dark');
-      localStorage.setItem('gs-dark',dk?'1':'0');
-      document.getElementById('icon-theme').innerHTML=dk
-        ?'<path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>'
-        :'<path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-3a1 1 0 01-1-1V1a1 1 0 112 0v2a1 1 0 01-1 1zm0 18a1 1 0 01-1-1v-2a1 1 0 112 0v2a1 1 0 01-1 1zm9-9a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM5 12a1 1 0 01-1 1H2a1 1 0 110-2h2a1 1 0 011 1zm13.07-5.07a1 1 0 01-.71-.29l-1.41-1.41a1 1 0 111.41-1.41l1.41 1.41a1 1 0 01-.7 1.7zM7.05 19.36a1 1 0 01-.7-.29l-1.42-1.42a1 1 0 111.42-1.41l1.41 1.41a1 1 0 01-.71 1.71zm11.31 0a1 1 0 01-.71-1.71l1.42-1.41a1 1 0 111.41 1.41l-1.41 1.42a1 1 0 01-.71.29zM7.05 4.64a1 1 0 01-.71-1.7l1.42-1.42a1 1 0 011.41 1.41L7.76 4.35a1 1 0 01-.71.29z"/>';
-      if(chartInstance)renderChart();
-    }
-    (function(){if(localStorage.getItem('gs-dark')==='1'){document.documentElement.classList.add('dark');document.getElementById('icon-theme').innerHTML='<path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>';}})();
-
-    /* ══════ UTILS ══════ */
-    function fmtN(n){if(n==null)return'0';return Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2});}
-    function trunc(s,m){if(!s)return'';return s.length>m?s.substring(0,m)+'…':s;}
-    function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-    function escA(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
-    function showToast(msg,type){
-      const t=document.getElementById('toast');
-      const icons={success:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>',error:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',info:'<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'};
-      t.innerHTML=(icons[type]||'')+'<span>'+msg+'</span>';
-      t.className='toast toast-'+type+' show';
-      clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),3500);
-    }
-    function setBtnLoading(btn){if(typeof btn==='string')btn=document.getElementById(btn);btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Guardando...';}
-    function setBtnReady(id,text){const b=document.getElementById(id);b.disabled=false;b.textContent=text;}
-
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeProductModal();closeFaqModal();closeDetailModal();closeLightbox();}});
-
-    /* ══════ BOOT ══════ */
-    initApp();
-  </script>
-
-  <!--
-  ╔══════════════════════════════════════════════════════════════════════╗
-  ║          📦 SQL SCRIPT — EJECUTAR EN SUPABASE SQL EDITOR            ║
-  ╚══════════════════════════════════════════════════════════════════════╝
-
-  CREATE TABLE IF NOT EXISTS public.products (
-    id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name            TEXT NOT NULL,
-    description     TEXT,
-    category        TEXT,
-    price           NUMERIC(10, 2) NOT NULL DEFAULT 0,
-    original_price  NUMERIC(10, 2),
-    price_type      TEXT NOT NULL DEFAULT 'fijo'
-                      CHECK (price_type IN ('fijo', 'negociable', 'gratis')),
-    condition       TEXT DEFAULT 'buen_estado'
-                      CHECK (condition IN ('nuevo', 'como_nuevo', 'buen_estado', 'uso_visible')),
-    status          TEXT NOT NULL DEFAULT 'disponible'
-                      CHECK (status IN ('disponible', 'reservado', 'vendido')),
-    notes           TEXT,
-    image           TEXT,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
   );
+}
 
-  CREATE OR REPLACE FUNCTION public.set_updated_at()
-  RETURNS TRIGGER AS $$
-  BEGIN NEW.updated_at = now(); RETURN NEW; END;
-  $$ LANGUAGE plpgsql;
-
-  DROP TRIGGER IF EXISTS trg_products_updated_at ON public.products;
-  CREATE TRIGGER trg_products_updated_at
-    BEFORE UPDATE ON public.products
-    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-
-  ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-  DROP POLICY IF EXISTS "products_select" ON public.products;
-  DROP POLICY IF EXISTS "products_insert" ON public.products;
-  DROP POLICY IF EXISTS "products_update" ON public.products;
-  DROP POLICY IF EXISTS "products_delete" ON public.products;
-  CREATE POLICY "products_select" ON public.products FOR SELECT USING (true);
-  CREATE POLICY "products_insert" ON public.products FOR INSERT WITH CHECK (true);
-  CREATE POLICY "products_update" ON public.products FOR UPDATE USING (true) WITH CHECK (true);
-  CREATE POLICY "products_delete" ON public.products FOR DELETE USING (true);
-
-  CREATE TABLE IF NOT EXISTS public.config (
-    id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    title           TEXT DEFAULT 'Garage Sale',
-    subtitle        TEXT DEFAULT 'Catálogo',
-    hero_title      TEXT DEFAULT 'Encuentra tu próximo tesoro',
-    hero_subtitle   TEXT DEFAULT 'Artículos únicos a precios increíbles',
-    whatsapp        TEXT,
-    currency        TEXT DEFAULT '$',
-    admin_password  TEXT DEFAULT 'admin123',
-    footer_text     TEXT DEFAULT 'Garage Sale © 2025 — Hecho con ❤️',
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  ALTER TABLE public.config ENABLE ROW LEVEL SECURITY;
-  DROP POLICY IF EXISTS "config_select" ON public.config;
-  DROP POLICY IF EXISTS "config_insert" ON public.config;
-  DROP POLICY IF EXISTS "config_update" ON public.config;
-  CREATE POLICY "config_select" ON public.config FOR SELECT USING (true);
-  CREATE POLICY "config_insert" ON public.config FOR INSERT WITH CHECK (true);
-  CREATE POLICY "config_update" ON public.config FOR UPDATE USING (true) WITH CHECK (true);
-
-  INSERT INTO public.config (title, subtitle, hero_title, hero_subtitle, currency, admin_password, footer_text)
-  SELECT 'Garage Sale','Catálogo','Encuentra tu próximo tesoro','Artículos únicos a precios increíbles','$','admin123','Garage Sale © 2025 — Hecho con ❤️'
-  WHERE NOT EXISTS (SELECT 1 FROM public.config LIMIT 1);
-
-  CREATE TABLE IF NOT EXISTS public.faqs (
-    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    question    TEXT NOT NULL,
-    answer      TEXT NOT NULL,
-    sort_order  INT DEFAULT 0,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  ALTER TABLE public.faqs ENABLE ROW LEVEL SECURITY;
-  DROP POLICY IF EXISTS "faqs_select" ON public.faqs;
-  DROP POLICY IF EXISTS "faqs_insert" ON public.faqs;
-  DROP POLICY IF EXISTS "faqs_update" ON public.faqs;
-  DROP POLICY IF EXISTS "faqs_delete" ON public.faqs;
-  CREATE POLICY "faqs_select" ON public.faqs FOR SELECT USING (true);
-  CREATE POLICY "faqs_insert" ON public.faqs FOR INSERT WITH CHECK (true);
-  CREATE POLICY "faqs_update" ON public.faqs FOR UPDATE USING (true) WITH CHECK (true);
-  CREATE POLICY "faqs_delete" ON public.faqs FOR DELETE USING (true);
-  -->
-
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
 </body>
 </html>
